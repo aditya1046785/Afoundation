@@ -1,0 +1,386 @@
+// This is your Prisma schema file for Nirashray Foundation NGO Website
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+  MEMBER
+}
+
+enum MembershipType {
+  GENERAL
+  LIFETIME
+  HONORARY
+  STUDENT
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum CertificateType {
+  MEMBERSHIP
+  APPRECIATION
+  VOLUNTEER
+  DONATION
+  ACHIEVEMENT
+}
+
+enum AnnouncementType {
+  INFO
+  URGENT
+  SUCCESS
+  WARNING
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// ============================================================
+// MODELS
+// ============================================================
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  role      Role     @default(MEMBER)
+  image     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  member    Member?
+  accounts  Account[]
+  sessions  Session[]
+  blogPosts BlogPost[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Member {
+  id             String         @id @default(cuid())
+  memberId       String         @unique // Format: NF-YYYY-XXXX
+  userId         String         @unique
+  fatherName     String?
+  dateOfBirth    DateTime?
+  gender         String?
+  address        String?        @db.Text
+  city           String?
+  state          String?
+  pincode        String?
+  aadharNumber   String?
+  occupation     String?
+  photo          String?
+  membershipType MembershipType @default(GENERAL)
+  joinDate       DateTime       @default(now())
+  expiryDate     DateTime?
+  isApproved     Boolean        @default(false)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  donations    Donation[]
+  certificates Certificate[]
+  idCards      IDCard[]
+
+  @@index([memberId])
+  @@index([userId])
+  @@index([isApproved])
+  @@index([membershipType])
+}
+
+model Donation {
+  id                 String        @id @default(cuid())
+  amount             Float
+  currency           String        @default("INR")
+  donorName          String
+  donorEmail         String
+  donorPhone         String?
+  donorPAN           String?
+  memberId           String?
+  razorpayOrderId    String?
+  razorpayPaymentId  String?
+  razorpaySignature  String?
+  receiptNumber      String        @unique // Format: DON-YYYY-XXXXX
+  purpose            String?
+  message            String?       @db.Text
+  status             PaymentStatus @default(PENDING)
+  paidAt             DateTime?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  member Member? @relation(fields: [memberId], references: [id])
+
+  @@index([donorEmail])
+  @@index([memberId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Certificate {
+  id            String          @id @default(cuid())
+  certificateNo String          @unique // Format: CERT-YYYY-XXXX
+  memberId      String
+  type          CertificateType
+  title         String
+  description   String?         @db.Text
+  issueDate     DateTime        @default(now())
+  qrCodeData    String          @db.Text
+  pdfUrl        String?
+  issuedBy      String
+  createdAt     DateTime        @default(now())
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
+  @@index([certificateNo])
+  @@index([type])
+}
+
+model IDCard {
+  id          String   @id @default(cuid())
+  memberId    String
+  cardNumber  String   @unique // Format: ID-YYYY-XXXX
+  issueDate   DateTime @default(now())
+  expiryDate  DateTime
+  qrCodeData  String   @db.Text
+  pdfUrl      String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
+  @@index([cardNumber])
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String   @db.Text
+  date        DateTime
+  time        String
+  venue       String
+  image       String?
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+  @@index([isPublished])
+  @@index([date])
+}
+
+model ContactMessage {
+  id        String    @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String    @db.Text
+  isRead    Boolean   @default(false)
+  repliedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model TeamMember {
+  id           String   @id @default(cuid())
+  name         String
+  role         String
+  bio          String?  @db.Text
+  photo        String
+  category     String
+  instagramUrl String?
+  facebookUrl  String?
+  twitterUrl   String?
+  linkedinUrl  String?
+  youtubeUrl   String?
+  displayOrder Int      @default(0)
+  isVisible    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category])
+  @@index([isVisible])
+  @@index([displayOrder])
+}
+
+model Announcement {
+  id        String           @id @default(cuid())
+  message   String
+  linkText  String?
+  linkUrl   String?
+  type      AnnouncementType @default(INFO)
+  isActive  Boolean          @default(true)
+  startDate DateTime         @default(now())
+  endDate   DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([isActive])
+  @@index([startDate])
+  @@index([endDate])
+}
+
+model DownloadDocument {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?  @db.Text
+  fileUrl       String
+  fileSize      String?
+  category      String
+  downloadCount Int      @default(0)
+  isVisible     Boolean  @default(true)
+  displayOrder  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([category])
+  @@index([isVisible])
+  @@index([displayOrder])
+}
+
+model GalleryAlbum {
+  id           String   @id @default(cuid())
+  title        String
+  slug         String   @unique
+  description  String?  @db.Text
+  coverImage   String?
+  isFeatured   Boolean  @default(false)
+  isVisible    Boolean  @default(true)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  photos GalleryPhoto[]
+
+  @@index([slug])
+  @@index([isFeatured])
+  @@index([isVisible])
+}
+
+model GalleryPhoto {
+  id           String   @id @default(cuid())
+  albumId      String
+  imageUrl     String
+  caption      String?
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  album GalleryAlbum @relation(fields: [albumId], references: [id], onDelete: Cascade)
+
+  @@index([albumId])
+  @@index([displayOrder])
+}
+
+model BlogPost {
+  id            String     @id @default(cuid())
+  title         String
+  slug          String     @unique
+  excerpt       String     @db.Text
+  content       String     @db.Text
+  featuredImage String?
+  category      String?
+  tags          String?
+  authorId      String
+  status        BlogStatus @default(DRAFT)
+  publishedAt   DateTime?
+  views         Int        @default(0)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([slug])
+  @@index([status])
+  @@index([publishedAt])
+  @@index([category])
+  @@index([authorId])
+}
+
+model LoadingQuote {
+  id        String   @id @default(cuid())
+  quote     String   @db.Text
+  author    String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([isActive])
+}
+
+model LoadingFact {
+  id        String   @id @default(cuid())
+  emoji     String
+  fact      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([isActive])
+}
+
+// Key-Value store for ALL website content — powers the CMS
+model SiteSettings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+}

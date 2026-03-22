@@ -1,0 +1,568 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   CUSTOM CSS VARIABLES — Brand Colors & Typography
+   ============================================================ */
+:root {
+  --primary: oklch(0.208 0.042 265.755);
+  --primary-light: #3B82F6;
+  --primary-dark: #1e3a8a;
+  --secondary: oklch(0.968 0.007 247.896);
+  --secondary-light: #FCD34D;
+  --accent: oklch(0.968 0.007 247.896);
+  --error: #EF4444;
+  --dark: #0F172A;
+  --font-inter: var(--font-inter);
+  --font-playfair: var(--font-playfair);
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.129 0.042 264.695);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.129 0.042 264.695);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.129 0.042 264.695);
+  --primary-foreground: oklch(0.984 0.003 247.858);
+  --secondary-foreground: oklch(0.208 0.042 265.755);
+  --muted: oklch(0.968 0.007 247.896);
+  --muted-foreground: oklch(0.554 0.046 257.417);
+  --accent-foreground: oklch(0.208 0.042 265.755);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.929 0.013 255.508);
+  --input: oklch(0.929 0.013 255.508);
+  --ring: oklch(0.704 0.04 256.788);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.984 0.003 247.858);
+  --sidebar-foreground: oklch(0.129 0.042 264.695);
+  --sidebar-primary: oklch(0.208 0.042 265.755);
+  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-accent: oklch(0.968 0.007 247.896);
+  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
+  --sidebar-border: oklch(0.929 0.013 255.508);
+  --sidebar-ring: oklch(0.704 0.04 256.788);
+}
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  color: #1e293b;
+}
+
+/* Font utilities */
+.font-heading {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+
+.font-body {
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+/* ============================================================
+   CUSTOM ANIMATIONS
+   ============================================================ */
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 12px rgba(30, 64, 175, 0);
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes bounce-slow {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes count-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Shimmer loading skeleton */
+.skeleton {
+  background: linear-gradient(90deg,
+      #f0f4f8 25%,
+      #e2e8f0 50%,
+      #f0f4f8 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ============================================================
+   GLASSMORPHISM
+   ============================================================ */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================================
+   SCROLLBAR STYLING
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ============================================================
+   PRINT STYLES (for ID cards and certificates)
+   ============================================================ */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
+/* ============================================================
+   PROSE STYLES (for blog content)
+   ============================================================ */
+.prose-ngo {
+  max-width: none;
+  color: #374151;
+  line-height: 1.8;
+}
+
+.prose-ngo h1,
+.prose-ngo h2,
+.prose-ngo h3 {
+  font-family: var(--font-playfair), Georgia, serif;
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.prose-ngo h2 {
+  font-size: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.prose-ngo p {
+  margin-bottom: 1.25rem;
+}
+
+.prose-ngo a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+/* ============================================================
+   GRADIENT UTILITIES
+   ============================================================ */
+.gradient-primary {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+}
+
+.gradient-hero {
+  background: linear-gradient(to bottom,
+      rgba(15, 23, 42, 0.7) 0%,
+      rgba(15, 23, 42, 0.5) 50%,
+      rgba(15, 23, 42, 0.8) 100%);
+}
+
+.gradient-card {
+  background: linear-gradient(135deg, rgba(30, 64, 175, 0.05) 0%, rgba(245, 158, 11, 0.05) 100%);
+}
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+.text-gradient {
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.backdrop-blur-navbar {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background-color: rgba(248, 250, 252, 0.9);
+}
+
+/* ============================================================
+   TAILWIND v4 THEME EXTENSION
+   ============================================================ */
+@theme {
+  --color-primary: #1E40AF;
+  --color-secondary: #F59E0B;
+  --color-accent: #10B981;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, serif;
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+.dark {
+  --background: oklch(0.129 0.042 264.695);
+  --foreground: oklch(0.984 0.003 247.858);
+  --card: oklch(0.208 0.042 265.755);
+  --card-foreground: oklch(0.984 0.003 247.858);
+  --popover: oklch(0.208 0.042 265.755);
+  --popover-foreground: oklch(0.984 0.003 247.858);
+  --primary: oklch(0.929 0.013 255.508);
+  --primary-foreground: oklch(0.208 0.042 265.755);
+  --secondary: oklch(0.279 0.041 260.031);
+  --secondary-foreground: oklch(0.984 0.003 247.858);
+  --muted: oklch(0.279 0.041 260.031);
+  --muted-foreground: oklch(0.704 0.04 256.788);
+  --accent: oklch(0.279 0.041 260.031);
+  --accent-foreground: oklch(0.984 0.003 247.858);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.551 0.027 264.364);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.208 0.042 265.755);
+  --sidebar-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-accent: oklch(0.279 0.041 260.031);
+  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.551 0.027 264.364);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ============================================================
+   TIPTAP RICH TEXT EDITOR — PROSE STYLES
+   ============================================================ */
+.editor-prose .ProseMirror {
+  outline: none;
+  min-height: 500px;
+  line-height: 1.8;
+  color: #1e293b;
+  font-size: 1rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+/* Placeholder */
+.editor-prose .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #94a3b8;
+  pointer-events: none;
+  float: left;
+  height: 0;
+  font-style: italic;
+}
+
+/* Headings */
+.editor-prose .ProseMirror h1 {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 1.5rem 0 0.75rem;
+  line-height: 1.25;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.4rem;
+}
+
+.editor-prose .ProseMirror h2 {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 1.4rem 0 0.6rem;
+  line-height: 1.3;
+}
+
+.editor-prose .ProseMirror h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 1.2rem 0 0.5rem;
+  line-height: 1.4;
+}
+
+.editor-prose .ProseMirror h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #334155;
+  margin: 1rem 0 0.4rem;
+}
+
+/* Paragraphs */
+.editor-prose .ProseMirror p {
+  margin: 0 0 1rem;
+  line-height: 1.8;
+}
+
+/* Links */
+.editor-prose .ProseMirror a {
+  color: #2563eb;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.editor-prose .ProseMirror a:hover {
+  color: #1d4ed8;
+}
+
+/* Lists */
+.editor-prose .ProseMirror ul,
+.editor-prose .ProseMirror ol {
+  padding-left: 1.5rem;
+  margin: 0.75rem 0 1rem;
+}
+
+.editor-prose .ProseMirror ul {
+  list-style-type: disc;
+}
+
+.editor-prose .ProseMirror ol {
+  list-style-type: decimal;
+}
+
+.editor-prose .ProseMirror li {
+  margin-bottom: 0.35rem;
+  line-height: 1.7;
+}
+
+/* Blockquote */
+.editor-prose .ProseMirror blockquote {
+  border-left: 4px solid #3b82f6;
+  background: #eff6ff;
+  margin: 1.25rem 0;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+  color: #374151;
+  font-style: italic;
+}
+
+/* Code blocks */
+.editor-prose .ProseMirror code {
+  background: #f1f5f9;
+  color: #be185d;
+  font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  font-size: 0.875em;
+  padding: 0.15em 0.4em;
+  border-radius: 0.3rem;
+  border: 1px solid #e2e8f0;
+}
+
+.editor-prose .ProseMirror pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  font-size: 0.875rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.25rem 0;
+  line-height: 1.7;
+}
+
+.editor-prose .ProseMirror pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  border: none;
+  font-size: inherit;
+}
+
+/* Images */
+.editor-prose .ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1.25rem auto;
+  display: block;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  border: 1px solid #e2e8f0;
+}
+.editor-prose .ProseMirror img.ProseMirror-selectednode {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Horizontal rule */
+.editor-prose .ProseMirror hr {
+  border: none;
+  border-top: 2px solid #e2e8f0;
+  margin: 2rem 0;
+}
+
+/* Text alignment */
+.editor-prose .ProseMirror [style*="text-align: center"] { text-align: center; }
+.editor-prose .ProseMirror [style*="text-align: right"] { text-align: right; }
+.editor-prose .ProseMirror [style*="text-align: justify"] { text-align: justify; }
+
+/* Strong & Em */
+.editor-prose .ProseMirror strong { font-weight: 700; color: #0f172a; }
+.editor-prose .ProseMirror em { font-style: italic; }
+.editor-prose .ProseMirror s { text-decoration: line-through; color: #64748b; }
+
+/* Highlight */
+.editor-prose .ProseMirror mark {
+  border-radius: 0.2em;
+  padding: 0.05em 0.15em;
+}
+
+/* Superscript / Subscript */
+.editor-prose .ProseMirror sup { vertical-align: super; font-size: 0.75em; }
+.editor-prose .ProseMirror sub { vertical-align: sub; font-size: 0.75em; }
+
+/* ============================================================
+   BLOG PREVIEW PROSE STYLES (used in editor preview mode)
+   ============================================================ */
+.prose-preview { color: #374151; line-height: 1.8; font-size: 1rem; }
+.prose-preview h1 { font-size: 2rem; font-weight: 700; color: #0f172a; margin: 1.5rem 0 0.75rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.4rem; }
+.prose-preview h2 { font-size: 1.5rem; font-weight: 700; color: #0f172a; margin: 1.4rem 0 0.6rem; }
+.prose-preview h3 { font-size: 1.25rem; font-weight: 600; color: #1e293b; margin: 1.2rem 0 0.5rem; }
+.prose-preview h4 { font-size: 1.1rem; font-weight: 600; color: #334155; margin: 1rem 0 0.4rem; }
+.prose-preview p { margin: 0 0 1rem; }
+.prose-preview a { color: #2563eb; text-decoration: underline; }
+.prose-preview ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0 1rem; }
+.prose-preview ol { list-style: decimal; padding-left: 1.5rem; margin: 0.75rem 0 1rem; }
+.prose-preview li { margin-bottom: 0.35rem; }
+.prose-preview blockquote { border-left: 4px solid #3b82f6; background: #eff6ff; margin: 1.25rem 0; padding: 0.75rem 1.25rem; border-radius: 0 0.5rem 0.5rem 0; font-style: italic; color: #374151; }
+.prose-preview code { background: #f1f5f9; color: #be185d; padding: 0.15em 0.4em; border-radius: 0.3rem; font-size: 0.875em; border: 1px solid #e2e8f0; }
+.prose-preview pre { background: #0f172a; color: #e2e8f0; padding: 1rem 1.25rem; border-radius: 0.5rem; overflow-x: auto; margin: 1.25rem 0; line-height: 1.7; }
+.prose-preview pre code { background: none; color: inherit; padding: 0; border: none; }
+.prose-preview img { max-width: 100%; height: auto; border-radius: 0.5rem; margin: 1.25rem auto; display: block; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+.prose-preview strong { font-weight: 700; color: #0f172a; }
+.prose-preview em { font-style: italic; }
+.prose-preview s { text-decoration: line-through; color: #64748b; }
+.prose-preview hr { border: none; border-top: 2px solid #e2e8f0; margin: 2rem 0; }
+.prose-preview mark { border-radius: 0.2em; padding: 0.05em 0.15em; }
