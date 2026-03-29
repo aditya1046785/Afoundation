@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { Metadata } from "next";
 import { getAllSiteSettings } from "@/lib/site-settings";
 import Image from "next/image";
