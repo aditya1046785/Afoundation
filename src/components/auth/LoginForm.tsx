@@ -107,12 +107,14 @@ export function LoginForm() {
             </AnimatePresence>
 
             <div>
-                <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase ml-1">Email Address</Label>
+                <Label htmlFor="email" className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase ml-1">Email Address</Label>
                 <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
                         {...register("email")}
+                        id="email"
                         type="email"
+                        autoComplete="email"
                         onBlur={checkEmailPosition}
                         placeholder="your@email.com"
                         className="pl-12 h-14 rounded-2xl bg-slate-50/50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus-visible:ring-amber-500 shadow-sm transition-all"
@@ -127,12 +129,14 @@ export function LoginForm() {
             </div>
 
             <div>
-                <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase ml-1">Password</Label>
+                <Label htmlFor="password" className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase ml-1">Password</Label>
                 <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
                         {...register("password")}
+                        id="password"
                         type={showPassword ? "text" : "password"}
+                        autoComplete="current-password"
                         placeholder="Enter your password"
                         className="pl-12 pr-12 h-14 rounded-2xl bg-slate-50/50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus-visible:ring-amber-500 shadow-sm transition-all"
                     />
