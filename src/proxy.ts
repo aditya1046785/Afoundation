@@ -37,7 +37,7 @@ export async function proxy(request: NextRequest) {
         // Admin-only pages
         if (pathname.startsWith("/admin")) {
             const role = (token as any).role;
-            if (role !== "ADMIN" && role !== "SUPER_ADMIN") {
+            if (role !== "ADMIN" && role !== "SUPER_ADMIN" && role !== "MANAGER") {
                 return NextResponse.redirect(new URL("/member/dashboard", request.url));
             }
         }
