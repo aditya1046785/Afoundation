@@ -68,7 +68,6 @@ export function LoginForm() {
 
             toast.success("Welcome back!");
 
-            // Hard redirect — let middleware handle role-based routing
             const res = await fetch("/api/auth/session");
             const session = await res.json();
             const role = session?.user?.role;
