@@ -6,6 +6,7 @@ import prisma from "@/lib/prisma";
 
 export const authConfig: NextAuthConfig = {
     adapter: PrismaAdapter(prisma) as NextAuthConfig["adapter"],
+    secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
     providers: [
         CredentialsProvider({
             name: "credentials",
@@ -72,32 +73,6 @@ export const authConfig: NextAuthConfig = {
             if (url.startsWith("/")) return `${baseUrl}${url}`;
             if (new URL(url).origin === baseUrl) return url;
             return baseUrl;
-        },
-        async authorized({ auth, request }) {
-            const { pathname } = request.nextUrl;
-            const role = (auth?.user as { role?: string })?.role;
-            const isLoggedIn = !!auth?.user;
-
-            const isAdminRoute = pathname.startsWith("/admin");
-            const isMemberRoute = pathname.startsWith("/member");
-            const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/register");
-
-            if (isAuthPage && isLoggedIn) {
-                if (role === "SUPER_ADMIN" || role === "ADMIN" || role === "MANAGER") {
-                    return Response.redirect(new URL("/admin", request.nextUrl));
-                }
-                return Response.redirect(new URL("/member/dashboard", request.nextUrl));
-            }
-
-            if ((isAdminRoute || isMemberRoute) && !isLoggedIn) {
-                return Response.redirect(new URL("/login", request.nextUrl));
-            }
-
-            if (isAdminRoute && isLoggedIn && role === "MEMBER") {
-                return Response.redirect(new URL("/member/dashboard", request.nextUrl));
-            }
-
-            return true;
         },
     },
     pages: {
