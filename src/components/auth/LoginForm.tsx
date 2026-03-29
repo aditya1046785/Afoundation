@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn, getSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -54,28 +54,30 @@ export function LoginForm() {
     const onSubmit = async (data: LoginFormData) => {
         try {
             setIsLoading(true);
+
             const result = await signIn("credentials", {
                 email: data.email,
                 password: data.password,
                 redirect: false,
             });
 
-            if (result?.error) {
+            if (result?.error || !result?.ok) {
                 toast.error("Invalid email or password. Please try again.");
                 return;
             }
 
             toast.success("Welcome back!");
 
-            const session = await getSession();
-            const role = (session?.user as { role?: string })?.role;
+            // Hard redirect — let middleware handle role-based routing
+            const res = await fetch("/api/auth/session");
+            const session = await res.json();
+            const role = session?.user?.role;
 
             if (role === "SUPER_ADMIN" || role === "ADMIN" || role === "MANAGER") {
-                router.push("/admin");
+                window.location.replace("/admin");
             } else {
-                router.push("/member/dashboard");
+                window.location.replace("/member/dashboard");
             }
-            router.refresh();
         } catch {
             toast.error("Something went wrong. Please try again.");
         } finally {
