@@ -67,15 +67,15 @@ export function LoginForm() {
 
             toast.success("Welcome back!");
 
-            // Use window.location for hard redirect to ensure session is picked up
             const session = await getSession();
             const role = (session?.user as { role?: string })?.role;
 
             if (role === "SUPER_ADMIN" || role === "ADMIN" || role === "MANAGER") {
-                window.location.href = "/admin";
+                router.push("/admin");
             } else {
-                window.location.href = "/member/dashboard";
+                router.push("/member/dashboard");
             }
+            router.refresh();
         } catch {
             toast.error("Something went wrong. Please try again.");
         } finally {
