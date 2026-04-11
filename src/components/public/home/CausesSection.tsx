@@ -16,6 +16,11 @@ export function CausesSection({ settings }: CausesProps) {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, amount: 0.2 });
 
+    const eyebrow = settings.causes_eyebrow || "What We Do";
+    const heading = settings.causes_heading || "Our Canvas of Impact";
+    const subtext = settings.causes_subtext || "We focus on three core pillars that drive sustainable change in communities, approaching every challenge with heart.";
+    const cardCtaText = settings.causes_card_cta_text || "Support This Cause";
+
     const causes = [1, 2, 3].map((i) => ({
         icon: settings[`cause${i}_icon`] || "Heart",
         title: settings[`cause${i}_title`] || "",
@@ -50,16 +55,16 @@ export function CausesSection({ settings }: CausesProps) {
                     className="text-center mb-24"
                 >
                     <p className="font-serif italic text-amber-600 text-xl tracking-wide mb-4">
-                        What We Do
+                        {eyebrow}
                     </p>
                     <h2 className="font-serif text-4xl lg:text-5xl font-bold text-slate-800 mb-6 tracking-tight relative inline-block">
-                        Our Canvas of Impact
+                        {heading}
                         <svg className="absolute -bottom-1 -left-1 w-[110%] h-3 text-amber-300 stroke-current opacity-80" viewBox="0 0 100 10" preserveAspectRatio="none">
                             <path d="M0,5 Q50,-2 100,5" fill="none" strokeWidth="4" strokeLinecap="round" />
                         </svg>
                     </h2>
                     <p className="text-slate-500 max-w-xl mx-auto font-light text-lg">
-                        We focus on three core pillars that drive sustainable change in communities, approaching every challenge with heart.
+                        {subtext}
                     </p>
                 </motion.div>
 
@@ -87,7 +92,7 @@ export function CausesSection({ settings }: CausesProps) {
                                     <p className="text-slate-500 leading-relaxed font-light mb-8">{cause.description}</p>
                                     
                                     <div className="flex items-center text-sm font-medium text-amber-600 transition-colors">
-                                        Support This Cause
+                                        {cardCtaText}
                                         <ArrowRight className="w-4 h-4 ml-2 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
                                     </div>
                                 </div>

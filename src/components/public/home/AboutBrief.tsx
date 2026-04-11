@@ -15,18 +15,19 @@ export function AboutBrief({ settings }: AboutBriefProps) {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, amount: 0.3 });
 
+    const eyebrow = settings.about_brief_eyebrow || "Our Story";
     const heading = settings.about_brief_heading || "Who We Are";
     const text = settings.about_brief_text || "";
     const image = settings.about_brief_image || "/about-brief.jpg";
+    const ctaText = settings.about_brief_cta_text || "Learn More About Us";
+    const ctaLink = settings.about_brief_cta_link || "/about";
 
     if (!text) return null;
 
-    const highlights = [
-        "Registered NGO under Societies Registration Act",
-        "80G Tax Exemption Certificate",
-        "Fully transparent fund utilization",
-        "Active across multiple communities",
-    ];
+    const highlights = (settings.about_brief_highlights || "Registered NGO under Societies Registration Act\n80G Tax Exemption Certificate\nFully transparent fund utilization\nActive across multiple communities")
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
 
     return (
         <section ref={ref} className="py-32 bg-[#fffdfa] relative overflow-hidden">
@@ -83,7 +84,7 @@ export function AboutBrief({ settings }: AboutBriefProps) {
                             transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
                         >
                             <p className="font-serif italic text-amber-600 text-xl tracking-wide mb-4">
-                                Our Story
+                                {eyebrow}
                             </p>
                             <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-slate-800 mb-8 leading-[1.1] tracking-tight relative inline-block">
                                 {heading}
@@ -120,9 +121,9 @@ export function AboutBrief({ settings }: AboutBriefProps) {
                             animate={isInView ? { opacity: 1, y: 0 } : {}}
                             transition={{ duration: 0.8, delay: 0.8 }}
                         >
-                            <Link href="/about">
+                            <Link href={ctaLink}>
                                 <Button variant="ghost" className="rounded-full px-8 py-6 text-base font-medium text-slate-700 border-2 border-slate-200 hover:border-slate-800 hover:bg-transparent transition-all duration-300 group shadow-none">
-                                    Learn More About Us
+                                    {ctaText}
                                     <ArrowRight className="w-4 h-4 ml-2 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                                 </Button>
                             </Link>

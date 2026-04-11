@@ -10,9 +10,15 @@ interface DonateCTAProps {
 }
 
 export function DonateCTA({ settings }: DonateCTAProps) {
+    const eyebrow = settings.donate_cta_eyebrow || "Join Our Mission";
     const heading = settings.donate_cta_heading || "Make a Difference Today";
     const subtext = settings.donate_cta_subtext || "Every contribution, no matter how small, brings hope to someone in need.";
-    const presetAmounts = (settings.donate_amounts || "500,1000,2000,5000").split(",");
+    const donateButtonText = settings.donate_cta_button_text || "Donate Now";
+    const trustText = settings.donate_cta_trust_text || "Tax benefits under 80G of Income Tax Act • Secure payment via Razorpay";
+    const presetAmounts = (settings.donate_amounts || "500,1000,2000,5000")
+        .split(",")
+        .map((amount) => amount.trim())
+        .filter(Boolean);
 
     return (
         <section className="py-32 relative overflow-hidden bg-[#0f172a]">
@@ -49,7 +55,7 @@ export function DonateCTA({ settings }: DonateCTAProps) {
                     </div>
                     
                     <p className="font-serif italic text-amber-500 text-xl tracking-wide mb-4">
-                        Join Our Mission
+                        {eyebrow}
                     </p>
                     <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight">
                         {heading}
@@ -85,13 +91,13 @@ export function DonateCTA({ settings }: DonateCTAProps) {
                     <Link href="/donate">
                         <Button className="bg-amber-500 hover:bg-amber-400 text-slate-900 rounded-full px-12 py-8 text-xl font-bold transition-all duration-300 hover:scale-105 group border-none shadow-[0_0_40px_-10px_rgba(245,158,11,0.5)]">
                             <Heart className="w-5 h-5 mr-3 fill-slate-900 transition-transform group-hover:scale-110" />
-                            Donate Now
+                            {donateButtonText}
                             <ArrowRight className="w-5 h-5 ml-3 transition-transform group-hover:translate-x-1" />
                         </Button>
                     </Link>
 
                     <p className="mt-8 text-sm text-slate-500 tracking-wide font-light">
-                        Tax benefits under 80G of Income Tax Act <span className="mx-2 text-slate-700">•</span> Secure payment via Razorpay
+                        {trustText}
                     </p>
                 </motion.div>
             </div>

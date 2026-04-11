@@ -12,6 +12,8 @@ interface TestimonialsProps {
 
 export function TestimonialsSection({ settings }: TestimonialsProps) {
     const [current, setCurrent] = useState(0);
+    const eyebrow = settings.testimonials_eyebrow || "Testimonials";
+    const heading = settings.testimonials_heading || "What People Say";
 
     const testimonials = [1, 2, 3].map((i) => ({
         name: settings[`testimonial${i}_name`] || "",
@@ -46,9 +48,9 @@ export function TestimonialsSection({ settings }: TestimonialsProps) {
                     viewport={{ once: true }}
                     className="text-center mb-16"
                 >
-                    <p className="font-serif italic text-amber-600 text-xl tracking-wide mb-4">Testimonials</p>
+                    <p className="font-serif italic text-amber-600 text-xl tracking-wide mb-4">{eyebrow}</p>
                     <h2 className="font-serif text-4xl lg:text-5xl font-bold text-slate-800 relative inline-block">
-                        What People Say
+                        {heading}
                         <svg className="absolute -bottom-1 -left-1 w-[110%] h-3 text-amber-300 stroke-current opacity-80" viewBox="0 0 100 10" preserveAspectRatio="none">
                             <path d="M0,5 Q50,-2 100,5" fill="none" strokeWidth="4" strokeLinecap="round" />
                         </svg>

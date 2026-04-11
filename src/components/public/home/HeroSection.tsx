@@ -11,8 +11,10 @@ interface HeroProps {
 }
 
 export function HeroSection({ settings }: HeroProps) {
+    const badgeText = settings.hero_badge_text || "The Art of Giving";
     const heading = settings.hero_heading || "Nirashray Foundation";
     const subheading = settings.hero_subheading || "Empowering Lives, Building Hope";
+    const descriptionSuffix = settings.hero_description_suffix || "Every life we touch adds a new, beautiful color to the canvas of humanity.";
     const cta1Text = settings.hero_cta1_text || "Donate Now";
     const cta1Link = settings.hero_cta1_link || "/donate";
     const cta2Text = settings.hero_cta2_text || "Join Us";
@@ -52,7 +54,7 @@ export function HeroSection({ settings }: HeroProps) {
                             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                         >
                             <p className="font-serif italic text-amber-600 text-xl md:text-2xl mb-4 tracking-wide">
-                                The Art of Giving
+                                {badgeText}
                             </p>
                             
                             {/* Artistic Headline */}
@@ -78,7 +80,7 @@ export function HeroSection({ settings }: HeroProps) {
                             transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                             className="text-lg md:text-xl text-slate-500 mt-8 max-w-lg leading-relaxed font-light"
                         >
-                            {subheading} Every life we touch adds a new, beautiful color to the canvas of humanity. 
+                            {subheading} {descriptionSuffix}
                         </motion.p>
 
                         <motion.div
