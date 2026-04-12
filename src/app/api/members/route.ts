@@ -109,9 +109,19 @@ export async function POST(request: NextRequest) {
             return { user, member };
         });
 
-        await sendWelcomeEmail(email, name, memberId);
+        const emailSent = await sendWelcomeEmail(email, name, memberId);
 
-        return NextResponse.json({ success: true, data: { userId: user.id, memberId: member.id } }, { status: 201 });
+        return NextResponse.json(
+            {
+                success: true,
+                data: { userId: user.id, memberId: member.id },
+                emailSent,
+                message: emailSent
+                    ? "Member created successfully and welcome email sent."
+                    : "Member created successfully, but the welcome email could not be sent.",
+            },
+            { status: 201 }
+        );
     } catch (error) {
         console.error("Create member error:", error);
         return NextResponse.json({ success: false, error: "Failed to create member." }, { status: 500 });

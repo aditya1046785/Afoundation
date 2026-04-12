@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Search, Filter, Plus, CheckCircle, XCircle, Eye, MoreHorizontal, Download } from "lucide-react";
+import { Search, Filter, Plus, CheckCircle, XCircle, Eye, MoreHorizontal, Download, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -84,6 +84,7 @@ export function MembersClient() {
     const [selectedMember, setSelectedMember] = useState<MemberDetails | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [deletingMemberId, setDeletingMemberId] = useState<string | null>(null);
     const [editForm, setEditForm] = useState<EditMemberForm>(EMPTY_EDIT_FORM);
     const pageSize = 10;
 
@@ -121,6 +122,33 @@ export function MembersClient() {
         const data = await res.json();
         if (data.success) { toast.success("Member rejected."); fetchMembers(); }
         else toast.error(data.error);
+    };
+
+    const handlePermanentDelete = async (member: Member) => {
+        const confirmed = window.confirm(
+            `Delete ${member.user.name} (${member.memberId}) permanently? This cannot be undone.`
+        );
+        if (!confirmed) return;
+
+        try {
+            setDeletingMemberId(member.id);
+            const res = await fetch(`/api/members/${member.id}?permanent=true`, {
+                method: "DELETE",
+            });
+            const data = await res.json();
+
+            if (!data.success) {
+                toast.error(data.error || "Failed to delete member.");
+                return;
+            }
+
+            toast.success("Member deleted permanently.");
+            await fetchMembers();
+        } catch {
+            toast.error("Failed to delete member.");
+        } finally {
+            setDeletingMemberId(null);
+        }
     };
 
     const loadMemberDetails = async (memberId: string) => {
@@ -334,6 +362,14 @@ export function MembersClient() {
                                                     )}
                                                     <DropdownMenuItem onClick={() => handleViewDetails(member.id)}>
                                                         <Eye className="w-4 h-4 mr-2" /> View Details
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        onClick={() => handlePermanentDelete(member)}
+                                                        disabled={deletingMemberId === member.id}
+                                                        className="text-red-600 focus:text-red-700"
+                                                    >
+                                                        <Trash2 className="w-4 h-4 mr-2" />
+                                                        {deletingMemberId === member.id ? "Deleting..." : "Delete Permanently"}
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>

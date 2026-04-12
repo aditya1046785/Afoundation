@@ -71,9 +71,12 @@ export function LoginForm() {
             const res = await fetch("/api/auth/session");
             const session = await res.json();
             const role = session?.user?.role;
+            const isApproved = session?.user?.isApproved ?? true;
 
             if (role === "SUPER_ADMIN" || role === "ADMIN" || role === "MANAGER") {
                 window.location.replace("/admin");
+            } else if (role === "MEMBER" && !isApproved) {
+                window.location.replace("/pending-approval");
             } else {
                 window.location.replace("/member/dashboard");
             }

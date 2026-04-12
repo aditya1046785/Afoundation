@@ -20,6 +20,7 @@ export function RegisterForm() {
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [welcomeEmailSent, setWelcomeEmailSent] = useState(false);
     const router = useRouter();
 
     const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormInput, any, RegisterFormOutput>({
@@ -39,8 +40,14 @@ export function RegisterForm() {
                 toast.error(result.error || "Registration failed. Please try again.");
                 return;
             }
+            const emailSent = Boolean(result.emailSent);
+            setWelcomeEmailSent(emailSent);
             setSuccess(true);
-            toast.success("Registration successful! You can now login.");
+            if (emailSent) {
+                toast.success("Registration successful! Welcome email sent.");
+            } else {
+                toast.warning("Registration successful, but we could not send your welcome email right now.");
+            }
         } catch {
             toast.error("Something went wrong. Please try again.");
         } finally {
@@ -60,7 +67,9 @@ export function RegisterForm() {
                 </div>
                 <h3 className="text-slate-800 font-serif text-3xl font-bold mb-4">Registration Successful!</h3>
                 <p className="text-slate-500 text-base mb-8 font-light leading-relaxed">
-                    A welcome email has been sent. Your membership is currently pending admin approval.
+                    {welcomeEmailSent
+                        ? "A welcome email has been sent. Your membership is currently pending admin approval."
+                        : "Your membership is currently pending admin approval. We could not send the welcome email at the moment."}
                 </p>
                 <Button
                     onClick={() => router.push("/login")}

@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { generateMemberQRCode } from "@/lib/qr-generator";
 import { generateCardNumber } from "@/lib/utils";
+import { sendIDCardIssuedEmail } from "@/lib/email";
 
 // GET — List ID cards
 export async function GET(request: NextRequest) {
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
 
         const member = await prisma.member.findUnique({
             where: { id: memberId },
-            include: { user: { select: { name: true } } },
+            include: { user: { select: { name: true, email: true } } },
         });
         if (!member) return NextResponse.json({ success: false, error: "Member not found" }, { status: 404 });
         if (!member.isApproved) return NextResponse.json({ success: false, error: "Member must be approved first" }, { status: 400 });
@@ -91,7 +92,25 @@ export async function POST(request: NextRequest) {
             data: { memberId, cardNumber, expiryDate, qrCodeData, isActive: true },
         });
 
-        return NextResponse.json({ success: true, data: idCard }, { status: 201 });
+        const emailSent = await sendIDCardIssuedEmail(
+            member.user.email,
+            member.user.name,
+            member.memberId,
+            cardNumber,
+            expiryDate.toISOString().slice(0, 10)
+        );
+
+        return NextResponse.json(
+            {
+                success: true,
+                data: idCard,
+                emailSent,
+                message: emailSent
+                    ? "ID card issued and email sent successfully."
+                    : "ID card issued, but the email could not be sent.",
+            },
+            { status: 201 }
+        );
     } catch (error) {
         console.error("Issue ID card error:", error);
         return NextResponse.json({ success: false, error: "Failed to issue ID card." }, { status: 500 });

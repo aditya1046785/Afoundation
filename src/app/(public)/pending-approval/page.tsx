@@ -2,13 +2,34 @@ import Link from "next/link";
 import { Metadata } from "next";
 import { CheckCircle2, Mail, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import prisma from "@/lib/prisma";
 
 export const metadata: Metadata = {
     title: "Approval Pending | Nirashray Foundation",
     description: "Your membership application is still under review.",
 };
 
-export default function PendingApprovalPage() {
+export default async function PendingApprovalPage() {
+    const session = await auth();
+    
+    // If not logged in, redirect to login
+    if (!session?.user) {
+        redirect("/login");
+    }
+
+    // Check current approval status from database
+    const member = await prisma.member.findUnique({
+        where: { userId: session.user.id },
+        select: { isApproved: true },
+    });
+
+    // If member is now approved, redirect to login to refresh session
+    if (member?.isApproved) {
+        redirect("/login");
+    }
+
     return (
         <div className="min-h-screen bg-[#fdfcfa] flex items-center justify-center p-4 relative overflow-hidden font-light">
             <div className="absolute inset-0 opacity-[0.22] pointer-events-none mix-blend-multiply" style={{

@@ -19,8 +19,10 @@ export const authConfig: NextAuthConfig = {
                     return null;
                 }
 
+                const email = String(credentials.email).trim().toLowerCase();
+
                 const user = await prisma.user.findUnique({
-                    where: { email: credentials.email as string },
+                    where: { email },
                     select: {
                         id: true,
                         email: true,
@@ -41,8 +43,7 @@ export const authConfig: NextAuthConfig = {
                         select: { isApproved: true },
                     });
 
-                    if (!member?.isApproved) return null;
-                    isApproved = member.isApproved;
+                    isApproved = member?.isApproved ?? false;
                 }
 
                 const passwordMatch = await bcrypt.compare(
@@ -73,6 +74,21 @@ export const authConfig: NextAuthConfig = {
                 token.role = (user as { role: string }).role;
                 token.isApproved = (user as { isApproved?: boolean }).isApproved ?? true;
             }
+
+            // For MEMBER role, always fetch latest approval status from DB
+            if (token.role === "MEMBER" && token.id) {
+                try {
+                    const member = await prisma.member.findUnique({
+                        where: { userId: token.id as string },
+                        select: { isApproved: true },
+                    });
+                    token.isApproved = member?.isApproved ?? false;
+                } catch (error) {
+                    // If there's an error fetching, keep existing value
+                    console.error("Error fetching member approval status:", error);
+                }
+            }
+
             return token;
         },
         async session({ session, token }) {

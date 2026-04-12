@@ -86,9 +86,19 @@ export async function POST(request: NextRequest) {
         });
 
         const certTypeLabel = CERTIFICATE_LABELS[type] || type;
-        await sendCertificateIssuedEmail(member.user.email, member.user.name, certTypeLabel, certificateNo);
+        const emailSent = await sendCertificateIssuedEmail(member.user.email, member.user.name, certTypeLabel, certificateNo);
 
-        return NextResponse.json({ success: true, data: certificate }, { status: 201 });
+        return NextResponse.json(
+            {
+                success: true,
+                data: certificate,
+                emailSent,
+                message: emailSent
+                    ? "Certificate issued and email sent successfully."
+                    : "Certificate issued, but the email could not be sent.",
+            },
+            { status: 201 }
+        );
     } catch (error) {
         console.error("Issue certificate error:", error);
         return NextResponse.json({ success: false, error: "Failed to issue certificate." }, { status: 500 });

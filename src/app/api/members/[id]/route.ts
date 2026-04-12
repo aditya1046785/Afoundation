@@ -98,8 +98,22 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     }
 
     const { id } = await params;
+    const { searchParams } = new URL(request.url);
+    const isPermanentDelete = searchParams.get("permanent") === "true";
+
     const member = await prisma.member.findUnique({ where: { id } });
     if (!member) return NextResponse.json({ success: false, error: "Member not found" }, { status: 404 });
+
+    if (isPermanentDelete) {
+        await prisma.$transaction(async (tx) => {
+            // Keep donation history while unlinking from the member being deleted.
+            await tx.donation.updateMany({ where: { memberId: id }, data: { memberId: null } });
+            await tx.member.delete({ where: { id } });
+            await tx.user.delete({ where: { id: member.userId } });
+        });
+
+        return NextResponse.json({ success: true, message: "Member deleted permanently" });
+    }
 
     // Soft delete — deactivate user
     await prisma.user.update({ where: { id: member.userId }, data: { isActive: false } });

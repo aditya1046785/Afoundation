@@ -18,7 +18,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const { name, email, phone, position, password } = validation.data;
+        const { name, phone, position, password } = validation.data;
+        const email = validation.data.email.trim().toLowerCase();
 
         // Check if email already exists
         const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -66,14 +67,17 @@ export async function POST(request: NextRequest) {
             return { user, member };
         });
 
-        // Send welcome email (don't block response if it fails)
-        await sendWelcomeEmail(email, name, memberId);
+        // Keep registration successful even if email delivery fails, but report true status to client.
+        const welcomeEmailSent = await sendWelcomeEmail(email, name, memberId);
 
         return NextResponse.json(
             {
                 success: true,
-                message: "Registration successful! Please login.",
+                message: welcomeEmailSent
+                    ? "Registration successful! Please login."
+                    : "Registration successful! Welcome email could not be delivered.",
                 data: { userId: user.id, memberId: member.memberId },
+                emailSent: welcomeEmailSent,
             },
             { status: 201 }
         );

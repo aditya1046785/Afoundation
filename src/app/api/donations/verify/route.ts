@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
         });
 
         // Send receipt email
-        await sendDonationReceiptEmail(donation.donorEmail, {
+        const emailSent = await sendDonationReceiptEmail(donation.donorEmail, {
             donorName: donation.donorName,
             amount: donation.amount,
             receiptNumber: donation.receiptNumber,
@@ -50,8 +50,9 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            message: "Payment verified successfully",
+            message: emailSent ? "Payment verified successfully" : "Payment verified successfully, but receipt email could not be sent",
             data: { receiptNumber: donation.receiptNumber, donationId: donation.id },
+            emailSent,
         });
     } catch (error) {
         console.error("Payment verification error:", error);
