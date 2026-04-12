@@ -14,6 +14,12 @@ export async function middleware(request: NextRequest) {
 
     if (token) {
         const role = (token as { role?: string }).role;
+        const isApproved = (token as { isApproved?: boolean }).isApproved ?? true;
+
+        if (role === "MEMBER" && !isApproved) {
+            return NextResponse.redirect(new URL("/pending-approval", request.url));
+        }
+
         if (role === "SUPER_ADMIN" || role === "ADMIN" || role === "MANAGER") {
             return NextResponse.redirect(new URL("/admin", request.url));
         }

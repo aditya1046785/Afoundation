@@ -34,6 +34,17 @@ export const authConfig: NextAuthConfig = {
 
                 if (!user || !user.isActive) return null;
 
+                let isApproved = true;
+                if (user.role === "MEMBER") {
+                    const member = await prisma.member.findUnique({
+                        where: { userId: user.id },
+                        select: { isApproved: true },
+                    });
+
+                    if (!member?.isApproved) return null;
+                    isApproved = member.isApproved;
+                }
+
                 const passwordMatch = await bcrypt.compare(
                     credentials.password as string,
                     user.password
@@ -47,6 +58,7 @@ export const authConfig: NextAuthConfig = {
                     name: user.name,
                     role: user.role,
                     image: user.image,
+                    isApproved,
                 };
             },
         }),
@@ -59,6 +71,7 @@ export const authConfig: NextAuthConfig = {
             if (user) {
                 token.id = user.id;
                 token.role = (user as { role: string }).role;
+                token.isApproved = (user as { isApproved?: boolean }).isApproved ?? true;
             }
             return token;
         },
@@ -66,6 +79,7 @@ export const authConfig: NextAuthConfig = {
             if (token) {
                 session.user.id = token.id as string;
                 session.user.role = token.role as string;
+                session.user.isApproved = token.isApproved as boolean;
             }
             return session;
         },

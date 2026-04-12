@@ -9,6 +9,17 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
+    if (session.user.role === "MEMBER") {
+        const member = await prisma.member.findUnique({
+            where: { userId: session.user.id },
+            select: { isApproved: true },
+        });
+
+        if (!member?.isApproved) {
+            return NextResponse.json({ success: false, error: "Member account is pending approval." }, { status: 403 });
+        }
+    }
+
     const { searchParams } = new URL(request.url);
     const after = searchParams.get("after"); // ISO timestamp for polling
 
@@ -31,6 +42,17 @@ export async function POST(request: NextRequest) {
     const session = await auth();
     if (!session?.user) {
         return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (session.user.role === "MEMBER") {
+        const member = await prisma.member.findUnique({
+            where: { userId: session.user.id },
+            select: { isApproved: true },
+        });
+
+        if (!member?.isApproved) {
+            return NextResponse.json({ success: false, error: "Member account is pending approval." }, { status: 403 });
+        }
     }
 
     const { content, sessionId } = await request.json();

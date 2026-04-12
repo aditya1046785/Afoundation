@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { CreditCard, Download, Loader2, QrCode, User } from "lucide-react";
 import Image from "next/image";
 import { getInitials, formatDate } from "@/lib/utils";
+import { downloadMemberIDCardPDF } from "@/lib/pdf-generator";
 
 interface MemberProfile {
     id: string;
@@ -34,6 +35,7 @@ export default function MemberIDCardPage() {
     const [profile, setProfile] = useState<MemberProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [generating, setGenerating] = useState(false);
+    const [downloading, setDownloading] = useState(false);
 
     useEffect(() => {
         async function fetchProfile() {
@@ -69,6 +71,34 @@ export default function MemberIDCardPage() {
         }
     };
 
+    const handleDownloadPDF = async () => {
+        if (!profile?.user?.name || !idCard) return;
+
+        try {
+            setDownloading(true);
+
+            await downloadMemberIDCardPDF({
+                memberName: profile.user.name,
+                memberEmail: profile.user.email,
+                memberId: profile.memberId,
+                membershipType: profile.membershipType,
+                cardNumber: idCard.cardNumber,
+                joinDate: formatDate(new Date(profile.joinDate)),
+                expiryDate: formatDate(new Date(idCard.expiryDate)),
+                qrCodeData: idCard.qrCodeData,
+                initials: getInitials(profile.user.name),
+            });
+
+            toast.success("ID card PDF downloaded successfully.");
+        } catch (error) {
+            console.error("Failed to download ID card PDF:", error);
+            toast.error("Failed to download ID card PDF.");
+        } finally {
+            setDownloading(false);
+        }
+    };
+
+
     if (loading) {
         return (
             <div className="max-w-2xl mx-auto space-y-6">
@@ -94,11 +124,199 @@ export default function MemberIDCardPage() {
 
     const idCard = profile.idCards?.[0] || null;
 
+    const exportCardStyles = {
+        container: {
+            width: 340,
+            height: 540,
+            backgroundColor: "#ffffff",
+            border: "4px solid #f97316",
+            borderRadius: 24,
+            padding: 16,
+            boxSizing: "border-box" as const,
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column" as const,
+            fontFamily: "Arial, Helvetica, sans-serif",
+            boxShadow: "0 25px 50px rgba(15, 23, 42, 0.18)",
+        },
+        header: {
+            background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
+            borderRadius: 18,
+            padding: "12px 14px 14px",
+            minHeight: 90,
+            color: "#ffffff",
+            textAlign: "center" as const,
+            display: "flex",
+            flexDirection: "column" as const,
+            alignItems: "center",
+        },
+        headerTitle: {
+            margin: 0,
+            fontSize: 16,
+            lineHeight: 1.15,
+            fontWeight: 800,
+            letterSpacing: "0.04em",
+        },
+        headerSubtitle: {
+            margin: "4px 0 0",
+            fontSize: 9,
+            color: "#cbd5e1",
+            fontWeight: 600,
+            letterSpacing: "0.14em",
+            textTransform: "uppercase" as const,
+        },
+        badge: {
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            position: "relative" as const,
+            minWidth: 78,
+            marginTop: 10,
+            padding: "5px 11px",
+            borderRadius: 9999,
+            fontSize: 8,
+            fontWeight: 800,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase" as const,
+            lineHeight: 1,
+            whiteSpace: "nowrap" as const,
+            color: "#ffffff",
+            background: "linear-gradient(135deg, #fb923c 0%, #f97316 100%)",
+            boxShadow: "0 6px 16px rgba(249, 115, 22, 0.28)",
+        },
+        avatarWrap: {
+            width: 120,
+            height: 120,
+            margin: "12px auto 0",
+            borderRadius: "9999px",
+            background: "linear-gradient(135deg, #fed7aa 0%, #f97316 100%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 18px 30px rgba(249, 115, 22, 0.25)",
+            border: "4px solid #ffffff",
+            color: "#7c2d12",
+            fontSize: 34,
+            fontWeight: 800,
+            lineHeight: 1,
+            letterSpacing: "0.02em",
+        },
+        nameEmailWrap: {
+            minHeight: 60,
+            display: "flex",
+            flexDirection: "column" as const,
+            justifyContent: "center",
+        },
+        name: {
+            margin: "12px 0 0",
+            fontSize: 20,
+            fontWeight: 800,
+            color: "#111827",
+            textAlign: "center" as const,
+            lineHeight: 1.1,
+            padding: "0 8px",
+            wordBreak: "break-word" as const,
+        },
+        email: {
+            margin: "4px 0 0",
+            fontSize: 12,
+            color: "#4b5563",
+            textAlign: "center" as const,
+            fontWeight: 500,
+            padding: "0 8px",
+            wordBreak: "break-word" as const,
+        },
+        details: {
+            marginTop: 12,
+            padding: 12,
+            minHeight: 110,
+            borderRadius: 16,
+            backgroundColor: "#f8fafc",
+            border: "1px solid #e5e7eb",
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            columnGap: 12,
+            rowGap: 10,
+        },
+        label: {
+            margin: 0,
+            fontSize: 10,
+            color: "#6b7280",
+            fontWeight: 600,
+            lineHeight: 1.2,
+            textTransform: "uppercase" as const,
+            letterSpacing: "0.04em",
+        },
+        value: {
+            margin: "4px 0 0",
+            fontSize: 12,
+            color: "#111827",
+            fontWeight: 700,
+            lineHeight: 1.25,
+            wordBreak: "break-word" as const,
+        },
+        qrRow: {
+            marginTop: "auto",
+            minHeight: 100,
+            display: "flex",
+            flexDirection: "column" as const,
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+            paddingTop: 20,
+        },
+        qrBox: {
+            width: 92,
+            height: 92,
+            backgroundColor: "#ffffff",
+            border: "2px solid #d1d5db",
+            borderRadius: 14,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 10px 20px rgba(15, 23, 42, 0.12)",
+            padding: 7,
+        },
+        qrImage: {
+            width: 72,
+            height: 72,
+            objectFit: "contain" as const,
+            display: "block",
+        },
+        qrText: {
+            margin: 0,
+            fontSize: 11,
+            color: "#374151",
+            fontWeight: 700,
+            textAlign: "center" as const,
+        },
+        footer: {
+            marginTop: 10,
+            minHeight: 40,
+            backgroundColor: "#fef3c7",
+            borderRadius: 12,
+            padding: "9px 10px",
+            borderTop: "1px solid #e5e7eb",
+            textAlign: "center" as const,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+        },
+        footerText: {
+            margin: 0,
+            fontSize: 10,
+            color: "#92400e",
+            fontWeight: 700,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase" as const,
+        },
+    } as const;
+
     return (
         <div className="space-y-8 max-w-4xl mx-auto relative z-10 pb-10">
             {/* Background elements */}
-            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-[800px] h-[800px] bg-amber-400/10 rounded-full blur-3xl pointer-events-none -z-10" />
-            <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/4 w-[600px] h-[600px] bg-blue-300/10 rounded-full blur-3xl pointer-events-none -z-10" />
+            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-200 h-200 bg-amber-400/10 rounded-full blur-3xl pointer-events-none -z-10" />
+            <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/4 w-150 h-150 bg-blue-300/10 rounded-full blur-3xl pointer-events-none -z-10" />
 
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 bg-white/60 backdrop-blur-xl border border-white/50 p-8 rounded-3xl shadow-sm">
                 <div>
@@ -108,8 +326,21 @@ export default function MemberIDCardPage() {
                     </p>
                 </div>
                 {idCard && (
-                    <Button variant="outline" className="bg-white/80 border-slate-200 shadow-sm font-semibold tracking-wide text-amber-700 hover:text-amber-800 hover:bg-amber-50">
-                        <Download className="w-4 h-4 mr-2" /> Download ID
+                    <Button
+                        variant="outline"
+                        onClick={handleDownloadPDF}
+                        disabled={downloading}
+                        className="bg-white/80 border-slate-200 shadow-sm font-semibold tracking-wide text-amber-700 hover:text-amber-800 hover:bg-amber-50"
+                    >
+                        {downloading ? (
+                            <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Downloading...
+                            </>
+                        ) : (
+                            <>
+                                <Download className="w-4 h-4 mr-2" /> Download ID
+                            </>
+                        )}
                     </Button>
                 )}
             </div>
@@ -118,38 +349,38 @@ export default function MemberIDCardPage() {
                 <div className="flex flex-col lg:flex-row gap-8 items-start justify-center pt-4">
                     {/* The ID Card Container */}
                     <div className="flex justify-center flex-1 w-full lg:w-auto relative group">
-                        <div className="w-[340px] h-[540px] bg-[#fdfcfa] rounded-[2rem] p-1 shadow-2xl shadow-amber-900/15 border border-amber-900/10 relative overflow-hidden transform-gpu transition-all duration-700 hover:scale-[1.02] hover:-rotate-1 hover:shadow-amber-900/20">
+                        <div className="w-85 h-135 bg-[#fdfcfa] rounded-[2rem] p-1 shadow-2xl shadow-amber-900/15 border border-amber-900/10 relative overflow-hidden transform-gpu transition-all duration-700 hover:scale-[1.02] hover:-rotate-1 hover:shadow-amber-900/20">
                             {/* Inner stroke */}
                             <div className="absolute inset-2 rounded-3xl border border-amber-900/10 pointer-events-none z-20" />
-                            
+
                             {/* Background Textures */}
                             <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply pointer-events-none" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }} />
-                            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-[300px] h-[300px] bg-amber-400/20 rounded-full blur-3xl pointer-events-none" />
-                            <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/4 w-[300px] h-[300px] bg-blue-300/20 rounded-full blur-3xl pointer-events-none" />
-                            
+                            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-75 h-75 bg-amber-400/20 rounded-full blur-3xl pointer-events-none" />
+                            <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/4 w-75 h-75 bg-blue-300/20 rounded-full blur-3xl pointer-events-none" />
+
                             {/* Content */}
                             <div className="relative h-full flex flex-col bg-white/40 backdrop-blur-sm rounded-[1.75rem] overflow-hidden">
                                 {/* Header */}
                                 <div className="px-6 pt-10 pb-6 text-center relative z-10">
                                     <p className="font-serif text-amber-800 font-bold text-xl tracking-tight leading-tight">Nirashray</p>
                                     <p className="text-[9px] uppercase tracking-widest text-slate-500 font-bold mt-1">Foundation</p>
-                                    
+
                                     <div className="absolute top-4 right-4">
                                         <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 border-amber-200 shadow-sm text-[9px] uppercase tracking-widest font-bold px-3">
                                             {profile.membershipType}
                                         </Badge>
                                     </div>
                                 </div>
-                                
+
                                 {/* Photo & Name */}
                                 <div className="px-6 flex flex-col items-center relative z-10 -mt-2">
                                     <div className="relative">
-                                        <div className="absolute inset-0 bg-gradient-to-tr from-amber-400 to-amber-200 rounded-full blur opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
+                                        <div className="absolute inset-0 bg-linear-to-tr from-amber-400 to-amber-200 rounded-full blur opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
                                         <div className="w-28 h-28 rounded-full border-4 border-white shadow-xl shadow-amber-900/10 overflow-hidden bg-amber-50 relative group-hover:scale-[1.03] transition-transform duration-500">
                                             {profile.user.image ? (
                                                 <Image src={profile.user.image} alt={profile.user.name} fill className="object-cover" />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-100 to-amber-50">
+                                                <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-amber-100 to-amber-50">
                                                     <span className="text-3xl font-serif font-bold text-amber-700/50">{getInitials(profile.user.name)}</span>
                                                 </div>
                                             )}
@@ -158,7 +389,7 @@ export default function MemberIDCardPage() {
                                     <h3 className="font-serif text-2xl font-bold text-slate-800 mt-6 text-center leading-tight tracking-tight px-4">{profile.user.name}</h3>
                                     <p className="text-xs font-bold text-slate-400 mt-1.5 uppercase tracking-wide">{profile.user.email}</p>
                                 </div>
-                                
+
                                 {/* Details */}
                                 <div className="px-5 py-5 bg-white/70 mx-5 rounded-2xl border border-white shadow-sm mt-8 relative z-10">
                                     <div className="grid grid-cols-2 gap-y-4 gap-x-3">
@@ -180,9 +411,9 @@ export default function MemberIDCardPage() {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 {/* QR & Footer */}
-                                <div className="mt-auto pt-6 pb-6 px-8 flex items-end justify-between relative z-10 border-t border-amber-900/5 bg-gradient-to-b from-transparent to-amber-50/50">
+                                <div className="mt-auto pt-6 pb-6 px-8 flex items-end justify-between relative z-10 border-t border-amber-900/5 bg-linear-to-b from-transparent to-amber-50/50">
                                     <div className="space-y-1.5 mb-1">
                                         <p className="text-[8px] uppercase tracking-widest text-slate-400 font-bold">Member Identity</p>
                                         <p className="text-[9px] uppercase tracking-widest text-amber-700/80 font-bold">Valid & Verified</p>
@@ -237,7 +468,7 @@ export default function MemberIDCardPage() {
                         </div>
                         <h3 className="font-serif text-2xl font-bold text-slate-800 mb-2 tracking-tight">No ID Card Generated</h3>
                         <p className="text-slate-500 font-medium mb-8 max-w-sm">You haven&apos;t generated your digital member identity card yet.</p>
-                        
+
                         {profile.isApproved ? (
                             <Button
                                 onClick={generateIDCard}
@@ -258,6 +489,80 @@ export default function MemberIDCardPage() {
                         )}
                     </CardContent>
                 </Card>
+            )}
+
+            {idCard && (
+                <div
+                    id="member-id-card-export"
+                    aria-hidden="true"
+                    style={{
+                        position: "absolute",
+                        left: "-9999px",
+                        top: "-9999px",
+                        zIndex: -9999,
+                        visibility: "hidden",
+                        pointerEvents: "none",
+                        width: 340,
+                        height: 540,
+                        overflow: "hidden",
+                    }}
+                >
+                    <div style={exportCardStyles.container}>
+                        <div style={exportCardStyles.header}>
+                            <p style={exportCardStyles.headerTitle}>NIRASHRAY FOUNDATION</p>
+                            <p style={exportCardStyles.headerSubtitle}>Official Member Identity Card</p>
+                            <div style={exportCardStyles.badge}>{profile.membershipType}</div>
+                        </div>
+
+                        <div style={exportCardStyles.avatarWrap}>{getInitials(profile.user.name)}</div>
+
+                        <div style={exportCardStyles.nameEmailWrap}>
+                            <p style={exportCardStyles.name}>{profile.user.name}</p>
+                            <p style={exportCardStyles.email}>{profile.user.email}</p>
+                        </div>
+
+                        <div style={exportCardStyles.details}>
+                            <div>
+                                <p style={exportCardStyles.label}>Member ID</p>
+                                <p style={exportCardStyles.value}>{profile.memberId}</p>
+                            </div>
+                            <div>
+                                <p style={exportCardStyles.label}>Card No</p>
+                                <p style={exportCardStyles.value}>{idCard.cardNumber}</p>
+                            </div>
+                            <div>
+                                <p style={exportCardStyles.label}>Joined</p>
+                                <p style={exportCardStyles.value}>{formatDate(new Date(profile.joinDate))}</p>
+                            </div>
+                            <div>
+                                <p style={exportCardStyles.label}>Valid Until</p>
+                                <p style={exportCardStyles.value}>{formatDate(new Date(idCard.expiryDate))}</p>
+                            </div>
+                        </div>
+
+                        <div style={exportCardStyles.qrRow}>
+                            {idCard.qrCodeData && (
+                                <div style={exportCardStyles.qrBox}>
+                                    <img
+                                        src={idCard.qrCodeData}
+                                        alt="QR Code"
+                                        width={80}              // ← 80 se 100 karo
+                                        height={80}             // ← 80 se 100 karo
+                                        style={{
+                                            ...exportCardStyles.qrImage,
+                                            imageRendering: '-webkit-optimize-contrast',  // ← Sharp QR
+                                        }}
+                                    />
+                                </div>
+                            )}
+                            <p style={exportCardStyles.qrText}>Scan to verify membership</p>
+                        </div>
+
+                        <div style={exportCardStyles.footer}>
+                            <p style={exportCardStyles.footerText}>Digital Member Identity Card</p>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
