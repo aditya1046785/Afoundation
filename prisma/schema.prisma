@@ -133,7 +133,8 @@ model Member {
   updatedAt      DateTime       @updatedAt
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  donations    Donation[]
+  donations         Donation[] @relation("MemberDonations")
+  referredDonations Donation[] @relation("ReferralDonations")
   certificates Certificate[]
   idCards      IDCard[]
 
@@ -152,6 +153,7 @@ model Donation {
   donorPhone         String?
   donorPAN           String?
   memberId           String?
+  referrerMemberId   String?
   razorpayOrderId    String?
   razorpayPaymentId  String?
   razorpaySignature  String?
@@ -163,10 +165,12 @@ model Donation {
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 
-  member Member? @relation(fields: [memberId], references: [id])
+  member         Member? @relation("MemberDonations", fields: [memberId], references: [id])
+  referrerMember Member? @relation("ReferralDonations", fields: [referrerMemberId], references: [id])
 
   @@index([donorEmail])
   @@index([memberId])
+  @@index([referrerMemberId])
   @@index([status])
   @@index([createdAt])
 }

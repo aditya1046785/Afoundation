@@ -83,6 +83,7 @@ export const donationSchema = z.object({
     donorPAN: z.string().optional(),
     purpose: z.string().optional(),
     message: z.string().optional(),
+    referralCode: z.string().trim().min(1).optional(),
 });
 
 // ============================================================
@@ -122,6 +123,15 @@ export const certificateSchema = z.object({
     title: z.string().min(3, "Title must be at least 3 characters"),
     description: z.string().optional(),
     issuedBy: z.string().min(2, "Issued by is required"),
+});
+
+// Simple certificate generator form schema
+export const generateCertificateSchema = z.object({
+    memberId: z.string().optional(),
+    recipientName: z.string().trim().min(2, "Recipient name must be at least 2 characters").optional(),
+}).refine((data) => Boolean(data.memberId || data.recipientName), {
+    message: "Select a member or enter a recipient name",
+    path: ["memberId"],
 });
 
 // ============================================================
@@ -243,6 +253,7 @@ export type DonationInput = z.infer<typeof donationSchema>;
 export type ContactInput = z.infer<typeof contactSchema>;
 export type EventInput = z.infer<typeof eventSchema>;
 export type CertificateInput = z.infer<typeof certificateSchema>;
+export type GenerateCertificateInput = z.infer<typeof generateCertificateSchema>;
 export type TeamMemberInput = z.infer<typeof teamMemberSchema>;
 export type BlogPostInput = z.infer<typeof blogPostSchema>;
 export type AnnouncementInput = z.infer<typeof announcementSchema>;

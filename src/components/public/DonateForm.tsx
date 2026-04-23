@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { donationSchema } from "@/lib/validations";
@@ -14,9 +15,36 @@ import { motion } from "framer-motion";
 import { Heart, Loader2, CheckCircle } from "lucide-react";
 import type { z } from "zod";
 
+interface RazorpayPaymentResponse {
+    razorpay_payment_id: string;
+    razorpay_order_id: string;
+    razorpay_signature: string;
+}
+
+interface RazorpayOptions {
+    key: string | undefined;
+    amount: number;
+    currency: string;
+    name: string;
+    description: string;
+    order_id: string;
+    prefill: {
+        name: string;
+        email: string;
+        contact: string;
+    };
+    theme: { color: string };
+    handler: (response: RazorpayPaymentResponse) => Promise<void>;
+    modal: { ondismiss: () => void };
+}
+
+interface RazorpayInstance {
+    open: () => void;
+}
+
 declare global {
     interface Window {
-        Razorpay: unknown;
+        Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
     }
 }
 
@@ -28,16 +56,22 @@ interface DonateFormProps {
 type DonationFormData = z.input<typeof donationSchema>;
 
 export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
+    const searchParams = useSearchParams();
     const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [success, setSuccess] = useState(false);
 
     const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<DonationFormData>({
-        resolver: zodResolver(donationSchema) as any,
-        defaultValues: { amount: 1000, donorName: "", donorEmail: "", donorPhone: "", donorPAN: "", purpose: "", message: "" },
+        resolver: zodResolver(donationSchema),
+        defaultValues: { amount: 1000, donorName: "", donorEmail: "", donorPhone: "", donorPAN: "", purpose: "", message: "", referralCode: "" },
     });
 
     const watchedAmount = watch("amount");
+    const referralCode = searchParams.get("ref")?.trim() || "";
+
+    useEffect(() => {
+        setValue("referralCode", referralCode);
+    }, [referralCode, setValue]);
 
     const loadRazorpay = () => {
         return new Promise((resolve) => {
@@ -63,7 +97,7 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
             if (!success) throw new Error(error);
 
             // Open Razorpay checkout
-            const rzp = new (window.Razorpay as any)({
+            const rzp = new window.Razorpay({
                 key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
                 amount: orderData.amount,
                 currency: "INR",
@@ -76,7 +110,7 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                     contact: data.donorPhone || "",
                 },
                 theme: { color: "#f59e0b" }, // Amber 500
-                handler: async (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => {
+                handler: async (response: RazorpayPaymentResponse) => {
                     const verifyRes = await fetch("/api/donations/verify", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -133,6 +167,13 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 relative z-10">
+                {referralCode && (
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
+                        <p className="text-xs font-semibold text-emerald-700 uppercase tracking-widest">Referral Applied</p>
+                        <p className="text-sm text-emerald-900 mt-1">This donation is linked to member code: <span className="font-bold">{referralCode}</span></p>
+                    </div>
+                )}
+
                 {/* Preset Amounts */}
                 <div className="bg-slate-50/50 p-6 rounded-[1.5rem] border border-slate-100">
                     <Label className="text-sm font-semibold text-slate-700 mb-4 block tracking-wide">SELECT AMOUNT (₹)</Label>

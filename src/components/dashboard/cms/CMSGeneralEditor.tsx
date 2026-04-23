@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Save, Loader2, Globe, Phone, MapPin, Share2, FileText } from "lucide-react";
+import { Save, Loader2, Globe, Phone, Share2, FileText, Upload, PenTool } from "lucide-react";
+import { CloudinaryUploadButton } from "@/components/ui/cloudinary-upload-button";
 
 interface Props {
     settings: Record<string, string>;
@@ -16,7 +17,10 @@ interface Props {
 
 export function CMSGeneralEditor({ settings }: Props) {
     const [isSaving, setIsSaving] = useState(false);
-    const { register, getValues } = useForm({ defaultValues: settings });
+    const [isUploadingSignature, setIsUploadingSignature] = useState(false);
+    const signatureInputRef = useRef<HTMLInputElement>(null);
+    const { register, getValues, setValue, watch } = useForm({ defaultValues: settings });
+    const adminSignature = watch("admin_signature");
 
     const save = async (keys: string[]) => {
         setIsSaving(true);
@@ -28,10 +32,54 @@ export function CMSGeneralEditor({ settings }: Props) {
                 body: JSON.stringify(data),
             });
             const result = await res.json();
-            if (result.success) toast.success("Settings saved!");
-            else toast.error("Failed to save.");
-        } catch { toast.error("An error occurred."); }
+            if (result.success) {
+                toast.success("Settings saved!");
+                return true;
+            }
+            toast.error("Failed to save.");
+            return false;
+        } catch {
+            toast.error("An error occurred.");
+            return false;
+        }
         finally { setIsSaving(false); }
+    };
+
+    const handleSignatureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        setIsUploadingSignature(true);
+        try {
+            const sigRes = await fetch("/api/upload");
+            const sigData = await sigRes.json();
+            if (!sigData.success) throw new Error("Could not fetch upload signature");
+
+            const { signature, timestamp, cloudName, apiKey, folder } = sigData.data;
+            const uploadFormData = new FormData();
+            uploadFormData.append("file", file);
+            uploadFormData.append("signature", signature);
+            uploadFormData.append("timestamp", String(timestamp));
+            uploadFormData.append("api_key", apiKey);
+            uploadFormData.append("folder", folder);
+
+            const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                method: "POST",
+                body: uploadFormData,
+            });
+
+            const uploadedFile = await uploadRes.json();
+            if (!uploadedFile.secure_url) throw new Error("Cloudinary upload failed");
+
+            setValue("admin_signature", uploadedFile.secure_url, { shouldDirty: true });
+            await save(["admin_signature"]);
+        } catch (error) {
+            console.error("Signature upload error:", error);
+            toast.error("Failed to upload signature.");
+        } finally {
+            setIsUploadingSignature(false);
+            if (signatureInputRef.current) signatureInputRef.current.value = "";
+        }
     };
 
     const SaveBtn = ({ keys }: { keys: string[] }) => (
@@ -55,10 +103,75 @@ export function CMSGeneralEditor({ settings }: Props) {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div><Label>Organization Name</Label><Input {...register("org_name")} /></div>
                         <div><Label>Tagline</Label><Input {...register("org_tagline")} /></div>
-                        <div><Label>Logo URL</Label><Input {...register("org_logo")} /></div>
+                        <div className="space-y-2">
+                            <Label>Logo URL</Label>
+                            <Input {...register("org_logo")} />
+                            <CloudinaryUploadButton
+                                buttonText="Upload Logo"
+                                disabled={isSaving}
+                                onUploaded={(url) => {
+                                    setValue("org_logo", url, { shouldDirty: true });
+                                    toast.success("Logo uploaded successfully.");
+                                }}
+                                onError={() => toast.error("Failed to upload logo.")}
+                            />
+                        </div>
                         <div><Label>Registration Number</Label><Input {...register("registration_number")} /></div>
                     </div>
                     <div><Label>About (Short description)</Label><Textarea {...register("org_description")} rows={3} /></div>
+                </CardContent>
+            </Card>
+
+            {/* Signature */}
+            <Card>
+                <CardHeader className="flex-row items-center justify-between">
+                    <CardTitle className="text-base flex items-center gap-2">
+                        <PenTool className="w-4 h-4 text-blue-700" /> Admin Signature
+                    </CardTitle>
+                    <SaveBtn keys={["admin_signature"]} />
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-end">
+                        <div className="space-y-2">
+                            <Label>Signature Image URL</Label>
+                            <Input {...register("admin_signature")} placeholder="https://..." />
+                        </div>
+                        <div className="flex gap-2 flex-wrap">
+                            <input
+                                ref={signatureInputRef}
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleSignatureUpload}
+                            />
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => signatureInputRef.current?.click()}
+                                disabled={isUploadingSignature || isSaving}
+                            >
+                                {isUploadingSignature ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                                Upload Signature
+                            </Button>
+                        </div>
+                    </div>
+
+                    {adminSignature ? (
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-3">Preview</p>
+                            <div className="flex items-center gap-4 flex-wrap">
+                                <div className="rounded-xl bg-white border border-slate-200 p-3 shadow-sm max-w-60">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={adminSignature} alt="Admin Signature Preview" className="max-h-24 w-auto object-contain" />
+                                </div>
+                                <p className="text-sm text-slate-500">This signature image will be stored in website settings and used later in the ID card.</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+                            No signature uploaded yet.
+                        </div>
+                    )}
                 </CardContent>
             </Card>
 

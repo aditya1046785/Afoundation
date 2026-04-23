@@ -14,6 +14,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Save, ImageIcon, Images, FolderPlus, UploadCloud, CheckCircle2, FileText } from "lucide-react";
 import { generateSlug } from "@/lib/utils";
+import { CloudinaryUploadButton } from "@/components/ui/cloudinary-upload-button";
 
 const uploadSchema = z.object({
     mode: z.enum(["select", "create"]),
@@ -225,6 +226,18 @@ export default function GalleryUploadPage() {
                             <div className="space-y-2">
                                 <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><ImageIcon className="w-3 h-3" /> Image URL *</Label>
                                 <Input {...register("imageUrl")} placeholder="https://..." className="h-11 bg-slate-50 border-slate-200 shadow-sm rounded-xl" />
+                                <CloudinaryUploadButton
+                                    buttonText="Upload Photo"
+                                    className="w-full"
+                                    disabled={saving}
+                                    onUploaded={(url) => {
+                                        setValue("imageUrl", url, { shouldValidate: true, shouldDirty: true });
+                                        toast.success("Photo uploaded successfully.");
+                                    }}
+                                    onError={() => {
+                                        toast.error("Failed to upload photo.");
+                                    }}
+                                />
                                 {errors.imageUrl && <p className="text-red-500 text-[10px] uppercase font-bold tracking-wider">{errors.imageUrl.message}</p>}
                             </div>
 

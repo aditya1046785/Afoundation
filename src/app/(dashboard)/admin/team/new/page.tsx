@@ -16,6 +16,7 @@ import { TEAM_CATEGORIES } from "@/lib/constants";
 import type { z } from "zod";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { CloudinaryUploadButton } from "@/components/ui/cloudinary-upload-button";
 
 type TeamFormData = z.input<typeof teamMemberSchema>;
 
@@ -193,6 +194,18 @@ export default function NewTeamMemberPage() {
                                     <div className="w-full space-y-2">
                                         <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Image URL</Label>
                                         <Input {...register("photo")} className="h-10 text-sm bg-slate-50 border-slate-200 rounded-xl focus:ring-amber-200 focus:border-amber-400 w-full" placeholder="https://..." />
+                                        <CloudinaryUploadButton
+                                            buttonText="Upload Portrait"
+                                            className="w-full"
+                                            disabled={saving}
+                                            onUploaded={(url) => {
+                                                setValue("photo", url, { shouldDirty: true });
+                                                toast.success("Portrait uploaded successfully.");
+                                            }}
+                                            onError={() => {
+                                                toast.error("Failed to upload portrait.");
+                                            }}
+                                        />
                                     </div>
                                 </div>
                             </div>

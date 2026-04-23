@@ -18,6 +18,7 @@ import { generateSlug } from "@/lib/utils";
 import type { z } from "zod";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { CloudinaryUploadButton } from "@/components/ui/cloudinary-upload-button";
 
 // Lazy-load editor (client-only)
 const RichTextEditor = dynamic(() => import("@/components/dashboard/RichTextEditor"), {
@@ -239,6 +240,18 @@ export default function NewEventPage() {
                     </div>
                   )}
                   <Input {...register("image")} className="h-10 text-sm bg-slate-50 border-slate-200 rounded-xl focus:ring-amber-200 focus:border-amber-400" placeholder="Paste image URL here..." />
+                  <CloudinaryUploadButton
+                    buttonText="Upload Cover Image"
+                    className="w-full"
+                    disabled={saving}
+                    onUploaded={(url) => {
+                      setValue("image", url, { shouldDirty: true });
+                      toast.success("Cover image uploaded successfully.");
+                    }}
+                    onError={() => {
+                      toast.error("Failed to upload cover image.");
+                    }}
+                  />
                 </div>
 
                 {/* Slug */}

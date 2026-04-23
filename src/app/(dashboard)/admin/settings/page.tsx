@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, Save, Settings, Globe, Mail, Shield } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CloudinaryUploadButton } from "@/components/ui/cloudinary-upload-button";
 
 interface SiteSettings {
     [key: string]: string;
@@ -100,8 +101,30 @@ export default function AdminSettingsPage() {
                             <Field label="Organization Name" name="org_name" placeholder="Nirashray Foundation" />
                             <Field label="Tagline" name="org_tagline" placeholder="Empowering communities..." />
                             <Field label="Registration Number" name="registration_number" placeholder="REG/2024/XXX" />
-                            <Field label="Logo URL" name="logo_url" placeholder="https://..." />
-                            <Field label="Favicon URL" name="favicon_url" placeholder="https://..." />
+                            <div className="space-y-2">
+                                <Field label="Logo URL" name="logo_url" placeholder="https://..." />
+                                <CloudinaryUploadButton
+                                    buttonText="Upload Logo"
+                                    disabled={saving}
+                                    onUploaded={(url) => {
+                                        handleChange("logo_url", url);
+                                        toast.success("Logo uploaded.");
+                                    }}
+                                    onError={() => toast.error("Failed to upload logo.")}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Field label="Favicon URL" name="favicon_url" placeholder="https://..." />
+                                <CloudinaryUploadButton
+                                    buttonText="Upload Favicon"
+                                    disabled={saving}
+                                    onUploaded={(url) => {
+                                        handleChange("favicon_url", url);
+                                        toast.success("Favicon uploaded.");
+                                    }}
+                                    onError={() => toast.error("Failed to upload favicon.")}
+                                />
+                            </div>
                         </CardContent>
                     </Card>
                 </TabsContent>
@@ -140,7 +163,18 @@ export default function AdminSettingsPage() {
                         <CardContent className="space-y-4">
                             <Field label="Site Title (SEO)" name="seo_title" placeholder="Nirashray Foundation - NGO" />
                             <Field label="Site Description (SEO)" name="seo_description" multiline placeholder="Meta description for search engines" />
-                            <Field label="OG Image URL" name="seo_og_image" placeholder="https://..." />
+                            <div className="space-y-2">
+                                <Field label="OG Image URL" name="seo_og_image" placeholder="https://..." />
+                                <CloudinaryUploadButton
+                                    buttonText="Upload OG Image"
+                                    disabled={saving}
+                                    onUploaded={(url) => {
+                                        handleChange("seo_og_image", url);
+                                        toast.success("OG image uploaded.");
+                                    }}
+                                    onError={() => toast.error("Failed to upload OG image.")}
+                                />
+                            </div>
                             <Field label="Footer Legal Text" name="footer_legal_text" multiline placeholder="© 2024 Nirashray Foundation..." />
                             <Field label="Privacy Policy URL" name="privacy_policy_url" placeholder="/privacy" />
                             <Field label="Terms of Service URL" name="terms_url" placeholder="/terms" />

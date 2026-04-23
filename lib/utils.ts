@@ -129,6 +129,38 @@ export function generateCertificateNo(count: number): string {
 }
 
 /**
+ * Generate foundation certificate number in format NF/YYYY/###
+ */
+export function generateFoundationCertificateNo(count: number): string {
+    const year = new Date().getFullYear();
+    const seq = String(count + 1).padStart(3, "0");
+    return `NF/${year}/${seq}`;
+}
+
+/**
+ * Format date as "12th January, 2025"
+ */
+export function formatCertificateDate(date: Date | string): string {
+    const d = typeof date === "string" ? new Date(date) : date;
+    const day = d.getDate();
+    const month = d.toLocaleString("en-IN", { month: "long" });
+    const year = d.getFullYear();
+
+    const mod100 = day % 100;
+    const suffix = mod100 >= 11 && mod100 <= 13
+        ? "th"
+        : day % 10 === 1
+            ? "st"
+            : day % 10 === 2
+                ? "nd"
+                : day % 10 === 3
+                    ? "rd"
+                    : "th";
+
+    return `${day}${suffix} ${month}, ${year}`;
+}
+
+/**
  * Generate ID card number in format ID-YYYY-XXXX
  */
 export function generateCardNumber(count: number): string {

@@ -19,6 +19,7 @@ import { generateSlug } from "@/lib/utils";
 import type { z } from "zod";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { CloudinaryUploadButton } from "@/components/ui/cloudinary-upload-button";
 
 // Lazy-load editor (client-only)
 const RichTextEditor = dynamic(() => import("@/components/dashboard/RichTextEditor"), {
@@ -371,6 +372,18 @@ export default function NewBlogPage() {
                   </div>
                 )}
                 <Input {...register("featuredImage")} className="h-8 text-xs" placeholder="Paste image URL…" />
+                <CloudinaryUploadButton
+                  buttonText="Upload Featured Image"
+                  className="w-full"
+                  disabled={saving}
+                  onUploaded={(url) => {
+                    setValue("featuredImage", url, { shouldDirty: true });
+                    toast.success("Featured image uploaded successfully.");
+                  }}
+                  onError={() => {
+                    toast.error("Failed to upload featured image.");
+                  }}
+                />
               </div>
             </div>
 

@@ -1,5 +1,5 @@
 /**
- * PDF generation utilities using html2canvas + jsPDF
+ * PDF generation utilities using DOM capture + jsPDF
  * All PDF generation is done client-side
  */
 
@@ -35,20 +35,18 @@ function getInitialsFromName(name: string): string {
  * Captures a DOM element and converts to PDF
  */
 export async function downloadIDCardPDF(elementId: string, memberName: string): Promise<void> {
-    const html2canvas = (await import("html2canvas")).default;
+    const { toPng } = await import("html-to-image");
     const { jsPDF } = await import("jspdf");
 
     const element = document.getElementById(elementId);
     if (!element) throw new Error("Element not found");
 
-    const canvas = await html2canvas(element, {
-        scale: 3,
-        useCORS: true,
-        allowTaint: true,
+    const imgData = await toPng(element as HTMLElement, {
+        pixelRatio: 3,
+        cacheBust: true,
         backgroundColor: "#ffffff",
     });
 
-    const imgData = canvas.toDataURL("image/png");
     // ID card dimensions: 85.6mm x 53.98mm (landscape)
     const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: [85.6, 53.98] });
     pdf.addImage(imgData, "PNG", 0, 0, 85.6, 53.98);

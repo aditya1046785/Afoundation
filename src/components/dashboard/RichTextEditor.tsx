@@ -30,6 +30,7 @@ import {
 import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
+import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
 
 interface RichTextEditorProps {
   value: string;
@@ -73,6 +74,7 @@ export default function RichTextEditor({ value, onChange, placeholder = "Start w
   const [imageUrl, setImageUrl] = useState("");
   const [linkOpen, setLinkOpen] = useState(false);
   const [imgOpen, setImgOpen] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -132,6 +134,23 @@ export default function RichTextEditor({ value, onChange, placeholder = "Start w
     setImageUrl("");
     setImgOpen(false);
   }, [editor, imageUrl]);
+
+  const handleImageUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !editor) return;
+
+    setUploadingImage(true);
+    try {
+      const secureUrl = await uploadImageToCloudinary(file);
+      editor.chain().focus().setImage({ src: secureUrl }).run();
+      setImgOpen(false);
+    } catch (error) {
+      console.error("Rich text image upload failed:", error);
+    } finally {
+      setUploadingImage(false);
+      event.target.value = "";
+    }
+  }, [editor]);
 
   if (!editor) return null;
 
@@ -316,10 +335,14 @@ export default function RichTextEditor({ value, onChange, placeholder = "Start w
           </Tooltip></TooltipProvider>
           <PopoverContent className="w-80 p-3" align="start">
             <p className="text-sm font-medium text-slate-700 mb-1">Insert Image</p>
-            <p className="text-xs text-slate-400 mb-2">Paste a public image URL</p>
+            <p className="text-xs text-slate-400 mb-2">Paste a public image URL or upload from your device</p>
             <Input placeholder="https://example.com/photo.jpg" value={imageUrl} onChange={e => setImageUrl(e.target.value)}
               onKeyDown={e => e.key === "Enter" && insertImage()} className="mb-2 text-sm h-8" />
             <Button type="button" size="sm" onClick={insertImage} className="w-full bg-blue-700 hover:bg-blue-800 text-white h-7 text-xs">Insert Image</Button>
+            <label className="mt-2 flex w-full items-center justify-center rounded-md border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 cursor-pointer">
+              {uploadingImage ? "Uploading..." : "Upload Image"}
+              <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploadingImage} />
+            </label>
           </PopoverContent>
         </Popover>
       </div>

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, Save } from "lucide-react";
+import { CloudinaryUploadButton } from "@/components/ui/cloudinary-upload-button";
 
 interface SiteSettings { [key: string]: string }
 
@@ -82,6 +83,15 @@ export function CMSAboutEditor() {
                     <Field label="Story Heading" name="about_story_heading" placeholder="How It All Began" />
                     <Field label="Story Text" name="about_story_text" multiline placeholder="Tell your organization's story..." />
                     <Field label="Story Image URL" name="about_story_image" placeholder="https://..." />
+                    <CloudinaryUploadButton
+                        buttonText="Upload Story Image"
+                        disabled={saving}
+                        onUploaded={(url) => {
+                            handleChange("about_story_image", url);
+                            toast.success("Story image uploaded.");
+                        }}
+                        onError={() => toast.error("Failed to upload story image.")}
+                    />
                 </CardContent>
             </Card>
 

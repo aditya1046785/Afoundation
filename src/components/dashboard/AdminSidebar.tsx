@@ -1,14 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     LayoutDashboard, Users, Heart, Award, CreditCard, FileText,
     Calendar, Images, Megaphone, Download, MessageSquare, Settings,
-    Globe, ChevronDown, ChevronRight, Heart as HeartIcon, X, Menu, Target, MessageSquareDot
+    Globe, ChevronDown, ChevronRight, Heart as HeartIcon, Menu, Target, MessageSquareDot, Link2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -25,6 +24,7 @@ const links: SidebarLink[] = [
     { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { label: "Members", href: "/admin/members", icon: Users },
     { label: "Donations", href: "/admin/donations", icon: Heart },
+    { label: "Referrals", href: "/admin/referrals", icon: Link2 },
     { label: "Crowdfunding", href: "/admin/crowdfunding", icon: Target },
     { label: "Certificates", href: "/admin/certificates", icon: Award },
     { label: "ID Cards", href: "/admin/id-cards", icon: CreditCard },
@@ -70,7 +70,7 @@ export function AdminSidebar({ role }: Props) {
 
     const filteredLinks = links.filter((l) => !l.roles || l.roles.includes(role));
 
-    const SidebarContent = () => (
+    const sidebarContent = (
         <div className="flex flex-col h-full bg-[#0b1121]">
             {/* Logo */}
             <div className={cn("p-6 border-b border-slate-800/60 flex items-center gap-4", collapsed && "justify-center px-4")}>
@@ -185,7 +185,7 @@ export function AdminSidebar({ role }: Props) {
                         </button>
                     </SheetTrigger>
                     <SheetContent side="left" className="p-0 border-r border-slate-800/60 bg-[#0b1121] w-[280px]">
-                        <SidebarContent />
+                        {sidebarContent}
                     </SheetContent>
                 </Sheet>
             </div>
@@ -196,7 +196,7 @@ export function AdminSidebar({ role }: Props) {
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                 className="hidden md:flex flex-col bg-[#0b1121] h-full shrink-0 overflow-hidden border-r border-slate-800/60 relative z-30"
             >
-                <SidebarContent />
+                {sidebarContent}
             </motion.aside>
         </>
     );

@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Save, Loader2 } from "lucide-react";
+import { CloudinaryUploadButton } from "@/components/ui/cloudinary-upload-button";
 
 interface Props {
     settings: Record<string, string>;
@@ -17,7 +18,7 @@ interface Props {
 
 export function CMSHomeEditor({ settings }: Props) {
     const [isSaving, setIsSaving] = useState(false);
-    const { register, getValues } = useForm({ defaultValues: settings });
+    const { register, getValues, setValue } = useForm({ defaultValues: settings });
 
     const saveSection = async (sectionKeys: string[]) => {
         setIsSaving(true);
@@ -96,6 +97,16 @@ export function CMSHomeEditor({ settings }: Props) {
                             <div>
                                 <Label>Background Image URL</Label>
                                 <Input {...register("hero_image")} placeholder="/hero-bg.jpg or Cloudinary URL" />
+                                <CloudinaryUploadButton
+                                    buttonText="Upload Hero Image"
+                                    className="mt-2"
+                                    disabled={isSaving}
+                                    onUploaded={(url) => {
+                                        setValue("hero_image", url, { shouldDirty: true });
+                                        toast.success("Hero image uploaded.");
+                                    }}
+                                    onError={() => toast.error("Failed to upload hero image.")}
+                                />
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
@@ -174,6 +185,16 @@ export function CMSHomeEditor({ settings }: Props) {
                         <div>
                             <Label>Section Image URL</Label>
                             <Input {...register("about_brief_image")} placeholder="/about-brief.jpg or Cloudinary URL" />
+                            <CloudinaryUploadButton
+                                buttonText="Upload About Image"
+                                className="mt-2"
+                                disabled={isSaving}
+                                onUploaded={(url) => {
+                                    setValue("about_brief_image", url, { shouldDirty: true });
+                                    toast.success("About image uploaded.");
+                                }}
+                                onError={() => toast.error("Failed to upload about image.")}
+                            />
                         </div>
                         <div>
                             <Label>Highlights (one per line)</Label>
@@ -325,6 +346,16 @@ export function CMSHomeEditor({ settings }: Props) {
                                     <div>
                                         <Label className="text-xs">Photo URL (optional)</Label>
                                         <Input {...register(`testimonial${i}_image`)} placeholder="/photos/person.jpg" />
+                                        <CloudinaryUploadButton
+                                            buttonText={`Upload Testimonial ${i} Photo`}
+                                            className="mt-2"
+                                            disabled={isSaving}
+                                            onUploaded={(url) => {
+                                                setValue(`testimonial${i}_image`, url, { shouldDirty: true });
+                                                toast.success(`Testimonial ${i} photo uploaded.`);
+                                            }}
+                                            onError={() => toast.error(`Failed to upload testimonial ${i} photo.`)}
+                                        />
                                     </div>
                                 </div>
                             ))}

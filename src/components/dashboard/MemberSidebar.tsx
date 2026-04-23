@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, Heart, Award, CreditCard, User, Heart as HeartIcon, Menu, MessageSquareDot } from "lucide-react";
+import { LayoutDashboard, Heart, Award, CreditCard, User, Heart as HeartIcon, Menu, MessageSquareDot, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const links = [
     { label: "Dashboard", href: "/member/dashboard", icon: LayoutDashboard },
     { label: "My Donations", href: "/member/donations", icon: Heart },
+    { label: "Referred Donations", href: "/member/referrals", icon: Link2 },
     { label: "Certificates", href: "/member/certificates", icon: Award },
     { label: "ID Card", href: "/member/id-card", icon: CreditCard },
     { label: "Live Chat", href: "/member/live-chat", icon: MessageSquareDot },
@@ -20,7 +21,7 @@ export function MemberSidebar() {
     const pathname = usePathname();
     const [mobileOpen, setMobileOpen] = useState(false);
 
-    const SidebarContent = () => (
+    const sidebarContent = (
         <div className="flex flex-col h-full bg-[#0b1121]">
             {/* Logo */}
             <div className="p-6 border-b border-slate-800/60 flex items-center gap-4">
@@ -77,14 +78,14 @@ export function MemberSidebar() {
                         </button>
                     </SheetTrigger>
                     <SheetContent side="left" className="p-0 border-r border-slate-800/60 bg-[#0b1121] w-[280px]">
-                        <SidebarContent />
+                        {sidebarContent}
                     </SheetContent>
                 </Sheet>
             </div>
 
             {/* Desktop sidebar */}
             <aside className="hidden md:flex flex-col w-[260px] bg-[#0b1121] h-full shrink-0 border-r border-slate-800/60 relative z-30">
-                <SidebarContent />
+                {sidebarContent}
             </aside>
         </>
     );

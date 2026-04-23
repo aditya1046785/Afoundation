@@ -6,10 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { CreditCard, Download, Loader2, QrCode, User } from "lucide-react";
+import { CreditCard, Download, Loader2, QrCode } from "lucide-react";
 import Image from "next/image";
 import { getInitials, formatDate } from "@/lib/utils";
-import { downloadMemberIDCardPDF } from "@/lib/pdf-generator";
+import { downloadIDCardPDF } from "@/lib/pdf-generator";
 
 interface MemberProfile {
     id: string;
@@ -36,6 +36,7 @@ export default function MemberIDCardPage() {
     const [loading, setLoading] = useState(true);
     const [generating, setGenerating] = useState(false);
     const [downloading, setDownloading] = useState(false);
+    const [adminSignature, setAdminSignature] = useState("");
 
     useEffect(() => {
         async function fetchProfile() {
@@ -44,7 +45,15 @@ export default function MemberIDCardPage() {
             if (data.success) setProfile(data.data);
             setLoading(false);
         }
+
+        async function fetchSignature() {
+            const res = await fetch("/api/site-settings?keys=admin_signature");
+            const data = await res.json();
+            if (data.success) setAdminSignature(data.data?.admin_signature || "");
+        }
+
         fetchProfile();
+        fetchSignature();
     }, []);
 
     const generateIDCard = async () => {
@@ -77,17 +86,7 @@ export default function MemberIDCardPage() {
         try {
             setDownloading(true);
 
-            await downloadMemberIDCardPDF({
-                memberName: profile.user.name,
-                memberEmail: profile.user.email,
-                memberId: profile.memberId,
-                membershipType: profile.membershipType,
-                cardNumber: idCard.cardNumber,
-                joinDate: formatDate(new Date(profile.joinDate)),
-                expiryDate: formatDate(new Date(idCard.expiryDate)),
-                qrCodeData: idCard.qrCodeData,
-                initials: getInitials(profile.user.name),
-            });
+            await downloadIDCardPDF("member-id-card-preview", profile.user.name);
 
             toast.success("ID card PDF downloaded successfully.");
         } catch (error) {
@@ -126,12 +125,12 @@ export default function MemberIDCardPage() {
 
     const exportCardStyles = {
         container: {
-            width: 340,
+            width: 856,
             height: 540,
             backgroundColor: "#ffffff",
             border: "4px solid #f97316",
             borderRadius: 24,
-            padding: 16,
+            padding: 20,
             boxSizing: "border-box" as const,
             overflow: "hidden",
             display: "flex",
@@ -142,8 +141,8 @@ export default function MemberIDCardPage() {
         header: {
             background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
             borderRadius: 18,
-            padding: "12px 14px 14px",
-            minHeight: 90,
+            padding: "14px 16px 16px",
+            minHeight: 96,
             color: "#ffffff",
             textAlign: "center" as const,
             display: "flex",
@@ -152,14 +151,14 @@ export default function MemberIDCardPage() {
         },
         headerTitle: {
             margin: 0,
-            fontSize: 16,
+            fontSize: 18,
             lineHeight: 1.15,
             fontWeight: 800,
             letterSpacing: "0.04em",
         },
         headerSubtitle: {
             margin: "4px 0 0",
-            fontSize: 9,
+            fontSize: 10,
             color: "#cbd5e1",
             fontWeight: 600,
             letterSpacing: "0.14em",
@@ -170,11 +169,11 @@ export default function MemberIDCardPage() {
             alignItems: "center",
             justifyContent: "center",
             position: "relative" as const,
-            minWidth: 78,
+            minWidth: 98,
             marginTop: 10,
-            padding: "5px 11px",
+            padding: "6px 13px",
             borderRadius: 9999,
-            fontSize: 8,
+            fontSize: 10,
             fontWeight: 800,
             letterSpacing: "0.12em",
             textTransform: "uppercase" as const,
@@ -184,11 +183,25 @@ export default function MemberIDCardPage() {
             background: "linear-gradient(135deg, #fb923c 0%, #f97316 100%)",
             boxShadow: "0 6px 16px rgba(249, 115, 22, 0.28)",
         },
+        body: {
+            marginTop: 16,
+            display: "flex",
+            flexDirection: "column" as const,
+            gap: 14,
+            flex: 1,
+        },
+        identityRow: {
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "center",
+            gap: 16,
+            flexShrink: 0,
+        },
         avatarWrap: {
-            width: 120,
-            height: 120,
-            margin: "12px auto 0",
-            borderRadius: "9999px",
+            width: 140,
+            height: 180,
+            margin: 0,
+            borderRadius: 18,
             background: "linear-gradient(135deg, #fed7aa 0%, #f97316 100%)",
             display: "flex",
             alignItems: "center",
@@ -196,51 +209,90 @@ export default function MemberIDCardPage() {
             boxShadow: "0 18px 30px rgba(249, 115, 22, 0.25)",
             border: "4px solid #ffffff",
             color: "#7c2d12",
-            fontSize: 34,
+            fontSize: 44,
             fontWeight: 800,
             lineHeight: 1,
             letterSpacing: "0.02em",
         },
+        qrColumn: {
+            display: "flex",
+            flexDirection: "column" as const,
+            alignItems: "center",
+            gap: 8,
+        },
+        identityText: {
+            padding: "0 6px",
+            textAlign: "center" as const,
+        },
         nameEmailWrap: {
-            minHeight: 60,
             display: "flex",
             flexDirection: "column" as const,
             justifyContent: "center",
         },
         name: {
-            margin: "12px 0 0",
-            fontSize: 20,
+            margin: 0,
+            fontSize: 31,
             fontWeight: 800,
             color: "#111827",
             textAlign: "center" as const,
             lineHeight: 1.1,
-            padding: "0 8px",
+            padding: 0,
             wordBreak: "break-word" as const,
         },
         email: {
-            margin: "4px 0 0",
-            fontSize: 12,
+            margin: "8px 0 0",
+            fontSize: 14,
             color: "#4b5563",
             textAlign: "center" as const,
             fontWeight: 500,
-            padding: "0 8px",
+            padding: 0,
             wordBreak: "break-word" as const,
         },
         details: {
-            marginTop: 12,
-            padding: 12,
-            minHeight: 110,
+            marginTop: 2,
+            padding: 16,
+            minHeight: 124,
             borderRadius: 16,
             backgroundColor: "#f8fafc",
             border: "1px solid #e5e7eb",
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
-            columnGap: 12,
-            rowGap: 10,
+            columnGap: 18,
+            rowGap: 12,
+        },
+        signatureWrap: {
+            marginTop: 4,
+            paddingTop: 12,
+            borderTop: "1px solid #f3d7b2",
+            display: "flex",
+            flexDirection: "column" as const,
+            alignItems: "flex-end",
+            gap: 6,
+        },
+        signatureLabel: {
+            margin: 0,
+            fontSize: 10,
+            color: "#7c2d12",
+            fontWeight: 800,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase" as const,
+        },
+        signatureBox: {
+            width: 180,
+            height: 48,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+        },
+        signatureImage: {
+            maxWidth: "100%",
+            maxHeight: "100%",
+            objectFit: "contain" as const,
+            display: "block",
         },
         label: {
             margin: 0,
-            fontSize: 10,
+            fontSize: 11,
             color: "#6b7280",
             fontWeight: 600,
             lineHeight: 1.2,
@@ -249,25 +301,15 @@ export default function MemberIDCardPage() {
         },
         value: {
             margin: "4px 0 0",
-            fontSize: 12,
+            fontSize: 14,
             color: "#111827",
             fontWeight: 700,
             lineHeight: 1.25,
             wordBreak: "break-word" as const,
         },
-        qrRow: {
-            marginTop: "auto",
-            minHeight: 100,
-            display: "flex",
-            flexDirection: "column" as const,
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 6,
-            paddingTop: 20,
-        },
         qrBox: {
-            width: 92,
-            height: 92,
+            width: 140,
+            height: 140,
             backgroundColor: "#ffffff",
             border: "2px solid #d1d5db",
             borderRadius: 14,
@@ -275,27 +317,27 @@ export default function MemberIDCardPage() {
             alignItems: "center",
             justifyContent: "center",
             boxShadow: "0 10px 20px rgba(15, 23, 42, 0.12)",
-            padding: 7,
+            padding: 10,
         },
         qrImage: {
-            width: 72,
-            height: 72,
+            width: 116,
+            height: 116,
             objectFit: "contain" as const,
             display: "block",
         },
         qrText: {
             margin: 0,
-            fontSize: 11,
+            fontSize: 12,
             color: "#374151",
             fontWeight: 700,
             textAlign: "center" as const,
         },
         footer: {
-            marginTop: 10,
-            minHeight: 40,
+            marginTop: "auto",
+            minHeight: 44,
             backgroundColor: "#fef3c7",
             borderRadius: 12,
-            padding: "9px 10px",
+            padding: "10px 12px",
             borderTop: "1px solid #e5e7eb",
             textAlign: "center" as const,
             display: "flex",
@@ -304,7 +346,7 @@ export default function MemberIDCardPage() {
         },
         footerText: {
             margin: 0,
-            fontSize: 10,
+            fontSize: 11,
             color: "#92400e",
             fontWeight: 700,
             letterSpacing: "0.08em",
@@ -348,8 +390,12 @@ export default function MemberIDCardPage() {
             {idCard ? (
                 <div className="flex flex-col lg:flex-row gap-8 items-start justify-center pt-4">
                     {/* The ID Card Container */}
-                    <div className="flex justify-center flex-1 w-full lg:w-auto relative group">
-                        <div className="w-85 h-135 bg-[#fdfcfa] rounded-[2rem] p-1 shadow-2xl shadow-amber-900/15 border border-amber-900/10 relative overflow-hidden transform-gpu transition-all duration-700 hover:scale-[1.02] hover:-rotate-1 hover:shadow-amber-900/20">
+                    <div className="flex justify-center flex-1 w-full lg:w-auto relative group overflow-x-auto">
+                        <div
+                            id="member-id-card-preview"
+                            className="bg-[#fdfcfa] rounded-[2rem] p-1 shadow-2xl shadow-amber-900/15 border border-amber-900/10 relative overflow-hidden transform-gpu transition-all duration-700 hover:scale-[1.01] hover:shadow-amber-900/20"
+                            style={{ width: 856, height: 540 }}
+                        >
                             {/* Inner stroke */}
                             <div className="absolute inset-2 rounded-3xl border border-amber-900/10 pointer-events-none z-20" />
 
@@ -361,7 +407,7 @@ export default function MemberIDCardPage() {
                             {/* Content */}
                             <div className="relative h-full flex flex-col bg-white/40 backdrop-blur-sm rounded-[1.75rem] overflow-hidden">
                                 {/* Header */}
-                                <div className="px-6 pt-10 pb-6 text-center relative z-10">
+                                <div className="px-8 pt-8 pb-5 text-center relative z-10">
                                     <p className="font-serif text-amber-800 font-bold text-xl tracking-tight leading-tight">Nirashray</p>
                                     <p className="text-[9px] uppercase tracking-widest text-slate-500 font-bold mt-1">Foundation</p>
 
@@ -372,27 +418,51 @@ export default function MemberIDCardPage() {
                                     </div>
                                 </div>
 
-                                {/* Photo & Name */}
-                                <div className="px-6 flex flex-col items-center relative z-10 -mt-2">
-                                    <div className="relative">
-                                        <div className="absolute inset-0 bg-linear-to-tr from-amber-400 to-amber-200 rounded-full blur opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
-                                        <div className="w-28 h-28 rounded-full border-4 border-white shadow-xl shadow-amber-900/10 overflow-hidden bg-amber-50 relative group-hover:scale-[1.03] transition-transform duration-500">
-                                            {profile.user.image ? (
-                                                <Image src={profile.user.image} alt={profile.user.name} fill className="object-cover" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-amber-100 to-amber-50">
-                                                    <span className="text-3xl font-serif font-bold text-amber-700/50">{getInitials(profile.user.name)}</span>
+                                {/* Photo, QR, and identity */}
+                                <div className="px-8 pt-2 pb-1 relative z-10 flex flex-col items-center gap-4">
+                                    <div className="flex items-start gap-6 justify-center w-full">
+                                        <div className="relative">
+                                            <div className="absolute inset-0 bg-linear-to-tr from-amber-400 to-amber-200 rounded-[18px] blur opacity-35 group-hover:opacity-50 transition-opacity duration-500" />
+                                            <div
+                                                className="rounded-[18px] border-4 border-white shadow-xl shadow-amber-900/10 overflow-hidden bg-amber-50 relative group-hover:scale-[1.02] transition-transform duration-500"
+                                                style={{ width: 140, height: 180 }}
+                                            >
+                                                {profile.user.image ? (
+                                                    <Image src={profile.user.image} alt={profile.user.name} fill className="object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-amber-100 to-amber-50">
+                                                        <span className="text-4xl font-serif font-bold text-amber-700/50">{getInitials(profile.user.name)}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col items-center gap-2 pt-1">
+                                            {idCard.qrCodeData && (
+                                                <div
+                                                    className="bg-white rounded-2xl p-2 shrink-0 shadow-md shadow-amber-900/5 border border-white group-hover:shadow-lg transition-shadow duration-500"
+                                                    style={{ width: 140, height: 140 }}
+                                                >
+                                                    <Image src={idCard.qrCodeData} alt="QR Code" width={124} height={124} className="w-full h-full mix-blend-multiply" />
                                                 </div>
                                             )}
+                                            <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold text-center">Scan to verify</p>
                                         </div>
                                     </div>
-                                    <h3 className="font-serif text-2xl font-bold text-slate-800 mt-6 text-center leading-tight tracking-tight px-4">{profile.user.name}</h3>
-                                    <p className="text-xs font-bold text-slate-400 mt-1.5 uppercase tracking-wide">{profile.user.email}</p>
+
+                                    <div className="w-full text-center" style={{ maxWidth: 620 }}>
+                                        <h3 className="font-serif text-[32px] font-bold text-slate-800 leading-tight tracking-tight">{profile.user.name}</h3>
+                                        <p className="text-sm font-semibold text-slate-500 mt-2 break-all">{profile.user.email}</p>
+                                        <div className="space-y-1.5 mt-4">
+                                            <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Member Identity</p>
+                                            <p className="text-[11px] uppercase tracking-widest text-amber-700/80 font-bold">Valid & Verified</p>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Details */}
-                                <div className="px-5 py-5 bg-white/70 mx-5 rounded-2xl border border-white shadow-sm mt-8 relative z-10">
-                                    <div className="grid grid-cols-2 gap-y-4 gap-x-3">
+                                <div className="px-6 py-5 bg-white/70 mx-8 rounded-2xl border border-white shadow-sm mt-2 relative z-10">
+                                    <div className="grid grid-cols-2 gap-y-4 gap-x-6">
                                         <div>
                                             <p className="text-[8px] uppercase tracking-widest text-amber-800/60 font-bold mb-1">Member ID</p>
                                             <p className="text-[13px] font-bold text-slate-800 font-mono tracking-tight">{profile.memberId}</p>
@@ -412,17 +482,25 @@ export default function MemberIDCardPage() {
                                     </div>
                                 </div>
 
-                                {/* QR & Footer */}
-                                <div className="mt-auto pt-6 pb-6 px-8 flex items-end justify-between relative z-10 border-t border-amber-900/5 bg-linear-to-b from-transparent to-amber-50/50">
-                                    <div className="space-y-1.5 mb-1">
-                                        <p className="text-[8px] uppercase tracking-widest text-slate-400 font-bold">Member Identity</p>
-                                        <p className="text-[9px] uppercase tracking-widest text-amber-700/80 font-bold">Valid & Verified</p>
-                                    </div>
-                                    {idCard.qrCodeData && (
-                                        <div className="w-16 h-16 bg-white rounded-xl p-1.5 shrink-0 shadow-md shadow-amber-900/5 border border-white group-hover:shadow-lg transition-shadow duration-500">
-                                            <Image src={idCard.qrCodeData} alt="QR Code" width={52} height={52} className="w-full h-full mix-blend-multiply" />
+                                {/* Signature */}
+                                <div className="mt-auto px-8 pb-5 pt-4 relative z-10">
+                                    <div className="flex flex-col items-end gap-2 border-t border-amber-900/10 pt-4">
+                                        <p className="text-[10px] uppercase tracking-widest text-amber-800/70 font-bold">Founder / President</p>
+                                        <div className="flex items-center justify-end" style={{ width: 190, height: 54 }}>
+                                            {adminSignature ? (
+                                                <Image
+                                                    src={adminSignature}
+                                                    alt="Founder / President Signature"
+                                                    width={190}
+                                                    height={54}
+                                                    className="w-auto object-contain"
+                                                    style={{ maxHeight: 54 }}
+                                                />
+                                            ) : (
+                                                <div className="w-full border-b border-dashed border-amber-300 h-8" />
+                                            )}
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -449,7 +527,7 @@ export default function MemberIDCardPage() {
                                     </li>
                                     <li className="flex gap-3">
                                         <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-2" />
-                                        <p>You can screenshot, download, or print this vertical card for offline use during events.</p>
+                                        <p>You can screenshot, download, or print this card for offline use during events.</p>
                                     </li>
                                     <li className="flex gap-3">
                                         <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-2" />
@@ -502,7 +580,7 @@ export default function MemberIDCardPage() {
                         zIndex: -9999,
                         visibility: "hidden",
                         pointerEvents: "none",
-                        width: 340,
+                        width: 856,
                         height: 540,
                         overflow: "hidden",
                     }}
@@ -514,52 +592,74 @@ export default function MemberIDCardPage() {
                             <div style={exportCardStyles.badge}>{profile.membershipType}</div>
                         </div>
 
-                        <div style={exportCardStyles.avatarWrap}>{getInitials(profile.user.name)}</div>
-
-                        <div style={exportCardStyles.nameEmailWrap}>
-                            <p style={exportCardStyles.name}>{profile.user.name}</p>
-                            <p style={exportCardStyles.email}>{profile.user.email}</p>
-                        </div>
-
-                        <div style={exportCardStyles.details}>
-                            <div>
-                                <p style={exportCardStyles.label}>Member ID</p>
-                                <p style={exportCardStyles.value}>{profile.memberId}</p>
-                            </div>
-                            <div>
-                                <p style={exportCardStyles.label}>Card No</p>
-                                <p style={exportCardStyles.value}>{idCard.cardNumber}</p>
-                            </div>
-                            <div>
-                                <p style={exportCardStyles.label}>Joined</p>
-                                <p style={exportCardStyles.value}>{formatDate(new Date(profile.joinDate))}</p>
-                            </div>
-                            <div>
-                                <p style={exportCardStyles.label}>Valid Until</p>
-                                <p style={exportCardStyles.value}>{formatDate(new Date(idCard.expiryDate))}</p>
-                            </div>
-                        </div>
-
-                        <div style={exportCardStyles.qrRow}>
-                            {idCard.qrCodeData && (
-                                <div style={exportCardStyles.qrBox}>
-                                    <img
-                                        src={idCard.qrCodeData}
-                                        alt="QR Code"
-                                        width={80}              // ← 80 se 100 karo
-                                        height={80}             // ← 80 se 100 karo
-                                        style={{
-                                            ...exportCardStyles.qrImage,
-                                            imageRendering: '-webkit-optimize-contrast',  // ← Sharp QR
-                                        }}
-                                    />
+                        <div style={exportCardStyles.body}>
+                            <div style={exportCardStyles.identityRow}>
+                                <div style={exportCardStyles.avatarWrap}>{getInitials(profile.user.name)}</div>
+                                <div style={exportCardStyles.qrColumn}>
+                                    {idCard.qrCodeData && (
+                                        <div style={exportCardStyles.qrBox}>
+                                            <img
+                                                src={idCard.qrCodeData}
+                                                alt="QR Code"
+                                                width={116}
+                                                height={116}
+                                                style={{
+                                                    ...exportCardStyles.qrImage,
+                                                    imageRendering: "-webkit-optimize-contrast",
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+                                    <p style={exportCardStyles.qrText}>Scan to verify membership</p>
                                 </div>
-                            )}
-                            <p style={exportCardStyles.qrText}>Scan to verify membership</p>
-                        </div>
+                            </div>
 
-                        <div style={exportCardStyles.footer}>
-                            <p style={exportCardStyles.footerText}>Digital Member Identity Card</p>
+                            <div style={exportCardStyles.identityText}>
+                                <div style={exportCardStyles.nameEmailWrap}>
+                                    <p style={exportCardStyles.name}>{profile.user.name}</p>
+                                    <p style={exportCardStyles.email}>{profile.user.email}</p>
+                                </div>
+                            </div>
+
+                            <div style={exportCardStyles.details}>
+                                <div>
+                                    <p style={exportCardStyles.label}>Member ID</p>
+                                    <p style={exportCardStyles.value}>{profile.memberId}</p>
+                                </div>
+                                <div>
+                                    <p style={exportCardStyles.label}>Card No</p>
+                                    <p style={exportCardStyles.value}>{idCard.cardNumber}</p>
+                                </div>
+                                <div>
+                                    <p style={exportCardStyles.label}>Joined</p>
+                                    <p style={exportCardStyles.value}>{formatDate(new Date(profile.joinDate))}</p>
+                                </div>
+                                <div>
+                                    <p style={exportCardStyles.label}>Valid Until</p>
+                                    <p style={exportCardStyles.value}>{formatDate(new Date(idCard.expiryDate))}</p>
+                                </div>
+                            </div>
+
+                            <div style={exportCardStyles.signatureWrap}>
+                                <p style={exportCardStyles.signatureLabel}>Founder / President</p>
+                                <div style={exportCardStyles.signatureBox}>
+                                    {adminSignature ? (
+                                        <img
+                                            src={adminSignature}
+                                            alt="Founder / President Signature"
+                                            width={180}
+                                            height={48}
+                                            style={exportCardStyles.signatureImage}
+                                        />
+                                    ) : (
+                                        <div style={{ width: "100%", borderBottom: "1px dashed #e7c18f", height: 22 }} />
+                                    )}
+                                </div>
+                            </div>
+
+                            <div style={exportCardStyles.footer}>
+                                <p style={exportCardStyles.footerText}>Digital Member Identity Card</p>
+                            </div>
                         </div>
                     </div>
                 </div>
