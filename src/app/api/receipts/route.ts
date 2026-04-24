@@ -67,21 +67,13 @@ export async function GET(request: NextRequest) {
 
     if (status) where.status = status;
 
-    // Backward-compatible source filtering until new Prisma fields are fully migrated.
-    if (source === "ONLINE") {
-        where.OR = [
-            ...(Array.isArray(where.OR) ? where.OR : []),
-            { razorpayOrderId: { not: null } },
-            { razorpayPaymentId: { not: null } },
-        ];
+    if (source === "ONLINE" || source === "OFFLINE" || source === "MANUAL") {
+        where.source = source;
     }
 
-    if ((source === "OFFLINE" || source === "MANUAL") && !Array.isArray(where.OR)) {
-        where.razorpayOrderId = null;
+    if (paymentMode) {
+        where.paymentMode = paymentMode;
     }
-
-    // `paymentMode` is accepted for API compatibility and future schema use.
-    void paymentMode;
     if (referralOnly) where.referrerMemberId = { not: null };
 
     if (fromDate || toDate) {
@@ -132,8 +124,9 @@ export async function GET(request: NextRequest) {
         }),
         prisma.donation.count({ where }),
     ]);
+    const receiptRows = rows as any[];
 
-    const receipts = rows.map((row) => ({
+    const receipts = receiptRows.map((row) => ({
         id: row.id,
         receiptNumber: row.receiptNumber,
         amount: row.amount,
@@ -142,13 +135,14 @@ export async function GET(request: NextRequest) {
         donorEmail: row.donorEmail,
         donorPhone: row.donorPhone,
         donorPAN: row.donorPAN,
-        source: row.razorpayOrderId || row.razorpayPaymentId ? "ONLINE" : "MANUAL",
-        paymentMode: null,
-        paymentReference: row.razorpayPaymentId || row.razorpayOrderId || null,
+        source: row.source,
+        paymentMode: row.paymentMode,
+        paymentReference: row.paymentReference || row.razorpayPaymentId || row.razorpayOrderId || null,
+        transactionId: row.paymentReference || row.razorpayPaymentId || row.razorpayOrderId || null,
         status: row.status,
         purpose: row.purpose,
         message: row.message,
-        notes: null,
+        notes: row.notes,
         paidAt: row.paidAt,
         receiptIssuedAt: row.paidAt,
         createdAt: row.createdAt,
@@ -163,9 +157,9 @@ export async function GET(request: NextRequest) {
                 email: row.referrerMember.user?.email || null,
             }
             : null,
-        recordedByUserId: null,
+        recordedByUserId: row.recordedByUserId,
         recordedByName: null,
-        receivedBy: null,
+        receivedBy: row.receivedBy,
     }));
 
     return NextResponse.json({
@@ -262,6 +256,11 @@ export async function POST(request: NextRequest) {
             data: {
                 amount: data.amount,
                 currency: "INR",
+                source: data.source,
+                paymentMode: data.paymentMode,
+                paymentReference,
+                receivedBy,
+                recordedByUserId: session.user.id,
                 donorName: data.donorName,
                 donorEmail: data.donorEmail,
                 donorPhone,
@@ -271,9 +270,11 @@ export async function POST(request: NextRequest) {
                 receiptNumber,
                 purpose,
                 message: metadataNotes || null,
+                notes,
                 status: "COMPLETED",
                 paidAt: now,
-            },
+                receiptIssuedAt: now,
+            } as any,
             include: {
                 referrerMember: {
                     select: {
@@ -287,7 +288,7 @@ export async function POST(request: NextRequest) {
                     },
                 },
             },
-        });
+        }) as any;
 
         return NextResponse.json({
             success: true,
@@ -301,6 +302,7 @@ export async function POST(request: NextRequest) {
                 source: data.source,
                 paymentMode: data.paymentMode,
                 paymentReference,
+                transactionId: paymentReference,
                 status: donation.status,
                 paidAt: donation.paidAt,
                 receiptIssuedAt: donation.paidAt,

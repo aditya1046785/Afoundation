@@ -105,6 +105,16 @@ export const manualDonationSchema = z.object({
     referralCode: z.string().trim().optional(),
     referrerMemberId: z.string().trim().optional(),
     memberId: z.string().trim().optional(),
+}).superRefine((data, ctx) => {
+    const paymentReference = data.paymentReference?.trim() || "";
+
+    if (data.paymentMode !== "CASH" && !paymentReference) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Transaction ID / reference is required for non-cash payments",
+            path: ["paymentReference"],
+        });
+    }
 });
 
 // ============================================================

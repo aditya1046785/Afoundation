@@ -8,6 +8,7 @@ export type ReceiptPdfData = {
     donorPAN?: string | null;
     amount: number;
     purpose?: string | null;
+    transactionId?: string | null;
     date: Date;
 };
 
@@ -71,6 +72,7 @@ export async function generateReceiptPdfBuffer(receiptData: ReceiptPdfData): Pro
     addRow("Email", receiptData.donorEmail);
     if (receiptData.donorPhone) addRow("Phone", receiptData.donorPhone);
     if (receiptData.donorPAN) addRow("PAN Number", receiptData.donorPAN);
+    if (receiptData.transactionId) addRow("Transaction ID", receiptData.transactionId);
     if (receiptData.purpose) addRow("Purpose", receiptData.purpose);
 
     y += 5;

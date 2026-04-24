@@ -33,8 +33,10 @@ export async function POST(request: NextRequest) {
             data: {
                 razorpayPaymentId: razorpay_payment_id,
                 razorpaySignature: razorpay_signature,
+                paymentReference: razorpay_payment_id,
                 status: "COMPLETED",
                 paidAt: new Date(),
+                receiptIssuedAt: new Date(),
             },
         });
 

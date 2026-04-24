@@ -30,6 +30,7 @@ interface ReceiptItem {
     source: "ONLINE" | "OFFLINE" | "MANUAL";
     paymentMode: string | null;
     paymentReference: string | null;
+    transactionId: string | null;
     status: string;
     purpose: string | null;
     paidAt: string | null;
@@ -134,6 +135,7 @@ export function ReceiptsClient() {
 
     const handleCreateReceipt = async () => {
         const amountNumber = Number(form.amount);
+        const paymentReference = form.paymentReference.trim();
 
         if (!form.donorName.trim()) {
             toast.error("Donor name is required");
@@ -150,6 +152,11 @@ export function ReceiptsClient() {
             return;
         }
 
+        if (form.paymentMode !== "CASH" && !paymentReference) {
+            toast.error("Transaction ID / reference is required for non-cash payments");
+            return;
+        }
+
         setIsSubmitting(true);
         try {
             const payload = {
@@ -160,7 +167,7 @@ export function ReceiptsClient() {
                 amount: amountNumber,
                 source: form.source,
                 paymentMode: form.paymentMode,
-                paymentReference: form.paymentReference.trim() || undefined,
+                paymentReference: paymentReference || undefined,
                 purpose: form.purpose.trim() || undefined,
                 notes: form.notes.trim() || undefined,
                 referralCode: form.referralCode.trim() || undefined,
@@ -304,9 +311,17 @@ export function ReceiptsClient() {
                                         <SelectItem value="OTHER">Other</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                <Input placeholder="Payment Reference" value={form.paymentReference} onChange={(e) => handleFormChange("paymentReference", e.target.value)} />
+                                <Input
+                                    placeholder={form.paymentMode === "CASH" ? "Payment Reference (optional)" : "Transaction ID / Payment Reference *"}
+                                    value={form.paymentReference}
+                                    onChange={(e) => handleFormChange("paymentReference", e.target.value)}
+                                />
                                 <Input placeholder="Referral Code (optional)" value={form.referralCode} onChange={(e) => handleFormChange("referralCode", e.target.value)} />
                             </div>
+
+                            <p className="text-xs text-slate-500 -mt-1">
+                                Transaction ID is mandatory for UPI, bank transfer, cheque, card, and other non-cash payments.
+                            </p>
 
                             <Input placeholder="Notes (optional)" value={form.notes} onChange={(e) => handleFormChange("notes", e.target.value)} />
 
@@ -364,8 +379,8 @@ export function ReceiptsClient() {
                                                 <Badge className="text-[10px] border bg-slate-50 text-slate-700 border-slate-200">{PAYMENT_STATUS_LABELS[item.status as keyof typeof PAYMENT_STATUS_LABELS] || item.status}</Badge>
                                             </div>
                                             <p className="text-xs text-slate-500 mt-1">{item.purpose || "General Donation"}</p>
-                                            {item.paymentReference ? (
-                                                <p className="text-[11px] text-slate-400">Ref: {item.paymentReference}</p>
+                                            {item.transactionId ? (
+                                                <p className="text-[11px] text-slate-400">Txn ID: {item.transactionId}</p>
                                             ) : null}
                                         </TableCell>
                                         <TableCell>

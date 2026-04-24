@@ -238,6 +238,7 @@ export async function downloadReceiptPDF(
         donorPAN?: string;
         amount: number;
         purpose?: string;
+        transactionId?: string;
         date: Date;
     }
 ): Promise<void> {
@@ -305,6 +306,7 @@ export async function downloadReceiptPDF(
     addRow("Email", receiptData.donorEmail);
     if (receiptData.donorPhone) addRow("Phone", receiptData.donorPhone);
     if (receiptData.donorPAN) addRow("PAN Number", receiptData.donorPAN);
+    if (receiptData.transactionId) addRow("Transaction ID", receiptData.transactionId);
     if (receiptData.purpose) addRow("Purpose", receiptData.purpose);
 
     // Donation amount box

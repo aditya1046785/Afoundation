@@ -21,7 +21,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<P
     const body = await request.json().catch(() => ({}));
     const manualTargetEmail = typeof body?.to === "string" ? body.to.trim() : "";
 
-    const donation = await prisma.donation.findUnique({
+    const donation = (await prisma.donation.findUnique({
         where: { receiptNumber },
         select: {
             receiptNumber: true,
@@ -29,11 +29,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<P
             donorEmail: true,
             amount: true,
             purpose: true,
+                paymentReference: true,
+                razorpayPaymentId: true,
+                razorpayOrderId: true,
             paidAt: true,
             createdAt: true,
-            razorpayPaymentId: true,
-        },
-    });
+        } as any,
+    })) as any;
 
     if (!donation) {
         return NextResponse.json({ success: false, error: "Receipt not found" }, { status: 404 });
@@ -50,7 +52,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<P
         receiptNumber: donation.receiptNumber,
         date: (donation.paidAt || donation.createdAt).toISOString(),
         purpose: donation.purpose || "General Donation",
-        transactionId: donation.razorpayPaymentId || `MANUAL-${donation.receiptNumber}`,
+            transactionId: donation.paymentReference || donation.razorpayPaymentId || donation.razorpayOrderId || `MANUAL-${donation.receiptNumber}`,
     });
 
     if (!emailSent) {

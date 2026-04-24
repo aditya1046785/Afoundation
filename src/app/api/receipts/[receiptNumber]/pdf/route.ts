@@ -19,7 +19,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<P
 
     const { receiptNumber } = await params;
 
-    const donation = await prisma.donation.findUnique({
+    const donation = (await prisma.donation.findUnique({
         where: { receiptNumber },
         select: {
             receiptNumber: true,
@@ -29,10 +29,13 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<P
             donorPAN: true,
             amount: true,
             purpose: true,
+            paymentReference: true,
+            razorpayPaymentId: true,
+            razorpayOrderId: true,
             paidAt: true,
             createdAt: true,
         },
-    });
+    } as any)) as any;
 
     if (!donation) {
         return NextResponse.json({ success: false, error: "Receipt not found" }, { status: 404 });
@@ -46,6 +49,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<P
         donorPAN: donation.donorPAN,
         amount: donation.amount,
         purpose: donation.purpose,
+        transactionId: donation.paymentReference || donation.razorpayPaymentId || donation.razorpayOrderId || null,
         date: donation.paidAt || donation.createdAt,
     });
 
