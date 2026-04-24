@@ -24,6 +24,7 @@ const links: SidebarLink[] = [
     { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { label: "Members", href: "/admin/members", icon: Users },
     { label: "Donations", href: "/admin/donations", icon: Heart },
+    { label: "Receipts", href: "/admin/receipts", icon: FileText },
     { label: "Referrals", href: "/admin/referrals", icon: Link2 },
     { label: "Crowdfunding", href: "/admin/crowdfunding", icon: Target },
     { label: "Certificates", href: "/admin/certificates", icon: Award },
