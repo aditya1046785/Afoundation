@@ -33,6 +33,21 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum DonationSource {
+  ONLINE
+  OFFLINE
+  MANUAL
+}
+
+enum DonationPaymentMode {
+  UPI
+  BANK_TRANSFER
+  CASH
+  CHEQUE
+  CARD
+  OTHER
+}
+
 enum CertificateType {
   MEMBERSHIP
   APPRECIATION
@@ -148,18 +163,26 @@ model Donation {
   id                 String        @id @default(cuid())
   amount             Float
   currency           String        @default("INR")
+  source             DonationSource @default(ONLINE)
+  paymentMode        DonationPaymentMode?
+  paymentReference   String?
+  receivedBy         String?
+  recordedByUserId   String?
   donorName          String
   donorEmail         String
   donorPhone         String?
   donorPAN           String?
   memberId           String?
   referrerMemberId   String?
+  referralCodeUsed   String?
   razorpayOrderId    String?
   razorpayPaymentId  String?
   razorpaySignature  String?
   receiptNumber      String        @unique // Format: DON-YYYY-XXXXX
+  receiptIssuedAt    DateTime?
   purpose            String?
   message            String?       @db.Text
+  notes              String?       @db.Text
   status             PaymentStatus @default(PENDING)
   paidAt             DateTime?
   createdAt          DateTime      @default(now())
@@ -171,6 +194,9 @@ model Donation {
   @@index([donorEmail])
   @@index([memberId])
   @@index([referrerMemberId])
+  @@index([source])
+  @@index([paymentMode])
+  @@index([recordedByUserId])
   @@index([status])
   @@index([createdAt])
 }

@@ -86,6 +86,27 @@ export const donationSchema = z.object({
     referralCode: z.string().trim().min(1).optional(),
 });
 
+export const manualDonationSchema = z.object({
+    amount: z.number().min(1, "Amount must be at least ₹1"),
+    donorName: z.string().min(2, "Name must be at least 2 characters"),
+    donorEmail: z.string().email("Invalid email address"),
+    donorPhone: z
+        .string()
+        .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit Indian phone number")
+        .optional()
+        .or(z.literal("")),
+    donorPAN: z.string().optional(),
+    source: z.enum(["OFFLINE", "MANUAL"]).default("MANUAL"),
+    paymentMode: z.enum(["UPI", "BANK_TRANSFER", "CASH", "CHEQUE", "CARD", "OTHER"]),
+    paymentReference: z.string().trim().optional(),
+    receivedBy: z.string().trim().optional(),
+    purpose: z.string().trim().optional(),
+    notes: z.string().trim().optional(),
+    referralCode: z.string().trim().optional(),
+    referrerMemberId: z.string().trim().optional(),
+    memberId: z.string().trim().optional(),
+});
+
 // ============================================================
 // CONTACT SCHEMA
 // ============================================================
@@ -250,6 +271,7 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 export type MemberInput = z.infer<typeof memberSchema>;
 export type MemberProfileInput = z.infer<typeof memberProfileSchema>;
 export type DonationInput = z.infer<typeof donationSchema>;
+export type ManualDonationInput = z.infer<typeof manualDonationSchema>;
 export type ContactInput = z.infer<typeof contactSchema>;
 export type EventInput = z.infer<typeof eventSchema>;
 export type CertificateInput = z.infer<typeof certificateSchema>;
