@@ -1,4 +1,6 @@
 import "server-only";
+import { readFile } from "fs/promises";
+import path from "path";
 
 export type ReceiptPdfData = {
     receiptNumber: string;
@@ -20,6 +22,25 @@ export async function generateReceiptPdfBuffer(receiptData: ReceiptPdfData): Pro
 
     pdf.setFillColor(30, 64, 175);
     pdf.rect(0, 0, pageWidth, 40, "F");
+
+    // Try rendering the foundation logo in the header; fallback to a branded badge.
+    const logoSize = 16;
+    const logoX = 10;
+    const logoY = 8;
+
+    try {
+        const logoPath = path.join(process.cwd(), "public", "favicon.ico");
+        const logoBuffer = await readFile(logoPath);
+        const logoDataUrl = `data:image/x-icon;base64,${logoBuffer.toString("base64")}`;
+        pdf.addImage(logoDataUrl, "ICO", logoX, logoY, logoSize, logoSize);
+    } catch {
+        pdf.setFillColor(255, 255, 255);
+        pdf.roundedRect(logoX, logoY, logoSize, logoSize, 2, 2, "F");
+        pdf.setTextColor(30, 64, 175);
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(9);
+        pdf.text("NF", logoX + logoSize / 2, logoY + 10, { align: "center" });
+    }
 
     pdf.setTextColor(255, 255, 255);
     pdf.setFontSize(20);

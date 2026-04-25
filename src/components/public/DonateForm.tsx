@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { FieldErrors, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { donationSchema } from "@/lib/validations";
 import { toast } from "sonner";
@@ -63,15 +63,48 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
 
     const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<DonationFormData>({
         resolver: zodResolver(donationSchema),
-        defaultValues: { amount: 1000, donorName: "", donorEmail: "", donorPhone: "", donorPAN: "", purpose: "", message: "", referralCode: "" },
+        defaultValues: { amount: 1000, donorName: "", donorEmail: "", donorPhone: "", donorPAN: "", purpose: "", message: "", referralCode: undefined },
     });
 
     const watchedAmount = watch("amount");
     const referralCode = searchParams.get("ref")?.trim() || "";
+    const prefillName = searchParams.get("name")?.trim() || "";
+    const prefillEmail = searchParams.get("email")?.trim() || "";
+    const prefillPhone = searchParams.get("phone")?.trim() || "";
+    const prefillPAN = searchParams.get("pan")?.trim() || "";
 
     useEffect(() => {
-        setValue("referralCode", referralCode);
+        setValue("referralCode", referralCode || undefined);
     }, [referralCode, setValue]);
+
+    useEffect(() => {
+        if (prefillName) setValue("donorName", prefillName);
+        if (prefillEmail) setValue("donorEmail", prefillEmail);
+        if (prefillPhone) setValue("donorPhone", prefillPhone);
+        if (prefillPAN) setValue("donorPAN", prefillPAN);
+    }, [prefillName, prefillEmail, prefillPhone, prefillPAN, setValue]);
+
+    const normalizeDonationPayload = (data: DonationFormData) => {
+        const payload: Record<string, unknown> = {
+            amount: data.amount,
+            donorName: data.donorName.trim(),
+            donorEmail: data.donorEmail.trim(),
+        };
+
+        const donorPhone = data.donorPhone?.trim();
+        const donorPAN = data.donorPAN?.trim();
+        const purpose = data.purpose?.trim();
+        const message = data.message?.trim();
+        const cleanedReferralCode = data.referralCode?.trim();
+
+        if (donorPhone) payload.donorPhone = donorPhone;
+        if (donorPAN) payload.donorPAN = donorPAN.toUpperCase();
+        if (purpose) payload.purpose = purpose;
+        if (message) payload.message = message;
+        if (cleanedReferralCode) payload.referralCode = cleanedReferralCode;
+
+        return payload;
+    };
 
     const loadRazorpay = () => {
         return new Promise((resolve) => {
@@ -84,19 +117,37 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
 
     const onSubmit = async (data: DonationFormData) => {
         try {
+            console.log("Donate form submitted", data);
             setIsLoading(true);
+            console.log("Loading Razorpay script");
+            
             await loadRazorpay();
+            console.log("Razorpay script loaded");
 
             // Create order
+            console.log("Creating order");
+            const payload = normalizeDonationPayload(data);
+            console.log("Create-order payload", payload);
+
             const res = await fetch("/api/donations/create-order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
+                body: JSON.stringify(payload),
             });
-            const { success, data: orderData, error } = await res.json();
-            if (!success) throw new Error(error);
+            
+            console.log("Create-order response status", res.status);
+            const responseData = await res.json();
+            console.log("Create-order response data", responseData);
+            
+            const { success, data: orderData, error } = responseData;
+            if (!success) {
+                throw new Error(error || "Failed to create order");
+            }
+
+            console.log("Order created", orderData);
 
             // Open Razorpay checkout
+            console.log("Opening Razorpay checkout");
             const rzp = new window.Razorpay({
                 key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
                 amount: orderData.amount,
@@ -111,28 +162,55 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                 },
                 theme: { color: "#f59e0b" }, // Amber 500
                 handler: async (response: RazorpayPaymentResponse) => {
+                    console.log("Payment completed, verifying", response);
                     const verifyRes = await fetch("/api/donations/verify", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(response),
                     });
                     const verifyData = await verifyRes.json();
+                    console.log("Verification result", verifyData);
+                    
                     if (verifyData.success) {
-                        setSuccess(true);
-                        toast.success(`Thank you! Receipt: ${verifyData.data.receiptNumber}`);
+                        const receiptNumber = verifyData?.data?.receiptNumber as string | undefined;
+                        const paymentId = verifyData?.data?.paymentId as string | undefined;
+
+                        toast.success("Thank you for your donation! Preparing your receipt download...");
+
+                        if (receiptNumber && paymentId) {
+                            const receiptUrl = `/api/receipts/${encodeURIComponent(receiptNumber)}/pdf?paymentId=${encodeURIComponent(paymentId)}`;
+                            setTimeout(() => {
+                                window.location.assign(receiptUrl);
+                            }, 900);
+                        } else {
+                            setSuccess(true);
+                        }
                     } else {
                         toast.error("Payment verification failed. Please contact support.");
                     }
                 },
-                modal: { ondismiss: () => setIsLoading(false) },
+                modal: { ondismiss: () => {
+                    console.log("Razorpay modal dismissed by user");
+                    setIsLoading(false);
+                } },
             });
             rzp.open();
         } catch (err) {
-            toast.error(err instanceof Error ? err.message : "Something went wrong.");
+            console.error("Donate flow error", err);
+            const errorMessage = err instanceof Error ? err.message : "Something went wrong.";
+            console.error("Error message", errorMessage);
+            toast.error(errorMessage);
         } finally {
             setIsLoading(false);
         }
     };
+
+    const onInvalid = (formErrors: FieldErrors<DonationFormData>) => {
+        toast.error("Please fill all required fields correctly.");
+        console.warn("Donate form validation failed", formErrors);
+    };
+
+    const submitDonation = handleSubmit(onSubmit, onInvalid);
 
     if (success) {
         return (
@@ -166,7 +244,10 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                 <span className="text-slate-400 text-sm tracking-widest uppercase font-medium">Secure</span>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 relative z-10">
+            <form onSubmit={(event) => {
+                event.preventDefault();
+                submitDonation();
+            }} className="space-y-8 relative z-10">
                 {referralCode && (
                     <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
                         <p className="text-xs font-semibold text-emerald-700 uppercase tracking-widest">Referral Applied</p>
@@ -240,8 +321,11 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                         {errors.donorEmail && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.donorEmail.message}</p>}
                     </div>
                     <div>
-                        <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase">Phone Number</Label>
+                        <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase">Phone Number
+                        <span className="text-slate-400 font-normal ml-1">(Optional)</span>
+                        </Label>
                         <Input {...register("donorPhone")} type="tel" placeholder="10-digit mobile" className="h-12 rounded-xl bg-slate-50/50 border-slate-200 focus-visible:ring-amber-500" />
+                        {errors.donorPhone && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.donorPhone.message}</p>}
                     </div>
                     <div>
                         <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase">PAN Card (For 80G)</Label>
@@ -254,10 +338,14 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                 </div>
 
                 <div className="pt-4">
-                    <Button
-                        type="submit"
+                    <button
+                        type="button"
+                        onClick={() => {
+                            console.log("Donate button clicked");
+                            submitDonation();
+                        }}
                         disabled={isLoading}
-                        className="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-2xl py-8 text-xl font-bold shadow-xl shadow-slate-900/10 transition-all duration-300 hover:scale-[1.02] group"
+                        className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl py-8 text-xl font-bold shadow-xl shadow-slate-900/10 transition-all duration-300 hover:scale-[1.02] group cursor-pointer active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-75 disabled:hover:scale-100"
                     >
                         {isLoading ? (
                             <><Loader2 className="w-5 h-5 mr-3 animate-spin text-amber-500" /> Securely Processing...</>
@@ -267,7 +355,7 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                                 <Heart className="w-5 h-5 ml-3 fill-amber-500 text-amber-500 transition-transform group-hover:scale-110" />
                             </>
                         )}
-                    </Button>
+                    </button>
                     <p className="text-center text-xs font-medium text-slate-400 mt-6 tracking-wide">
                         100% SECURE PAYMENT POWERED BY RAZORPAY. 
                     </p>

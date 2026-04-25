@@ -53,7 +53,11 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
             success: true,
             message: emailSent ? "Payment verified successfully" : "Payment verified successfully, but receipt email could not be sent",
-            data: { receiptNumber: donation.receiptNumber, donationId: donation.id },
+            data: {
+                receiptNumber: donation.receiptNumber,
+                donationId: donation.id,
+                paymentId: razorpay_payment_id,
+            },
             emailSent,
         });
     } catch (error) {

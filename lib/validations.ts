@@ -79,12 +79,15 @@ export const donationSchema = z.object({
     donorEmail: z.string().email("Invalid email address"),
     donorPhone: z
         .string()
-        .min(10, "Phone must be 10 digits")
-        .regex(/^[6-9]\d{9}$/, "Enter a valid Indian phone number"),
+        .optional()
+        .refine(
+            (val) => !val || (val.length === 10 && /^[6-9]\d{9}$/.test(val)),
+            "Enter a valid 10-digit Indian phone number"
+        ),
     donorPAN: z.string().optional(),
     purpose: z.string().optional(),
     message: z.string().optional(),
-    referralCode: z.string().trim().min(1).optional(),
+    referralCode: z.string().trim().optional(),
 });
 
 export const manualDonationSchema = z.object({

@@ -43,6 +43,13 @@ export default async function MemberDashboardPage() {
 
     const certCount = await prisma.certificate.count({ where: { memberId: member.id } });
     const activeIdCard = await prisma.iDCard.findFirst({ where: { memberId: member.id, isActive: true } });
+    const donateQuery = new URLSearchParams({
+        name: member.user.name || "",
+        email: member.user.email || "",
+        phone: member.user.phone || "",
+        ref: member.memberId,
+    });
+    const donateLink = `/donate?${donateQuery.toString()}`;
 
     return (
         <div className="space-y-8 max-w-5xl mx-auto relative z-10 pb-10">
@@ -164,7 +171,7 @@ export default async function MemberDashboardPage() {
 
                 {/* Quick links */}
                 <div className="space-y-4">
-                    <Link href="/donate" className="block">
+                    <Link href={donateLink} className="block">
                         <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-[2rem] p-8 text-white cursor-pointer shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/30 transition-all hover:-translate-y-1 relative overflow-hidden group">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-700" />
                             <Heart className="w-10 h-10 text-white mb-4 relative z-10" strokeWidth={1.5} />

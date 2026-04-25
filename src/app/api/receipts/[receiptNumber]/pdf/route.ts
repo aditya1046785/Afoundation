@@ -7,17 +7,16 @@ const ADMIN_ROLES = ["SUPER_ADMIN", "ADMIN", "MANAGER"] as const;
 
 type Params = { receiptNumber: string };
 
-export async function GET(_request: NextRequest, { params }: { params: Promise<Params> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<Params> }) {
+    const { receiptNumber } = await params;
+    const paymentId = request.nextUrl.searchParams.get("paymentId")?.trim() || null;
     const session = await auth();
-    if (!session?.user) {
+    const isAdmin = Boolean(session?.user && ADMIN_ROLES.includes(session.user.role as (typeof ADMIN_ROLES)[number]));
+    const allowPublicDownload = Boolean(paymentId);
+
+    if (!isAdmin && !allowPublicDownload) {
         return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
-
-    if (!ADMIN_ROLES.includes(session.user.role as (typeof ADMIN_ROLES)[number])) {
-        return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
-    }
-
-    const { receiptNumber } = await params;
 
     const donation = (await prisma.donation.findUnique({
         where: { receiptNumber },
@@ -39,6 +38,13 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<P
 
     if (!donation) {
         return NextResponse.json({ success: false, error: "Receipt not found" }, { status: 404 });
+    }
+
+    if (!isAdmin) {
+        const knownPaymentId = donation.paymentReference || donation.razorpayPaymentId || null;
+        if (!knownPaymentId || paymentId !== knownPaymentId || donation.status !== "COMPLETED") {
+            return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
+        }
     }
 
     const pdfBuffer = await generateReceiptPdfBuffer({
