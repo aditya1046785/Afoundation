@@ -83,9 +83,7 @@ export default async function DownloadsPage() {
                                                             {doc.fileSize}
                                                         </span>
                                                     )}
-                                                    <span className="text-xs text-amber-600/80 font-medium tracking-widest uppercase">
-                                                        {doc.downloadCount} {doc.downloadCount === 1 ? 'Download' : 'Downloads'}
-                                                    </span>
+                                                    
                                                 </div>
                                             </div>
                                         </div>
