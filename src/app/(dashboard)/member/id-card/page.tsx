@@ -76,12 +76,29 @@ export default function MemberIDCardPage() {
         if (!idCard) return;
 
         setDownloading(true);
-        try {
-            const html2canvas = (await import("html2canvas")).default;
-            const jsPDF = (await import("jspdf")).default;
+        const el = previewRef.current;
+        const parent = el.parentElement;
+        if (!parent) {
+            setDownloading(false);
+            return;
+        }
 
-            const el = previewRef.current;
-            const parent = el.parentElement!;
+        const prevElStyles = {
+            transform: el.style.transform,
+            transformOrigin: el.style.transformOrigin,
+            width: el.style.width,
+            height: el.style.height,
+        };
+        const prevParentStyles = {
+            overflow: parent.style.overflow,
+            width: parent.style.width,
+            height: parent.style.height,
+            borderRadius: parent.style.borderRadius,
+        };
+
+        try {
+            const { toPng } = await import("html-to-image");
+            const jsPDF = (await import("jspdf")).default;
 
             // Step 1: Transform hatao, full size dikha do
             el.style.transform = "none";
@@ -104,37 +121,14 @@ export default function MemberIDCardPage() {
             // Step 3: Browser re-render ka wait
             await new Promise(r => setTimeout(r, 150));
 
-            // Step 4: Capture
-            const canvas = await html2canvas(el, {
-                scale: 2,
-                useCORS: true,
-                allowTaint: true,
-                logging: false,
+            // Step 4: Capture (same styles as preview, no stylesheet stripping)
+            const imgData = await toPng(el, {
+                pixelRatio: 3,
+                cacheBust: true,
                 width: COMBINED_W,
                 height: CARD_H,
                 backgroundColor: "#f5f0eb",
-                onclone: (_doc: Document, clonedEl: HTMLElement) => {
-                    // lab() error fix - sab stylesheets hata do
-                    clonedEl.ownerDocument
-                        .querySelectorAll('link[rel="stylesheet"], style')
-                        .forEach(e => e.remove());
-                    // Transform ensure none hai clone mein bhi
-                    clonedEl.style.transform = "none";
-                    clonedEl.style.width = `${COMBINED_W}px`;
-                    clonedEl.style.height = `${CARD_H}px`;
-                    clonedEl.style.overflow = "visible";
-                },
             });
-
-            // Step 5: Sab wapas restore karo
-            el.style.transform = `scale(${scale})`;
-            el.style.transformOrigin = "top left";
-            el.style.width = `${COMBINED_W}px`;
-            el.style.height = `${CARD_H}px`;
-            parent.style.overflow = prevStyles.overflow;
-            parent.style.width = prevStyles.width;
-            parent.style.height = prevStyles.height;
-            parent.style.borderRadius = prevStyles.borderRadius;
 
             // Step 6: PDF generate
             const pdf = new jsPDF({
@@ -142,10 +136,7 @@ export default function MemberIDCardPage() {
                 unit: "px",
                 format: [COMBINED_W, CARD_H],
             });
-            pdf.addImage(
-                canvas.toDataURL("image/png"),
-                "PNG", 0, 0, COMBINED_W, CARD_H
-            );
+            pdf.addImage(imgData, "PNG", 0, 0, COMBINED_W, CARD_H);
             pdf.save(
                 `${(profile.user.name || "member").replace(/\s+/g, "_")}_ID_Card.pdf`
             );
@@ -154,13 +145,18 @@ export default function MemberIDCardPage() {
         } catch (e) {
             console.error(e);
             toast.error("Failed to download PDF.");
-            // Restore on error bhi
-            if (previewRef.current) {
-                previewRef.current.style.transform = `scale(${scale})`;
-                previewRef.current.style.width = `${COMBINED_W}px`;
-                previewRef.current.style.height = `${CARD_H}px`;
-            }
         } finally {
+            // Step 5: Styles always restore karo
+            el.style.transform = prevElStyles.transform;
+            el.style.transformOrigin = prevElStyles.transformOrigin;
+            el.style.width = prevElStyles.width;
+            el.style.height = prevElStyles.height;
+
+            parent.style.overflow = prevParentStyles.overflow;
+            parent.style.width = prevParentStyles.width;
+            parent.style.height = prevParentStyles.height;
+            parent.style.borderRadius = prevParentStyles.borderRadius;
+
             setDownloading(false);
         }
     };
