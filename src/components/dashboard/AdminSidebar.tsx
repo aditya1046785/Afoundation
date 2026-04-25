@@ -29,6 +29,7 @@ const links: SidebarLink[] = [
     { label: "Crowdfunding", href: "/admin/crowdfunding", icon: Target },
     { label: "Certificates", href: "/admin/certificates", icon: Award },
     { label: "ID Cards", href: "/admin/id-cards", icon: CreditCard },
+    { label: "Offline ID Card", href: "/admin/id-cards/offline", icon: CreditCard, roles: ["SUPER_ADMIN", "ADMIN"] },
     { label: "Events", href: "/admin/events", icon: Calendar },
     { label: "Blog", href: "/admin/blog", icon: FileText },
     { label: "Gallery", href: "/admin/gallery", icon: Images },

@@ -1,10 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { memberSchema } from "@/lib/validations";
-import { generateMemberId } from "@/lib/utils";
 import { sendWelcomeEmail } from "@/lib/email";
+
+async function getNextMemberId(tx: Prisma.TransactionClient, retryOffset = 0): Promise<string> {
+    const year = new Date().getFullYear();
+    const prefix = `NF-${year}-`;
+
+    const latest = await tx.member.findFirst({
+        where: { memberId: { startsWith: prefix } },
+        select: { memberId: true },
+        orderBy: { memberId: "desc" },
+    });
+
+    const latestSeq = latest?.memberId ? Number.parseInt(latest.memberId.split("-").pop() || "0", 10) : 0;
+    const baseSeq = Number.isFinite(latestSeq) && latestSeq > 0 ? latestSeq + 1 : 1;
+    const finalSeq = baseSeq + retryOffset;
+
+    return `${prefix}${String(finalSeq).padStart(4, "0")}`;
+}
 
 // GET — List all members (admin/manager only)
 export async function GET(request: NextRequest) {
@@ -42,7 +59,7 @@ export async function GET(request: NextRequest) {
         prisma.member.findMany({
             where,
             include: {
-                user: { select: { id: true, name: true, email: true, phone: true, isActive: true } },
+                user: { select: { id: true, name: true, email: true, phone: true, position: true, role: true, isActive: true } },
             },
             skip: (page - 1) * pageSize,
             take: pageSize,
@@ -72,49 +89,80 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: false, error: validation.error.issues[0]?.message }, { status: 400 });
         }
 
-        const { name, email, phone, password, fatherName, dateOfBirth, gender, address, city, state, pincode, aadharNumber, occupation, membershipType, photo } = validation.data;
+        const { name, email, phone, password, fatherName, dateOfBirth, gender, address, city, state, pincode, aadharNumber, occupation, position, membershipType, photo } = validation.data;
+        const isApproved = body.isApproved === true;
 
         // Check if email exists
         const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) return NextResponse.json({ success: false, error: "Email already registered." }, { status: 400 });
 
         const hashedPassword = await bcrypt.hash(password || "Admin@123", 10);
-        const memberCount = await prisma.member.count();
-        const memberId = generateMemberId(memberCount);
 
-        const { user, member } = await prisma.$transaction(async (tx) => {
-            const user = await tx.user.create({
-                data: { name, email, phone, password: hashedPassword, role: "MEMBER" },
-            });
+        let created: { user: { id: string }; member: { id: string; memberId: string } } | null = null;
 
-            const member = await tx.member.create({
-                data: {
-                    memberId,
-                    userId: user.id,
-                    fatherName,
-                    dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
-                    gender,
-                    address,
-                    city,
-                    state,
-                    pincode,
-                    aadharNumber,
-                    occupation,
-                    membershipType: (membershipType as "GENERAL" | "LIFETIME" | "HONORARY" | "STUDENT") || "GENERAL",
-                    photo,
-                },
-            });
+        for (let attempt = 0; attempt < 5; attempt++) {
+            try {
+                created = await prisma.$transaction(async (tx) => {
+                    const memberId = await getNextMemberId(tx, attempt);
 
-            await tx.donation.updateMany({ where: { donorEmail: email, memberId: null }, data: { memberId: member.id } });
-            return { user, member };
-        });
+                    const user = await tx.user.create({
+                        data: { name, email, phone, position, password: hashedPassword, role: "MEMBER" },
+                        select: { id: true },
+                    });
 
-        const emailSent = await sendWelcomeEmail(email, name, memberId);
+                    const member = await tx.member.create({
+                        data: {
+                            memberId,
+                            userId: user.id,
+                            fatherName,
+                            dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+                            gender,
+                            address,
+                            city,
+                            state,
+                            pincode,
+                            aadharNumber,
+                            occupation,
+                            membershipType: (membershipType as "GENERAL" | "LIFETIME" | "HONORARY" | "STUDENT") || "GENERAL",
+                            photo,
+                            isApproved,
+                        },
+                        select: { id: true, memberId: true },
+                    });
+
+                    await tx.donation.updateMany({ where: { donorEmail: email, memberId: null }, data: { memberId: member.id } });
+                    return { user, member };
+                });
+
+                break;
+            } catch (err) {
+                if (!(err instanceof Prisma.PrismaClientKnownRequestError) || err.code !== "P2002") {
+                    throw err;
+                }
+
+                const target = String(err.meta?.target || "");
+                if (target.includes("memberId") && attempt < 4) {
+                    continue;
+                }
+
+                if (target.includes("email")) {
+                    return NextResponse.json({ success: false, error: "Email already registered." }, { status: 400 });
+                }
+
+                throw err;
+            }
+        }
+
+        if (!created) {
+            throw new Error("Unable to generate a unique Member ID. Please try again.");
+        }
+
+        const emailSent = await sendWelcomeEmail(email, name, created.member.memberId);
 
         return NextResponse.json(
             {
                 success: true,
-                data: { userId: user.id, memberId: member.id },
+                data: { userId: created.user.id, memberRecordId: created.member.id, memberId: created.member.memberId },
                 emailSent,
                 message: emailSent
                     ? "Member created successfully and welcome email sent."

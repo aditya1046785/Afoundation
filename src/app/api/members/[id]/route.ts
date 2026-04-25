@@ -24,7 +24,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const member = await prisma.member.findUnique({
         where: { id },
         include: {
-            user: { select: { id: true, name: true, email: true, phone: true, isActive: true, createdAt: true } },
+            user: { select: { id: true, name: true, email: true, phone: true, position: true, role: true, isActive: true, createdAt: true } },
             donations: { orderBy: { createdAt: "desc" } },
             certificates: { orderBy: { createdAt: "desc" } },
             idCards: { orderBy: { createdAt: "desc" } },
@@ -73,14 +73,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         const member = await prisma.member.findUnique({ where: { id }, include: { user: true } });
         if (!member) return NextResponse.json({ success: false, error: "Member not found" }, { status: 404 });
 
-        const { name, phone, fatherName, dateOfBirth, gender, address, city, state, pincode, aadharNumber, occupation, membershipType, photo } = validation.data;
+        const { name, phone, position, fatherName, dateOfBirth, gender, address, city, state, pincode, aadharNumber, occupation, membershipType, photo } = validation.data;
 
         await prisma.$transaction([
             prisma.member.update({
                 where: { id },
                 data: { fatherName, dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined, gender, address, city, state, pincode, aadharNumber, occupation, membershipType: membershipType as "GENERAL" | "LIFETIME" | "HONORARY" | "STUDENT" | undefined, photo },
             }),
-            prisma.user.update({ where: { id: member.userId }, data: { name, phone } }),
+            prisma.user.update({ where: { id: member.userId }, data: { name, phone, position } }),
         ]);
 
         return NextResponse.json({ success: true, message: "Member updated successfully" });
@@ -101,8 +101,18 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const { searchParams } = new URL(request.url);
     const isPermanentDelete = searchParams.get("permanent") === "true";
 
-    const member = await prisma.member.findUnique({ where: { id } });
+    const member = await prisma.member.findUnique({
+        where: { id },
+        include: { user: { select: { role: true } } },
+    });
     if (!member) return NextResponse.json({ success: false, error: "Member not found" }, { status: 404 });
+
+    if (["SUPER_ADMIN", "ADMIN"].includes(member.user.role)) {
+        return NextResponse.json(
+            { success: false, error: "Protected account cannot be deleted." },
+            { status: 403 }
+        );
+    }
 
     if (isPermanentDelete) {
         await prisma.$transaction(async (tx) => {

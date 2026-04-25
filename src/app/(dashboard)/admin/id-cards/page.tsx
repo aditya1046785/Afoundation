@@ -7,6 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CreditCard } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = { title: "ID Cards | Admin Dashboard" };
 
@@ -19,9 +21,14 @@ export default async function AdminIDCardsPage() {
 
     return (
         <div className="space-y-6 max-w-7xl mx-auto">
-            <div>
-                <h1 className="font-serif text-2xl font-bold text-slate-900">Member ID Cards</h1>
-                <p className="text-slate-500 text-sm mt-1">View and manage issued ID cards</p>
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+                <div>
+                    <h1 className="font-serif text-2xl font-bold text-slate-900">Member ID Cards</h1>
+                    <p className="text-slate-500 text-sm mt-1">View and manage issued ID cards</p>
+                </div>
+                <Button asChild className="bg-amber-600 hover:bg-amber-700 text-white">
+                    <Link href="/admin/id-cards/offline">Generate Offline ID Card</Link>
+                </Button>
             </div>
 
             <Card className="border-0 shadow-sm">

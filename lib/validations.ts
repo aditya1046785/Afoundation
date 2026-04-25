@@ -48,6 +48,7 @@ export const memberSchema = z.object({
     pincode: z.string().optional(),
     aadharNumber: z.string().optional(),
     occupation: z.string().optional(),
+    position: z.string().min(2, "Position is required").optional(),
     membershipType: z.enum(["GENERAL", "LIFETIME", "HONORARY", "STUDENT"]).default("GENERAL"),
     photo: z.string().optional(),
 });

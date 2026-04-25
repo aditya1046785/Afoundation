@@ -20,7 +20,7 @@ interface Member {
     membershipType: string;
     isApproved: boolean;
     createdAt: string;
-    user: { id: string; name: string; email: string; phone: string | null; isActive: boolean };
+    user: { id: string; name: string; email: string; phone: string | null; position?: string | null; role?: string; isActive: boolean };
 }
 
 interface MemberDetails extends Member {
@@ -44,6 +44,7 @@ interface MemberDetails extends Member {
 interface EditMemberForm {
     name: string;
     phone: string;
+    position: string;
     fatherName: string;
     dateOfBirth: string;
     gender: "Male" | "Female" | "Other" | "";
@@ -59,6 +60,7 @@ interface EditMemberForm {
 const EMPTY_EDIT_FORM: EditMemberForm = {
     name: "",
     phone: "",
+    position: "",
     fatherName: "",
     dateOfBirth: "",
     gender: "",
@@ -164,6 +166,7 @@ export function MembersClient() {
         setEditForm({
             name: member.user.name || "",
             phone: member.user.phone || "",
+            position: member.user.position || "",
             fatherName: member.fatherName || "",
             dateOfBirth: member.dateOfBirth ? member.dateOfBirth.slice(0, 10) : "",
             gender: (member.gender as "Male" | "Female" | "Other" | null) || "",
@@ -206,6 +209,7 @@ export function MembersClient() {
             const payload = {
                 name: editForm.name.trim(),
                 phone: editForm.phone.trim() || undefined,
+                position: editForm.position.trim() || undefined,
                 fatherName: editForm.fatherName.trim() || undefined,
                 dateOfBirth: editForm.dateOfBirth || undefined,
                 gender: editForm.gender || undefined,
@@ -343,6 +347,9 @@ export function MembersClient() {
                                         </TableCell>
                                         <TableCell className="text-xs text-slate-500">{formatDate(new Date(member.createdAt))}</TableCell>
                                         <TableCell className="text-right">
+                                            {(() => {
+                                                const isProtectedAccount = ["SUPER_ADMIN", "ADMIN"].includes(member.user.role || "");
+                                                return (
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -365,14 +372,20 @@ export function MembersClient() {
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
                                                         onClick={() => handlePermanentDelete(member)}
-                                                        disabled={deletingMemberId === member.id}
+                                                        disabled={deletingMemberId === member.id || isProtectedAccount}
                                                         className="text-red-600 focus:text-red-700"
                                                     >
                                                         <Trash2 className="w-4 h-4 mr-2" />
-                                                        {deletingMemberId === member.id ? "Deleting..." : "Delete Permanently"}
+                                                        {isProtectedAccount
+                                                            ? "Delete Disabled (Admin Account)"
+                                                            : deletingMemberId === member.id
+                                                                ? "Deleting..."
+                                                                : "Delete Permanently"}
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
+                                                );
+                                            })()}
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -450,6 +463,17 @@ export function MembersClient() {
                                                 className="mt-1"
                                             />
                                         ) : (selectedMember.user.phone || "-")}
+                                    </p>
+                                    <p>
+                                        <span className="font-medium text-slate-800">Position:</span>{" "}
+                                        {isEditing ? (
+                                            <Input
+                                                value={editForm.position}
+                                                onChange={(e) => setEditForm((prev) => ({ ...prev, position: e.target.value }))}
+                                                className="mt-1"
+                                                placeholder="Volunteer, Manager, etc."
+                                            />
+                                        ) : (selectedMember.user.position || "-")}
                                     </p>
                                     <p><span className="font-medium text-slate-800">Member ID:</span> {selectedMember.memberId}</p>
                                     <p><span className="font-medium text-slate-800">Status:</span> {selectedMember.isApproved ? "Approved" : "Pending"}</p>
