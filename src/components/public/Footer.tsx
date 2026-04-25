@@ -180,6 +180,19 @@ export function Footer({ settings }: FooterProps) {
                         <Link href="/downloads" className="hover:text-amber-400 transition-colors">Documents</Link>
                     </div>
                 </div>
+                <div className="container mx-auto px-6 max-w-7xl pb-6">
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500 font-light">
+                        <Link href="/donation-privacy-policy" className="hover:text-amber-400 transition-colors">
+                            Donation Privacy Policy
+                        </Link>
+                        <Link href="/terms-and-conditions" className="hover:text-amber-400 transition-colors">
+                            Terms and Conditions
+                        </Link>
+                        <Link href="/refund-and-cancellation-policy" className="hover:text-amber-400 transition-colors">
+                            Refund and Cancellation Policy
+                        </Link>
+                    </div>
+                </div>
             </div>
         </footer>
     );
