@@ -91,10 +91,10 @@ export function HeroSection({ settings, galleryImages }: HeroProps) {
             />
 
             <div className="relative z-10 container mx-auto px-6 max-w-7xl">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+                <div className="grid grid-cols-1 min-[900px]:grid-cols-12 gap-12 min-[900px]:gap-8 items-center">
                     
                     {/* Left Content Column (The Editorial Typography) */}
-                    <div className="lg:col-span-6 flex flex-col justify-center text-left pt-20 lg:pt-0">
+                    <div className="min-[900px]:col-span-6 flex flex-col justify-center text-left pt-20 min-[900px]:pt-0">
                         <motion.div
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -155,7 +155,7 @@ export function HeroSection({ settings, galleryImages }: HeroProps) {
                     </div>
 
                     {/* Right Content Column (Authentic Framed Collage) */}
-                    <div className="hidden lg:flex lg:col-span-6 relative justify-center lg:justify-end pb-20 lg:pb-0 h-[50vh] lg:h-[80vh] w-full">
+                    <div className="hidden min-[900px]:flex min-[900px]:col-span-6 relative justify-center min-[900px]:justify-end pb-20 min-[900px]:pb-0 h-[50vh] min-[900px]:h-[80vh] w-full">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
