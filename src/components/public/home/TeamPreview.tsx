@@ -76,7 +76,7 @@ export function TeamPreview({ settings, members }: TeamPreviewProps) {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1, duration: 0.8 }}
-                            className="group relative flex flex-col items-center"
+                            className={`group relative flex-col items-center ${idx >= 3 ? "hidden md:flex" : "flex"}`}
                         >
                             {/* Photo with artistic portrait framing */}
                             <div className="aspect-[3/4] w-full relative bg-slate-100 rounded-[2rem_1rem_3rem_1rem] overflow-hidden mb-6 shadow-md transition-all duration-500 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.2)] group-hover:rounded-[1rem_3rem_1rem_2rem]">
