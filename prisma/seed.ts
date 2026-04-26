@@ -139,7 +139,7 @@ const SITE_SETTINGS: Record<string, string> = {
 
     // FOOTER
     footer_description: "Nirashray Foundation is a registered non-profit organization dedicated to empowering underprivileged communities.",
-    footer_copyright: "© 2025 Nirashray Foundation. All rights reserved.",
+    footer_copyright: "© 2026 Nirashray Foundation. All rights reserved.",
     footer_quick_links: JSON.stringify([
         { label: "Home", url: "/" },
         { label: "About", url: "/about" },

@@ -18,6 +18,27 @@ interface TeamMemberType {
     [key: string]: string | number | null | boolean;
 }
 
+function getSafeImageSrc(src: string | null): string | null {
+    if (!src) return null;
+
+    const value = src.trim();
+    if (!value) return null;
+
+    // Accept root-relative local assets.
+    if (value.startsWith("/")) return value;
+
+    // Accept valid absolute http(s) URLs only.
+    try {
+        const parsed = new URL(value);
+        if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+            return value;
+        }
+        return null;
+    } catch {
+        return null;
+    }
+}
+
 export default async function TeamPage() {
     const members: TeamMemberType[] = await prisma.teamMember.findMany({
         where: { isVisible: true },
@@ -34,6 +55,11 @@ export default async function TeamPage() {
         { key: "linkedinUrl" as const, Icon: Linkedin },
         { key: "youtubeUrl" as const, Icon: Youtube },
     ];
+
+    const membersWithSafePhoto = members.map((member) => ({
+        ...member,
+        safePhoto: getSafeImageSrc(member.photo),
+    }));
 
     return (
         <div className="min-h-screen bg-[#fdfcfa] relative overflow-hidden font-light pt-20">
@@ -81,7 +107,7 @@ export default async function TeamPage() {
                             </div>
                             
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-16">
-                                {members.filter(m => m.category === category).map((member) => (
+                                {membersWithSafePhoto.filter(m => m.category === category).map((member) => (
                                     <div key={member.id} className="group relative">
                                         {/* Minimalist Asymmetrical Portrait Frame */}
                                         <div className="relative pl-6 pb-6">
@@ -89,8 +115,8 @@ export default async function TeamPage() {
                                             <div className="absolute top-6 left-0 right-6 bottom-0 bg-amber-50/50 rounded-2xl transition-transform duration-500 group-hover:translate-x-2 group-hover:-translate-y-2" />
                                             
                                             <div className="relative aspect-[4/5] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl overflow-hidden border border-white z-10 group-hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-500">
-                                                {member.photo ? (
-                                                    <Image src={member.photo} alt={member.name} fill className="object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-700" sizes="(max-width: 768px) 100vw, 33vw" />
+                                                {member.safePhoto ? (
+                                                    <Image src={member.safePhoto} alt={member.name} fill className="object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-700" sizes="(max-width: 768px) 100vw, 33vw" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center bg-amber-50/30">
                                                         <span className="font-serif font-bold text-5xl text-amber-200">{getInitials(member.name)}</span>

@@ -108,7 +108,7 @@ export function HeroSection({ settings }: HeroProps) {
                     </div>
 
                     {/* Right Content Column (The Painted Image) */}
-                    <div className="lg:col-span-6 relative flex justify-center lg:justify-end pb-20 lg:pb-0 h-[50vh] lg:h-[80vh] w-full">
+                    <div className="hidden lg:flex lg:col-span-6 relative flex justify-center lg:justify-end pb-20 lg:pb-0 h-[50vh] lg:h-[80vh] w-full">
                         
                         {/* Painted Image Mask */}
                         <motion.div

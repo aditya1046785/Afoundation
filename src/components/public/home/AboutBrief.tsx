@@ -40,16 +40,14 @@ export function AboutBrief({ settings }: AboutBriefProps) {
             
             <div className="container mx-auto px-6 max-w-7xl relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-12 items-center">
-                    
-                    {/* Artistic Image Mask */}
-                    <div className="relative w-full flex justify-center lg:justify-start">
+                    {/* Artistic Image Mask - Hidden on Mobile */}
+                    <div className="hidden lg:flex relative w-full justify-center lg:justify-start">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
                             animate={isInView ? { opacity: 1, scale: 1, filter: "blur(0px)" } : {}}
                             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
                             className="relative w-full aspect-square max-w-md mx-auto lg:mx-0 lg:max-w-[500px]"
                             style={{
-                                /* Organic blob SVG mask */
                                 WebkitMaskImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M39.6,-66.6C52.4,-57.4,64.8,-47.9,73.1,-35.1C81.4,-22.4,85.6,-6.4,84.1,9.4C82.7,25.3,75.6,41,64.2,52C52.9,63.1,37.3,69.5,21.9,73.8C6.6,78.2,-8.6,80.6,-22.8,77C-37,73.4,-50.2,63.8,-61.6,51.8C-73,39.9,-82.6,25.6,-86.3,10C-90.1,-5.5,-88,-22.3,-79.6,-36.1C-71.1,-49.9,-56.3,-60.7,-41.8,-69.1C-27.4,-77.6,-13.7,-83.8,-0.2,-83.4C13.2,-83.1,26.8,-75.9,39.6,-66.6Z' transform='translate(100 100)' /%3E%3C/svg%3E")`,
                                 WebkitMaskSize: "contain",
                                 WebkitMaskRepeat: "no-repeat",
@@ -75,7 +73,7 @@ export function AboutBrief({ settings }: AboutBriefProps) {
                             </motion.div>
                         </motion.div>
                     </div>
-
+                    
                     {/* Content Editorial Layout */}
                     <div className="pl-0 lg:pl-4">
                         <motion.div
