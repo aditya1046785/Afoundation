@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-    const [settings, teamMembers, recentBlogs, galleryAlbums, activeCampaigns] = await Promise.all([
+    const [settings, teamMembers, recentBlogs, galleryAlbums, allVisibleGalleryAlbums, activeCampaigns] = await Promise.all([
         getAllSiteSettings(),
         prisma.teamMember.findMany({
             where: { isVisible: true },
@@ -37,6 +37,17 @@ export default async function HomePage() {
             take: 3,
             orderBy: { displayOrder: "asc" },
         }),
+        prisma.galleryAlbum.findMany({
+            where: { isVisible: true },
+            select: {
+                coverImage: true,
+                photos: {
+                    select: { imageUrl: true },
+                    orderBy: { displayOrder: "asc" },
+                },
+            },
+            orderBy: { displayOrder: "asc" },
+        }),
         prisma.crowdfundingCampaign.findMany({
             where: { isActive: true },
             orderBy: { createdAt: "desc" },
@@ -44,9 +55,17 @@ export default async function HomePage() {
         }),
     ]);
 
+    const heroGalleryImages = Array.from(
+        new Set(
+            allVisibleGalleryAlbums
+                .flatMap((album) => [album.coverImage, ...album.photos.map((photo) => photo.imageUrl)])
+                .filter((imageUrl): imageUrl is string => Boolean(imageUrl))
+        )
+    );
+
     return (
         <>
-            <HeroSection settings={settings} />
+            <HeroSection settings={settings} galleryImages={heroGalleryImages} />
             <ImpactStats settings={settings} />
             <AboutBrief settings={settings} />
             <CausesSection settings={settings} />

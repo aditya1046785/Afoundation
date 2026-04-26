@@ -1,16 +1,18 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Heart } from "lucide-react";
 
 interface HeroProps {
     settings: Record<string, string>;
+    galleryImages: string[];
 }
 
-export function HeroSection({ settings }: HeroProps) {
+export function HeroSection({ settings, galleryImages }: HeroProps) {
     const badgeText = settings.hero_badge_text || "The Art of Giving";
     const heading = settings.hero_heading || "Nirashray Foundation";
     const subheading = settings.hero_subheading || "Empowering Lives, Building Hope";
@@ -19,7 +21,52 @@ export function HeroSection({ settings }: HeroProps) {
     const cta1Link = settings.hero_cta1_link || "/donate";
     const cta2Text = settings.hero_cta2_text || "Join Us";
     const cta2Link = settings.hero_cta2_link || "/register";
-    const heroImage = settings.hero_image || "/hero-bg.jpg";
+    const fallbackHeroImage = settings.hero_image || "/hero-bg.jpg";
+    const rotatingPhotos = galleryImages.length > 0 ? galleryImages : [fallbackHeroImage];
+    const shufflePhotos = useCallback((photos: string[]) => {
+        const shuffled = [...photos];
+        for (let i = shuffled.length - 1; i > 0; i -= 1) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }, []);
+
+    const [photoQueue, setPhotoQueue] = useState<string[]>(() => shufflePhotos(rotatingPhotos));
+    const [activePhotoIndex, setActivePhotoIndex] = useState(0);
+
+    useEffect(() => {
+        const shuffled = shufflePhotos(rotatingPhotos);
+        setPhotoQueue(shuffled);
+        setActivePhotoIndex(0);
+    }, [rotatingPhotos, shufflePhotos]);
+
+    useEffect(() => {
+        if (photoQueue.length <= 1) return;
+
+        const rotationTimer = setInterval(() => {
+            setActivePhotoIndex((prev) => {
+                if (prev < photoQueue.length - 1) {
+                    return prev + 1;
+                }
+
+                setPhotoQueue((currentQueue) => {
+                    const reshuffled = shufflePhotos(currentQueue);
+                    if (reshuffled.length > 1 && reshuffled[0] === currentQueue[currentQueue.length - 1]) {
+                        [reshuffled[0], reshuffled[1]] = [reshuffled[1], reshuffled[0]];
+                    }
+                    return reshuffled;
+                });
+
+                return 0;
+            });
+        }, 4500);
+
+        return () => clearInterval(rotationTimer);
+    }, [photoQueue.length, shufflePhotos]);
+
+    const sidePhotoOne = photoQueue[(activePhotoIndex + 1) % photoQueue.length];
+    const sidePhotoTwo = photoQueue[(activePhotoIndex + 2) % photoQueue.length];
 
     return (
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#fbfaf8]">
@@ -107,44 +154,79 @@ export function HeroSection({ settings }: HeroProps) {
                         </motion.div>
                     </div>
 
-                    {/* Right Content Column (The Painted Image) */}
-                    <div className="hidden lg:flex lg:col-span-6 relative flex justify-center lg:justify-end pb-20 lg:pb-0 h-[50vh] lg:h-[80vh] w-full">
-                        
-                        {/* Painted Image Mask */}
+                    {/* Right Content Column (Authentic Framed Collage) */}
+                    <div className="hidden lg:flex lg:col-span-6 relative justify-center lg:justify-end pb-20 lg:pb-0 h-[50vh] lg:h-[80vh] w-full">
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.8, filter: "blur(20px)" }}
-                            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                            transition={{ duration: 1.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            transition={{ duration: 1.1, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
                             className="relative w-full h-full max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto"
-                            style={{
-                                /* Organic blob SVG mask */
-                                WebkitMaskImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.6,89.9,-16.3,87.9,-1.1C85.9,14.1,79.4,28.2,70.5,40.1C61.6,52.1,50.3,61.9,36.5,70.6C22.7,79.3,6.4,86.9,-8.8,85.6C-24.1,84.3,-38.3,74.1,-49.6,62.1C-60.8,50.1,-69,36.2,-74.6,21.3C-80.2,6.4,-83.1,-9.5,-79,-23C-74.9,-36.5,-63.8,-47.5,-51.1,-55.1C-38.4,-62.7,-25.1,-66.8,-11.1,-68.8C2.9,-70.8,24,-70.8,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E")`,
-                                WebkitMaskSize: "contain",
-                                WebkitMaskRepeat: "no-repeat",
-                                WebkitMaskPosition: "center",
-                                maskImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.6,89.9,-16.3,87.9,-1.1C85.9,14.1,79.4,28.2,70.5,40.1C61.6,52.1,50.3,61.9,36.5,70.6C22.7,79.3,6.4,86.9,-8.8,85.6C-24.1,84.3,-38.3,74.1,-49.6,62.1C-60.8,50.1,-69,36.2,-74.6,21.3C-80.2,6.4,-83.1,-9.5,-79,-23C-74.9,-36.5,-63.8,-47.5,-51.1,-55.1C-38.4,-62.7,-25.1,-66.8,-11.1,-68.8C2.9,-70.8,24,-70.8,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E")`,
-                                maskSize: "contain",
-                                maskRepeat: "no-repeat",
-                                maskPosition: "center"
-                            }}
                         >
-                            <motion.div 
-                                className="w-full h-full relative"
-                                whileHover={{ scale: 1.05 }}
-                                transition={{ duration: 0.8, ease: "easeOut" }}
+                            <div className="absolute inset-0 rounded-[2.4rem] bg-gradient-to-br from-white/90 to-amber-50/90 border border-amber-100 shadow-[0_25px_70px_-30px_rgba(15,23,42,0.45)]" />
+                            <div
+                                className="absolute inset-0 rounded-[2.4rem] opacity-25 pointer-events-none mix-blend-multiply"
+                                style={{
+                                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                                }}
+                            />
+
+                            <div className="absolute inset-5 rounded-[1.9rem] overflow-hidden bg-slate-200">
+                                <AnimatePresence mode="wait">
+                                    <motion.div
+                                        key={photoQueue[activePhotoIndex]}
+                                        initial={{ opacity: 0, scale: 1.08 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.98 }}
+                                        transition={{ duration: 0.5, ease: "easeOut" }}
+                                        className="absolute inset-0"
+                                    >
+                                        <Image
+                                            src={photoQueue[activePhotoIndex]}
+                                            alt="Community moments"
+                                            fill
+                                            className="object-cover"
+                                            sizes="(max-width: 1024px) 100vw, 50vw"
+                                            priority
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/35 via-slate-900/10 to-transparent" />
+                                    </motion.div>
+                                </AnimatePresence>
+                            </div>
+
+                            <motion.div
+                                animate={{ y: [0, -8, 0], rotate: [-5, -3, -5] }}
+                                transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
+                                className="absolute -left-6 top-14 w-40 h-52 rounded-2xl bg-white p-2 shadow-xl border border-slate-200"
                             >
-                                <Image 
-                                    src={heroImage} 
-                                    alt="Humanitarian Art Canvas" 
-                                    fill
-                                    className="object-cover"
-                                    sizes="(max-width: 1024px) 100vw, 50vw"
-                                    priority
-                                />
+                                <div className="relative w-full h-full rounded-xl overflow-hidden bg-slate-100">
+                                    <Image
+                                        src={sidePhotoOne}
+                                        alt="Volunteer highlight"
+                                        fill
+                                        className="object-cover"
+                                        sizes="160px"
+                                    />
+                                </div>
+                            </motion.div>
+
+                            <motion.div
+                                animate={{ y: [0, 7, 0], rotate: [6, 4, 6] }}
+                                transition={{ duration: 7.2, repeat: Infinity, ease: "easeInOut" }}
+                                className="absolute -right-6 bottom-16 w-44 h-56 rounded-2xl bg-white p-2 shadow-xl border border-slate-200"
+                            >
+                                <div className="relative w-full h-full rounded-xl overflow-hidden bg-slate-100">
+                                    <Image
+                                        src={sidePhotoTwo}
+                                        alt="Field work highlight"
+                                        fill
+                                        className="object-cover"
+                                        sizes="176px"
+                                    />
+                                </div>
                             </motion.div>
                         </motion.div>
 
-                        {/* Floating Golden Paint Drops / Shapes to enhance the art */}
+                        {/* Floating accents */}
                         <motion.div 
                             initial={{ scale: 0 }}
                             animate={{ scale: 1, y: [0, -15, 0] }}
@@ -167,7 +249,6 @@ export function HeroSection({ settings }: HeroProps) {
                                 <path d="M50 0 L60 40 L100 50 L60 60 L50 100 L40 60 L0 50 L40 40 Z"/>
                             </svg>
                         </motion.div>
-
                     </div>
                 </div>
             </div>
