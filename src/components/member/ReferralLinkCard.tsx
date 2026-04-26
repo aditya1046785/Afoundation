@@ -7,9 +7,20 @@ import { Button } from "@/components/ui/button";
 interface ReferralLinkCardProps {
     referralCode: string;
     referralLink: string;
+    title?: string;
+    subtitle?: string;
+    note?: string;
+    badgeLabel?: string;
 }
 
-export function ReferralLinkCard({ referralCode, referralLink }: ReferralLinkCardProps) {
+export function ReferralLinkCard({
+    referralCode,
+    referralLink,
+    title = "Share and Raise Donations",
+    subtitle = "Referral Link",
+    note = "Anyone using this link will be tracked under your referral.",
+    badgeLabel = "Code",
+}: ReferralLinkCardProps) {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = async () => {
@@ -26,12 +37,12 @@ export function ReferralLinkCard({ referralCode, referralLink }: ReferralLinkCar
         <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-white shadow-lg shadow-slate-200/20 p-6 md:p-7">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
                 <div>
-                    <p className="text-xs uppercase tracking-widest font-bold text-slate-400">Referral Link</p>
-                    <h2 className="font-serif text-2xl font-bold text-slate-900 mt-1">Share and Raise Donations</h2>
+                    <p className="text-xs uppercase tracking-widest font-bold text-slate-400">{subtitle}</p>
+                    <h2 className="font-serif text-2xl font-bold text-slate-900 mt-1">{title}</h2>
                 </div>
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider">
                     <Share2 className="w-3.5 h-3.5" />
-                    Code: {referralCode}
+                    {badgeLabel}: {referralCode}
                 </div>
             </div>
 
@@ -43,9 +54,7 @@ export function ReferralLinkCard({ referralCode, referralLink }: ReferralLinkCar
                 </Button>
             </div>
 
-            <p className="text-xs text-slate-500 mt-3">
-                Anyone using this link will land directly on the donation page and the payment will be tracked under your referral.
-            </p>
+            <p className="text-xs text-slate-500 mt-3">{note}</p>
         </div>
     );
 }

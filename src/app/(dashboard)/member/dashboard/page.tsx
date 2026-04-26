@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
-
+import { APP_URL } from "@/lib/constants";
 export const dynamic = "force-dynamic";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Heart, Award, CreditCard, Clock, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ReferralLinkCard } from "@/components/member/ReferralLinkCard";
+import { Users } from "lucide-react";
 
 export const metadata: Metadata = { title: "Member Dashboard | Nirashray Foundation" };
 
@@ -21,6 +23,18 @@ export default async function MemberDashboardPage() {
         where: { userId: session.user.id },
         include: {
             user: true,
+            referredByMember: {
+                include: {
+                    user: { select: { name: true, email: true } },
+                },
+            },
+            referredMembers: {
+                include: {
+                    user: { select: { name: true, email: true } },
+                },
+                orderBy: { createdAt: "desc" },
+                take: 10,
+            },
             donations: { where: { status: "COMPLETED" }, orderBy: { paidAt: "desc" }, take: 3 },
             certificates: { orderBy: { createdAt: "desc" }, take: 3 },
         },
@@ -43,23 +57,19 @@ export default async function MemberDashboardPage() {
 
     const certCount = await prisma.certificate.count({ where: { memberId: member.id } });
     const activeIdCard = await prisma.iDCard.findFirst({ where: { memberId: member.id, isActive: true } });
-    const donateQuery = new URLSearchParams({
-        name: member.user.name || "",
-        email: member.user.email || "",
-        phone: member.user.phone || "",
-        ref: member.memberId,
-    });
-    const donateLink = `/donate?${donateQuery.toString()}`;
+    const donateLink = `${APP_URL}/donate?ref=${encodeURIComponent(member.memberId)}`;
+    const registerLink = `${APP_URL}/register?ref=${encodeURIComponent(member.memberId)}`;
+    const referralCount = member.referredMembers.length;
 
     return (
         <div className="space-y-8 max-w-5xl mx-auto relative z-10 pb-10">
             {/* Background elements */}
-            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-[800px] h-[800px] bg-amber-400/10 rounded-full blur-3xl pointer-events-none -z-10" />
-            <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/4 w-[600px] h-[600px] bg-blue-300/10 rounded-full blur-3xl pointer-events-none -z-10" />
+            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-200 h-200 bg-amber-400/10 rounded-full blur-3xl pointer-events-none -z-10" />
+            <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/4 w-150 h-150 bg-blue-300/10 rounded-full blur-3xl pointer-events-none -z-10" />
 
             {/* Welcome banner */}
             <div className="relative overflow-hidden bg-slate-900 rounded-[2rem] p-8 sm:p-10 text-white shadow-xl shadow-slate-900/10 border border-slate-800">
-                <div className="absolute top-0 right-0 -translate-y-1/3 translate-x-1/3 w-[500px] h-[500px] bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-0 right-0 -translate-y-1/3 translate-x-1/3 w-125 h-125 bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
                 
                 <div className="relative z-10">
                     <p className="text-amber-400 font-bold uppercase tracking-widest text-xs mb-2">Welcome back,</p>
@@ -89,6 +99,7 @@ export default async function MemberDashboardPage() {
                     { label: "Total Donated", value: formatCurrency(totalDonated._sum.amount || 0), icon: Heart, color: "text-rose-600 bg-rose-50 border-rose-100" },
                     { label: "Certificates", value: certCount, icon: Award, color: "text-emerald-700 bg-emerald-50 border-emerald-100" },
                     { label: "ID Card Status", value: activeIdCard ? "Active" : "Not Issued", icon: CreditCard, color: "text-blue-700 bg-blue-50 border-blue-100" },
+                    { label: "Members Referred", value: referralCount, icon: Users, color: "text-violet-700 bg-violet-50 border-violet-100" },
                 ].map((stat) => {
                     const Icon = stat.icon;
                     const [iconColor, bgColor, borderColor] = stat.color.split(" ");
@@ -108,6 +119,84 @@ export default async function MemberDashboardPage() {
                         </Card>
                     );
                 })}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="bg-white/70 backdrop-blur-md rounded-3xl border border-white shadow-lg shadow-slate-200/20 overflow-hidden">
+                    <CardHeader className="pb-4 border-b border-slate-100/50 bg-white/40">
+                        <CardTitle className="text-[15px] font-bold text-slate-800 uppercase tracking-widest flex items-center gap-3">
+                            <Users className="w-5 h-5 text-amber-600" strokeWidth={1.5} />
+                            My Referrer
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-5 space-y-2">
+                        {member.referredByMember ? (
+                            <>
+                                <p className="text-base font-bold text-slate-800">{member.referredByMember.user.name || "Unknown"}</p>
+                                <p className="text-sm text-slate-500">{member.referredByMember.user.email || "-"}</p>
+                                <code className="inline-block text-xs bg-slate-100 px-2 py-0.5 rounded mt-2">{member.referredByMember.memberId}</code>
+                            </>
+                        ) : (
+                            <p className="text-sm text-slate-500">No member referral was used for your registration.</p>
+                        )}
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-white/70 backdrop-blur-md rounded-3xl border border-white shadow-lg shadow-slate-200/20 overflow-hidden">
+                    <CardHeader className="pb-4 border-b border-slate-100/50 bg-white/40">
+                        <CardTitle className="text-[15px] font-bold text-slate-800 uppercase tracking-widest flex items-center gap-3">
+                            <Users className="w-5 h-5 text-emerald-600" strokeWidth={1.5} />
+                            Members You Referred
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <div className="divide-y divide-slate-100/60">
+                            {member.referredMembers.length === 0 ? (
+                                <p className="text-sm font-medium text-slate-400 text-center py-8">No member registrations yet via your referral.</p>
+                            ) : (
+                                member.referredMembers.map((referred) => (
+                                    <div key={referred.id} className="flex items-center justify-between p-5 hover:bg-white/40 transition-colors">
+                                        <div>
+                                            <p className="text-[15px] font-bold text-slate-800">{referred.user.name}</p>
+                                            <p className="text-xs font-medium text-slate-400 mt-0.5 tracking-wide">{referred.memberId} <span className="text-amber-500/50 mx-1">•</span> {referred.user.email}</p>
+                                        </div>
+                                        <div className="text-right flex flex-col items-end gap-1.5">
+                                            <Badge
+                                                variant="outline"
+                                                className={referred.isApproved
+                                                    ? "text-emerald-700 border-emerald-200 bg-emerald-50 rounded-lg px-2.5 py-0.5 font-bold uppercase text-[9px] tracking-wider"
+                                                    : "text-orange-700 border-orange-200 bg-orange-50 rounded-lg px-2.5 py-0.5 font-bold uppercase text-[9px] tracking-wider"
+                                                }
+                                            >
+                                                {referred.isApproved ? "Approved" : "Pending"}
+                                            </Badge>
+                                            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">{formatDate(referred.createdAt)}</p>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <ReferralLinkCard
+                    referralCode={member.memberId}
+                    referralLink={donateLink}
+                    title="Donation Referral Link"
+                    subtitle="Donation Link"
+                    note="Anyone using this link will land on the donation page and the payment will be tracked under your referral."
+                    badgeLabel="Donation Code"
+                />
+                <ReferralLinkCard
+                    referralCode={member.memberId}
+                    referralLink={registerLink}
+                    title="Member Registration Link"
+                    subtitle="Member Invite"
+                    note="Share this link to invite new members. Their registration will be automatically linked to you."
+                    badgeLabel="Invite Code"
+                />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -172,7 +261,7 @@ export default async function MemberDashboardPage() {
                 {/* Quick links */}
                 <div className="space-y-4">
                     <Link href={donateLink} className="block">
-                        <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-[2rem] p-8 text-white cursor-pointer shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/30 transition-all hover:-translate-y-1 relative overflow-hidden group">
+                        <div className="bg-linear-to-br from-amber-500 to-amber-600 rounded-[2rem] p-8 text-white cursor-pointer shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/30 transition-all hover:-translate-y-1 relative overflow-hidden group">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-700" />
                             <Heart className="w-10 h-10 text-white mb-4 relative z-10" strokeWidth={1.5} />
                             <p className="font-serif text-2xl font-bold mb-1 relative z-10">Donate Now</p>
@@ -180,7 +269,7 @@ export default async function MemberDashboardPage() {
                         </div>
                     </Link>
                     <Link href="/member/id-card" className="block">
-                        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-[2rem] p-8 text-white cursor-pointer shadow-lg shadow-slate-900/20 hover:shadow-xl hover:shadow-slate-900/30 transition-all hover:-translate-y-1 relative overflow-hidden group border border-slate-700">
+                        <div className="bg-linear-to-br from-slate-800 to-slate-900 rounded-[2rem] p-8 text-white cursor-pointer shadow-lg shadow-slate-900/20 hover:shadow-xl hover:shadow-slate-900/30 transition-all hover:-translate-y-1 relative overflow-hidden group border border-slate-700">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/20 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-700" />
                             <CreditCard className="w-10 h-10 text-amber-500 mb-4 relative z-10" strokeWidth={1.5} />
                             <p className="font-serif text-2xl font-bold mb-1 relative z-10">My ID Card</p>

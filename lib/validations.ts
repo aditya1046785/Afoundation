@@ -21,6 +21,7 @@ export const registerSchema = z
         password: z.string().min(8, "Password must be at least 8 characters"),
         confirmPassword: z.string(),
         agreeToTerms: z.boolean().refine((val) => val === true, "You must agree to the terms"),
+        referralCode: z.string().trim().optional(),
     })
     .refine((data) => data.password === data.confirmPassword, {
         message: "Passwords don't match",

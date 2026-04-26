@@ -130,6 +130,7 @@ model Member {
   id             String         @id @default(cuid())
   memberId       String         @unique // Format: NF-YYYY-XXXX
   userId         String         @unique
+  referredByMemberId String?
   fatherName     String?
   dateOfBirth    DateTime?
   gender         String?
@@ -148,6 +149,8 @@ model Member {
   updatedAt      DateTime       @updatedAt
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referredByMember Member? @relation("MemberReferrals", fields: [referredByMemberId], references: [id])
+  referredMembers Member[] @relation("MemberReferrals")
   donations         Donation[] @relation("MemberDonations")
   referredDonations Donation[] @relation("ReferralDonations")
   certificates Certificate[]
@@ -155,6 +158,7 @@ model Member {
 
   @@index([memberId])
   @@index([userId])
+  @@index([referredByMemberId])
   @@index([isApproved])
   @@index([membershipType])
 }

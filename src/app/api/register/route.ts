@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
 
         const { name, phone, position, password } = validation.data;
         const email = validation.data.email.trim().toLowerCase();
+        const referralCode = validation.data.referralCode?.trim() || null;
 
         // Check if email already exists
         const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -36,6 +37,23 @@ export async function POST(request: NextRequest) {
         // Generate unique member ID
         const memberCount = await prisma.member.count();
         const memberId = generateMemberId(memberCount);
+
+        let referredByMemberId: string | null = null;
+        if (referralCode) {
+            const referrer = await prisma.member.findUnique({
+                where: { memberId: referralCode },
+                select: { id: true },
+            });
+
+            if (!referrer) {
+                return NextResponse.json(
+                    { success: false, error: "Invalid referral link. Please use a valid member referral URL." },
+                    { status: 400 }
+                );
+            }
+
+            referredByMemberId = referrer.id;
+        }
 
         // Create user + member in a transaction
         const { user, member } = await prisma.$transaction(async (tx) => {
@@ -55,6 +73,7 @@ export async function POST(request: NextRequest) {
                     memberId,
                     userId: user.id,
                     membershipType: "GENERAL",
+                    referredByMemberId,
                 },
             });
 
@@ -76,7 +95,7 @@ export async function POST(request: NextRequest) {
                 message: welcomeEmailSent
                     ? "Registration successful! Please login."
                     : "Registration successful! Welcome email could not be delivered.",
-                data: { userId: user.id, memberId: member.memberId },
+                data: { userId: user.id, memberId: member.memberId, referredByMemberId },
                 emailSent: welcomeEmailSent,
             },
             { status: 201 }

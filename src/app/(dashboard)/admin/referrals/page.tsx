@@ -12,7 +12,7 @@ import { PAYMENT_STATUS_LABELS } from "@/lib/constants";
 export const metadata: Metadata = { title: "Referral Donations | Admin Dashboard" };
 
 export default async function AdminReferralsPage() {
-    const [grouped, details] = await Promise.all([
+    const [grouped, details, memberReferrals] = await Promise.all([
         prisma.donation.groupBy({
             by: ["referrerMemberId"],
             where: { referrerMemberId: { not: null }, status: "COMPLETED" },
@@ -34,6 +34,19 @@ export default async function AdminReferralsPage() {
                 },
             },
         }),
+        prisma.member.findMany({
+            where: { referredByMemberId: { not: null } },
+            orderBy: { createdAt: "desc" },
+            take: 200,
+            include: {
+                user: { select: { name: true, email: true } },
+                referredByMember: {
+                    include: {
+                        user: { select: { name: true, email: true } },
+                    },
+                },
+            },
+        } as any),
     ]);
 
     const referrerIds = grouped
@@ -50,6 +63,8 @@ export default async function AdminReferralsPage() {
     const referrerMap = new Map(referrers.map((member) => [member.id, member]));
     const totalReferredAmount = grouped.reduce((sum, row) => sum + (row._sum.amount || 0), 0);
     const totalReferredPayments = grouped.reduce((sum, row) => sum + row._count._all, 0);
+    const totalMemberReferrals = memberReferrals.length;
+    const uniqueMemberReferrers = new Set((memberReferrals as any[]).map((member: any) => member.referredByMemberId)).size;
 
     return (
         <div className="space-y-6 max-w-7xl mx-auto">
@@ -89,6 +104,28 @@ export default async function AdminReferralsPage() {
                         <div>
                             <p className="text-2xl font-bold text-slate-900">{grouped.length}</p>
                             <p className="text-xs text-slate-500">Members With Successful Referrals</p>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card className="border-0 shadow-sm">
+                    <CardContent className="p-5 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center">
+                            <Users className="w-6 h-6 text-violet-700" />
+                        </div>
+                        <div>
+                            <p className="text-2xl font-bold text-slate-900">{totalMemberReferrals}</p>
+                            <p className="text-xs text-slate-500">Member Registrations via Referral</p>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card className="border-0 shadow-sm">
+                    <CardContent className="p-5 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-fuchsia-50 flex items-center justify-center">
+                            <Users className="w-6 h-6 text-fuchsia-700" />
+                        </div>
+                        <div>
+                            <p className="text-2xl font-bold text-slate-900">{uniqueMemberReferrers}</p>
+                            <p className="text-xs text-slate-500">Unique Member Referrers</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -175,6 +212,57 @@ export default async function AdminReferralsPage() {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="text-xs text-slate-500">{formatDate(row.createdAt)}</TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-sm">
+                <CardContent className="p-0">
+                    <div className="px-5 pt-5 pb-2 flex items-center gap-2">
+                        <Users className="w-4 h-4 text-violet-700" />
+                        <p className="text-sm font-semibold text-slate-800">Member Registration Referral Details</p>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="bg-slate-50">
+                                    <TableHead className="text-xs font-semibold">New Member</TableHead>
+                                    <TableHead className="text-xs font-semibold">Member Code</TableHead>
+                                    <TableHead className="text-xs font-semibold">Referred By</TableHead>
+                                    <TableHead className="text-xs font-semibold">Status</TableHead>
+                                    <TableHead className="text-xs font-semibold">Joined</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {memberReferrals.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="text-center text-slate-400 py-8">No member referral registrations found yet.</TableCell>
+                                    </TableRow>
+                                ) : (
+                                    memberReferrals.map((member: any) => (
+                                        <TableRow key={member.id} className="hover:bg-slate-50">
+                                            <TableCell>
+                                                <p className="text-sm font-medium text-slate-800">{member.user.name}</p>
+                                                <p className="text-xs text-slate-400">{member.user.email}</p>
+                                            </TableCell>
+                                            <TableCell>
+                                                <code className="text-xs bg-slate-100 px-2 py-0.5 rounded">{member.memberId}</code>
+                                            </TableCell>
+                                            <TableCell>
+                                                <p className="text-sm font-medium text-slate-800">{member.referredByMember?.user.name || "Unknown"}</p>
+                                                <p className="text-xs text-slate-400">{member.referredByMember?.memberId || "-"}</p>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge className={`text-xs border ${member.isApproved ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-orange-50 text-orange-700 border-orange-200"}`}>
+                                                    {member.isApproved ? "Approved" : "Pending"}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="text-xs text-slate-500">{formatDate(member.createdAt)}</TableCell>
                                         </TableRow>
                                     ))
                                 )}

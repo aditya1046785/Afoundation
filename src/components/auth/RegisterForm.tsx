@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "@/lib/validations";
@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Eye, EyeOff, Mail, Lock, User, Phone, CheckCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Loader2, Eye, EyeOff, Mail, Lock, User, Phone, CheckCircle, Link2 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import type { z } from "zod";
 
@@ -22,10 +22,16 @@ export function RegisterForm() {
     const [success, setSuccess] = useState(false);
     const [welcomeEmailSent, setWelcomeEmailSent] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const referralCode = searchParams.get("ref")?.trim() || "";
 
-    const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormInput, any, RegisterFormOutput>({
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm<RegisterFormInput, any, RegisterFormOutput>({
         resolver: zodResolver(registerSchema),
     });
+
+    useEffect(() => {
+        setValue("referralCode", referralCode || undefined);
+    }, [referralCode, setValue]);
 
     const onSubmit = async (data: RegisterFormOutput) => {
         try {
@@ -84,6 +90,16 @@ export function RegisterForm() {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {referralCode && (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-start gap-3">
+                    <Link2 className="w-4 h-4 text-emerald-700 mt-0.5" />
+                    <div>
+                        <p className="text-xs font-semibold text-emerald-700 uppercase tracking-widest">Referral Applied</p>
+                        <p className="text-sm text-emerald-900 mt-1">This registration will be linked to member code: <span className="font-bold">{referralCode}</span></p>
+                    </div>
+                </div>
+            )}
+
             <div>
                 <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase ml-1">Full Name *</Label>
                 <div className="relative">
@@ -144,6 +160,8 @@ export function RegisterForm() {
                 </div>
                 {errors.position && <p className="text-red-500 text-xs mt-1.5 ml-2 font-medium">{errors.position.message as string}</p>}
             </div>
+
+            <input type="hidden" {...register("referralCode")} />
 
             <div>
                 <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase ml-1">Password *</Label>
