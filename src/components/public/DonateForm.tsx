@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { FieldErrors, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -67,7 +67,17 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
     });
 
     const watchedAmount = watch("amount");
+    const watchedPurpose = watch("purpose");
     const referralCode = searchParams.get("ref")?.trim() || "";
+    const campaignId = searchParams.get("campaign")?.trim() || "";
+    const campaignTitle = searchParams.get("campaignTitle")?.trim() || "";
+    const campaignPurpose = campaignTitle ? `Crowdfunding - ${campaignTitle}` : "";
+    const purposeOptions = useMemo(() => {
+        if (!campaignPurpose || purposes.includes(campaignPurpose)) {
+            return purposes;
+        }
+        return [campaignPurpose, ...purposes];
+    }, [campaignPurpose, purposes]);
     const prefillName = searchParams.get("name")?.trim() || "";
     const prefillEmail = searchParams.get("email")?.trim() || "";
     const prefillPhone = searchParams.get("phone")?.trim() || "";
@@ -76,6 +86,12 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
     useEffect(() => {
         setValue("referralCode", referralCode || undefined);
     }, [referralCode, setValue]);
+
+    useEffect(() => {
+        if (campaignPurpose) {
+            setValue("purpose", campaignPurpose);
+        }
+    }, [campaignPurpose, setValue]);
 
     useEffect(() => {
         if (prefillName) setValue("donorName", prefillName);
@@ -102,6 +118,14 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
         if (purpose) payload.purpose = purpose;
         if (message) payload.message = message;
         if (cleanedReferralCode) payload.referralCode = cleanedReferralCode;
+
+        if (campaignId) {
+            payload.donationType = "crowdfunding";
+            payload.crowdfundingCampaignId = campaignId;
+            if (campaignTitle) {
+                payload.crowdfundingCampaignTitle = campaignTitle;
+            }
+        }
 
         return payload;
     };
@@ -255,6 +279,13 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                     </div>
                 )}
 
+                {campaignId && campaignTitle && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+                        <p className="text-xs font-semibold text-amber-700 uppercase tracking-widest">Crowdfunding Campaign</p>
+                        <p className="text-sm text-amber-900 mt-1">Your donation is linked to: <span className="font-bold">{campaignTitle}</span></p>
+                    </div>
+                )}
+
                 {/* Preset Amounts */}
                 <div className="bg-slate-50/50 p-6 rounded-[1.5rem] border border-slate-100">
                     <Label className="text-sm font-semibold text-slate-700 mb-4 block tracking-wide">SELECT AMOUNT (₹)</Label>
@@ -298,12 +329,12 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                 {/* Purpose */}
                 <div className="pl-2">
                     <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase">Donation Purpose</Label>
-                    <Select onValueChange={(val) => setValue("purpose", val)}>
+                    <Select value={watchedPurpose || undefined} onValueChange={(val) => setValue("purpose", val)}>
                         <SelectTrigger className="h-14 rounded-xl bg-slate-50/50 border-slate-200 focus:ring-amber-500">
                             <SelectValue placeholder="Select purpose" />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl border-slate-200 shadow-xl font-medium">
-                            {purposes.map((p) => <SelectItem key={p} value={p} className="focus:bg-amber-50 focus:text-amber-900">{p}</SelectItem>)}
+                            {purposeOptions.map((p) => <SelectItem key={p} value={p} className="focus:bg-amber-50 focus:text-amber-900">{p}</SelectItem>)}
                         </SelectContent>
                     </Select>
                 </div>

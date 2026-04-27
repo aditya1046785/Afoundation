@@ -4,6 +4,12 @@ import prisma from "@/lib/prisma";
 import { donationSchema } from "@/lib/validations";
 import { generateReceiptNumber } from "@/lib/utils";
 
+type CrowdfundingMeta = {
+    donationType: "crowdfunding";
+    crowdfundingCampaignId: string;
+    crowdfundingCampaignTitle: string;
+};
+
 // POST — Create a Razorpay order for donation
 export async function POST(request: NextRequest) {
     try {
@@ -13,7 +19,41 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: false, error: validation.error.issues[0]?.message }, { status: 400 });
         }
 
-        const { amount, donorName, donorEmail, donorPhone, donorPAN, purpose, message, referralCode } = validation.data;
+        const {
+            amount,
+            donorName,
+            donorEmail,
+            donorPhone,
+            donorPAN,
+            purpose,
+            message,
+            referralCode,
+            donationType,
+            crowdfundingCampaignId,
+            crowdfundingCampaignTitle,
+        } = validation.data;
+
+        let crowdfundingMeta: CrowdfundingMeta | null = null;
+        let finalPurpose = purpose;
+
+        if (donationType === "crowdfunding" && crowdfundingCampaignId) {
+            const campaign = await prisma.crowdfundingCampaign.findFirst({
+                where: { id: crowdfundingCampaignId, isActive: true },
+                select: { id: true, title: true },
+            });
+
+            if (!campaign) {
+                return NextResponse.json({ success: false, error: "Selected crowdfunding campaign is not available" }, { status: 400 });
+            }
+
+            const campaignTitle = crowdfundingCampaignTitle?.trim() || campaign.title;
+            crowdfundingMeta = {
+                donationType: "crowdfunding",
+                crowdfundingCampaignId: campaign.id,
+                crowdfundingCampaignTitle: campaignTitle,
+            };
+            finalPurpose = `Crowdfunding - ${campaignTitle}`;
+        }
 
         // Generate unique receipt number
         const donationCount = await prisma.donation.count();
@@ -27,7 +67,9 @@ export async function POST(request: NextRequest) {
             notes: {
                 donorName,
                 donorEmail,
-                purpose: purpose || "General Donation",
+                purpose: finalPurpose || "General Donation",
+                donationType: crowdfundingMeta?.donationType || "general",
+                crowdfundingCampaignId: crowdfundingMeta?.crowdfundingCampaignId || "",
             },
         });
 
@@ -63,8 +105,9 @@ export async function POST(request: NextRequest) {
                 referrerMemberId,
                 razorpayOrderId: order.id,
                 receiptNumber,
-                purpose,
+                purpose: finalPurpose,
                 message,
+                notes: crowdfundingMeta ? JSON.stringify(crowdfundingMeta) : null,
                 status: "PENDING",
             },
         });

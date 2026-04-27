@@ -149,7 +149,16 @@ export function CrowdfundingSection({ campaigns }: CrowdfundingProps) {
                                         <div className="flex justify-between items-center mt-2">
                                             <span className="text-xs font-bold text-amber-600">{progress}% Funded</span>
                                             
-                                            <Link href="/donate" className="inline-flex items-center justify-center">
+                                            <Link
+                                                href={{
+                                                    pathname: "/donate",
+                                                    query: {
+                                                        campaign: campaign.id,
+                                                        campaignTitle: campaign.title,
+                                                    },
+                                                }}
+                                                className="inline-flex items-center justify-center"
+                                            >
                                                 <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
                                                     <HandHeart className="w-4 h-4" />
                                                 </div>

@@ -89,6 +89,9 @@ export const donationSchema = z.object({
     purpose: z.string().optional(),
     message: z.string().optional(),
     referralCode: z.string().trim().optional(),
+    donationType: z.enum(["general", "crowdfunding"]).optional(),
+    crowdfundingCampaignId: z.string().trim().optional(),
+    crowdfundingCampaignTitle: z.string().trim().optional(),
 });
 
 export const manualDonationSchema = z.object({
