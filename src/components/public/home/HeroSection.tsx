@@ -32,7 +32,7 @@ export function HeroSection({ settings, galleryImages }: HeroProps) {
         return shuffled;
     }, []);
 
-    const [photoQueue, setPhotoQueue] = useState<string[]>(() => shufflePhotos(rotatingPhotos));
+    const [photoQueue, setPhotoQueue] = useState<string[]>(rotatingPhotos);
     const [activePhotoIndex, setActivePhotoIndex] = useState(0);
 
     useEffect(() => {

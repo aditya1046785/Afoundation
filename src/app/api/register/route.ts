@@ -1,9 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { registerSchema } from "@/lib/validations";
-import { generateMemberId } from "@/lib/utils";
 import { sendWelcomeEmail } from "@/lib/email";
+
+const MAX_MEMBER_ID_RETRIES = 5;
+
+async function getNextMemberId(tx: Prisma.TransactionClient): Promise<string> {
+    const year = new Date().getFullYear();
+    const prefix = `NF-${year}-`;
+
+    const latestForYear = await tx.member.findFirst({
+        where: { memberId: { startsWith: prefix } },
+        orderBy: { memberId: "desc" },
+        select: { memberId: true },
+    });
+
+    const latestSeq = latestForYear?.memberId.split("-").pop() || "0";
+    const parsed = Number.parseInt(latestSeq, 10);
+    const nextSeq = Number.isFinite(parsed) ? parsed + 1 : 1;
+
+    return `${prefix}${String(nextSeq).padStart(4, "0")}`;
+}
+
+function isMemberIdUniqueConflict(error: unknown): boolean {
+    if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== "P2002") {
+        return false;
+    }
+
+    const target = error.meta?.target;
+    if (Array.isArray(target)) {
+        return target.some((field) => String(field).includes("memberId"));
+    }
+
+    return typeof target === "string" && target.includes("memberId");
+}
 
 export async function POST(request: NextRequest) {
     try {
@@ -34,10 +66,6 @@ export async function POST(request: NextRequest) {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Generate unique member ID
-        const memberCount = await prisma.member.count();
-        const memberId = generateMemberId(memberCount);
-
         let referredByMemberId: string | null = null;
         if (referralCode) {
             const referrer = await prisma.member.findUnique({
@@ -55,39 +83,60 @@ export async function POST(request: NextRequest) {
             referredByMemberId = referrer.id;
         }
 
-        // Create user + member in a transaction
-        const { user, member } = await prisma.$transaction(async (tx) => {
-            const user = await tx.user.create({
-                data: {
-                    name,
-                    email,
-                    phone,
-                    position,
-                    password: hashedPassword,
-                    role: "MEMBER",
-                },
-            });
+        // Create user + member in a transaction with memberId retry safety for concurrent registrations.
+        let created: { user: { id: string }; member: { id: string; memberId: string } } | null = null;
 
-            const member = await tx.member.create({
-                data: {
-                    memberId,
-                    userId: user.id,
-                    membershipType: "GENERAL",
-                    referredByMemberId,
-                },
-            });
+        for (let attempt = 1; attempt <= MAX_MEMBER_ID_RETRIES; attempt += 1) {
+            try {
+                created = await prisma.$transaction(async (tx) => {
+                    const user = await tx.user.create({
+                        data: {
+                            name,
+                            email,
+                            phone,
+                            position,
+                            password: hashedPassword,
+                            role: "MEMBER",
+                        },
+                    });
 
-            // AUTO-LINK: Connect any previous donations with this email to this member
-            await tx.donation.updateMany({
-                where: { donorEmail: email, memberId: null },
-                data: { memberId: member.id },
-            });
+                    const memberId = await getNextMemberId(tx);
 
-            return { user, member };
-        });
+                    const member = await tx.member.create({
+                        data: {
+                            memberId,
+                            userId: user.id,
+                            membershipType: "GENERAL",
+                            referredByMemberId,
+                        },
+                    });
+
+                    // AUTO-LINK: Connect any previous donations with this email to this member
+                    await tx.donation.updateMany({
+                        where: { donorEmail: email, memberId: null },
+                        data: { memberId: member.id },
+                    });
+
+                    return { user, member };
+                });
+
+                break;
+            } catch (error) {
+                if (isMemberIdUniqueConflict(error) && attempt < MAX_MEMBER_ID_RETRIES) {
+                    continue;
+                }
+                throw error;
+            }
+        }
+
+        if (!created) {
+            throw new Error("Failed to allocate unique member ID");
+        }
+
+        const { user, member } = created;
 
         // Keep registration successful even if email delivery fails, but report true status to client.
-        const welcomeEmailSent = await sendWelcomeEmail(email, name, memberId);
+        const welcomeEmailSent = await sendWelcomeEmail(email, name, member.memberId);
 
         return NextResponse.json(
             {
