@@ -25,7 +25,7 @@ export function AboutBrief({ settings }: AboutBriefProps) {
         .filter(Boolean);
 
     return (
-        <section className="py-32 bg-[#fffdfa] relative overflow-hidden">
+        <section className="py-20 md:py-24 bg-[#fffdfa] relative overflow-hidden">
             {/* Delicate Watercolor Splash in BG */}
             <div className="absolute -top-[10%] left-[20%] w-125 h-125 bg-amber-100/30 rounded-full mix-blend-multiply filter blur-[90px] pointer-events-none" />
             

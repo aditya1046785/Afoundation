@@ -25,7 +25,7 @@ export function CausesSection({ settings }: CausesProps) {
     if (!causes.length) return null;
 
     return (
-        <section className="py-32 bg-[#fdfcfa] relative overflow-hidden">
+        <section className="py-20 md:py-24 bg-[#fdfcfa] relative overflow-hidden">
             {/* Very faint background noise */}
             <div 
                 className="absolute inset-0 opacity-[0.25] pointer-events-none mix-blend-multiply"
@@ -39,7 +39,7 @@ export function CausesSection({ settings }: CausesProps) {
 
             <div className="container mx-auto px-6 max-w-7xl relative z-10">
                 {/* Header */}
-                <div className="text-center mb-24">
+                <div className="text-center mb-16 md:mb-20">
                     <p className="font-serif italic text-amber-600 text-xl tracking-wide mb-4">
                         {eyebrow}
                     </p>
@@ -54,13 +54,14 @@ export function CausesSection({ settings }: CausesProps) {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
+                <div className="overflow-x-auto pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    <div className="flex flex-nowrap gap-6 lg:gap-8 min-w-max">
                     {causes.map((cause, idx) => {
                         const IconComponent = ICON_MAP[cause.icon] || Heart;
                         return (
                             <div
                                 key={idx}
-                                className="relative group cursor-pointer"
+                                className="relative group cursor-pointer flex-none w-70 sm:w-80 lg:w-85"
                             >
                                 {/* 01, 02, 03 Massive Background Number */}
                                 <div className="absolute -top-12 -left-6 font-serif text-8xl md:text-9xl font-bold text-slate-100 opacity-50 select-none group-hover:-translate-y-2 transition-transform duration-500">
@@ -82,6 +83,7 @@ export function CausesSection({ settings }: CausesProps) {
                             </div>
                         );
                     })}
+                    </div>
                 </div>
             </div>
         </section>

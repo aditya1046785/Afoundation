@@ -21,7 +21,7 @@ export function GalleryPreview({ settings, albums }: GalleryPreviewProps) {
     const subtext = settings.gallery_section_subtext || "Moments that define our journey";
 
     return (
-        <section className="py-24 bg-[#fdfcfa] relative overflow-hidden">
+        <section className="py-20 md:py-24 bg-[#fdfcfa] relative overflow-hidden">
             {/* Subtle paper noise */}
             <div 
                 className="absolute inset-0 opacity-[0.2] pointer-events-none mix-blend-multiply"

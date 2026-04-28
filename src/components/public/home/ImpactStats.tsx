@@ -41,7 +41,7 @@ export function ImpactStats({ settings }: ImpactStatsProps) {
     if (!stats.length) return null;
 
     return (
-        <section className="py-24 bg-[#fffdfa] relative overflow-hidden border-y border-amber-500/10">
+        <section className="py-16 md:py-20 bg-[#fffdfa] relative overflow-hidden border-y border-amber-500/10">
             {/* Subtle paper noise */}
             <div 
                 className="absolute inset-0 opacity-[0.2] pointer-events-none mix-blend-multiply"

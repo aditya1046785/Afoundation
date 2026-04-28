@@ -20,7 +20,7 @@ export function DonateCTA({ settings }: DonateCTAProps) {
         .filter(Boolean);
 
     return (
-        <section className="py-32 relative overflow-hidden bg-[#0f172a]">
+        <section className="py-20 md:py-24 lg:py-28 relative overflow-hidden bg-[#0f172a]">
             {/* Soft dark paper noise overlay */}
             <div 
                 className="absolute inset-0 opacity-[0.3] pointer-events-none mix-blend-overlay"

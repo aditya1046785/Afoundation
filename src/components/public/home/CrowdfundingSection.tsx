@@ -30,7 +30,7 @@ export function CrowdfundingSection({ campaigns }: CrowdfundingProps) {
     if (!campaigns || campaigns.length === 0) return null;
 
     return (
-        <section className="py-24 lg:py-32 bg-[#FAF7F2] relative overflow-hidden">
+        <section className="py-20 md:py-24 lg:py-28 bg-[#FAF7F2] relative overflow-hidden">
             {/* Background elements */}
             <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-amber-50/50 to-transparent pointer-events-none" />
             <div className="absolute -bottom-[20%] -left-[10%] w-150 h-150 bg-rose-100/30 rounded-full mix-blend-multiply filter blur-[120px] pointer-events-none" />

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -20,13 +21,39 @@ export function HeroSection({ settings, galleryImages }: HeroProps) {
     const cta2Text = settings.hero_cta2_text || "Join Us";
     const cta2Link = settings.hero_cta2_link || "/register";
     const fallbackHeroImage = settings.hero_image || "/hero-bg.jpg";
-    const staticPhotos = galleryImages.length > 0 ? galleryImages : [fallbackHeroImage];
-    const mainPhoto = staticPhotos[0];
-    const sidePhotoOne = staticPhotos[1] || mainPhoto;
-    const sidePhotoTwo = staticPhotos[2] || mainPhoto;
+    const heroPhotos = useMemo(() => {
+        const uniquePhotos = Array.from(
+            new Set([...(galleryImages || []), fallbackHeroImage].filter(Boolean))
+        );
+
+        return uniquePhotos.length > 0 ? uniquePhotos : [fallbackHeroImage];
+    }, [galleryImages, fallbackHeroImage]);
+
+    const [activePhotoIndex, setActivePhotoIndex] = useState(0);
+
+    useEffect(() => {
+        if (heroPhotos.length <= 1) {
+            setActivePhotoIndex(0);
+            return;
+        }
+
+        setActivePhotoIndex(0);
+
+        const timer = window.setInterval(() => {
+            setActivePhotoIndex((current) => (current + 1) % heroPhotos.length);
+        }, 4500);
+
+        return () => window.clearInterval(timer);
+    }, [heroPhotos]);
+
+    const getPhoto = (offset: number) => heroPhotos[(activePhotoIndex + offset) % heroPhotos.length];
+
+    const mainPhoto = getPhoto(0);
+    const sidePhotoOne = getPhoto(1);
+    const sidePhotoTwo = getPhoto(2);
 
     return (
-        <section className="relative flex items-center justify-center overflow-hidden bg-[#fbfaf8] py-20 min-[900px]:py-24">
+        <section className="relative flex items-center justify-center overflow-hidden bg-[#fbfaf8] py-16 min-[900px]:py-20">
             {/* Artistic Canvas Paper Texture */}
             <div 
                 className="absolute inset-0 opacity-[0.4] pointer-events-none mix-blend-multiply"
@@ -43,7 +70,7 @@ export function HeroSection({ settings, galleryImages }: HeroProps) {
                 <div className="grid grid-cols-1 min-[900px]:grid-cols-12 gap-12 min-[900px]:gap-8 items-center">
                     
                     {/* Left Content Column (The Editorial Typography) */}
-                    <div className="min-[900px]:col-span-6 flex flex-col justify-center text-left pt-20 min-[900px]:pt-0">
+                    <div className="min-[900px]:col-span-6 flex flex-col justify-center text-left pt-12 min-[900px]:pt-0">
                         <div>
                             <p className="font-serif italic text-amber-600 text-xl md:text-2xl mb-4 tracking-wide">
                                 {badgeText}
@@ -91,7 +118,7 @@ export function HeroSection({ settings, galleryImages }: HeroProps) {
 
                     {/* Right Content Column (Authentic Framed Collage) */}
                     <div className="hidden min-[900px]:flex min-[900px]:col-span-6 relative justify-center min-[900px]:justify-end w-full">
-                        <div className="relative w-full h-[clamp(24rem,58vw,40rem)] max-w-xl mx-auto">
+                        <div className="relative w-full h-112 min-[1200px]:h-128 max-w-xl mx-auto">
                             <div className="absolute inset-0 rounded-[2.4rem] bg-linear-to-br from-white/90 to-amber-50/90 border border-amber-100 shadow-[0_25px_70px_-30px_rgba(15,23,42,0.45)]" />
                             <div
                                 className="absolute inset-0 rounded-[2.4rem] opacity-25 pointer-events-none mix-blend-multiply"

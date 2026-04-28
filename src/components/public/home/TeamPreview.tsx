@@ -35,7 +35,7 @@ export function TeamPreview({ settings, members }: TeamPreviewProps) {
     ] as const;
 
     return (
-        <section className="py-24 bg-[#fffdfa] relative overflow-hidden">
+        <section className="py-20 md:py-24 bg-[#fffdfa] relative overflow-hidden">
             {/* Soft paper noise */}
             <div 
                 className="absolute inset-0 opacity-[0.2] pointer-events-none mix-blend-multiply"

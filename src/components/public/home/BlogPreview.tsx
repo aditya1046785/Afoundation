@@ -27,7 +27,7 @@ export function BlogPreview({ settings, posts }: BlogPreviewProps) {
     const subtext = settings.blog_section_subtext || "Read about our impact and journey";
 
     return (
-        <section className="py-24 bg-[#fbfaf8] relative overflow-hidden">
+        <section className="py-20 md:py-24 bg-[#fbfaf8] relative overflow-hidden">
             {/* Subtle paper noise */}
             <div 
                 className="absolute inset-0 opacity-[0.25] pointer-events-none mix-blend-multiply"

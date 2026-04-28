@@ -28,7 +28,7 @@ export function TestimonialsSection({ settings }: TestimonialsProps) {
     const active = testimonials[current];
 
     return (
-        <section className="py-32 bg-[#fffcf8] relative overflow-hidden">
+        <section className="py-20 md:py-24 bg-[#fffcf8] relative overflow-hidden">
             {/* Soft paper noise */}
             <div 
                 className="absolute inset-0 opacity-[0.25] pointer-events-none mix-blend-multiply"
