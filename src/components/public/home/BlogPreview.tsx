@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -38,19 +37,10 @@ export function BlogPreview({ settings, posts }: BlogPreviewProps) {
             />
 
             {/* Watercolor BG Blob */}
-            <motion.div 
-                animate={{ rotate: 360, scale: [1, 1.1, 1] }} 
-                transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
-                className="absolute top-[30%] left-[40%] w-[600px] h-[600px] bg-amber-50/50 rounded-full mix-blend-multiply filter blur-[100px] pointer-events-none"
-            />
+            <div className="absolute top-[30%] left-[40%] w-150 h-150 bg-amber-50/50 rounded-full mix-blend-multiply filter blur-[100px] pointer-events-none" />
 
             <div className="container mx-auto px-6 max-w-7xl relative z-10">
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="text-center mb-16"
-                >
+                <div className="text-center mb-16">
                     <p className="font-serif italic text-amber-600 text-xl tracking-wide mb-4">Journal</p>
                     <h2 className="font-serif text-4xl lg:text-5xl font-bold text-slate-800 mb-6 tracking-tight relative inline-block">
                         {heading}
@@ -59,16 +49,12 @@ export function BlogPreview({ settings, posts }: BlogPreviewProps) {
                         </svg>
                     </h2>
                     <p className="text-slate-500 max-w-xl mx-auto font-light text-lg">{subtext}</p>
-                </motion.div>
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                     {posts.map((post, idx) => (
-                        <motion.article
+                        <article
                             key={post.id}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: idx * 0.15, duration: 0.8 }}
                             className="group flex flex-col"
                         >
                             {/* Artistic Floating Image */}
@@ -121,7 +107,7 @@ export function BlogPreview({ settings, posts }: BlogPreviewProps) {
                                     </Link>
                                 </div>
                             </div>
-                        </motion.article>
+                        </article>
                     ))}
                 </div>
 

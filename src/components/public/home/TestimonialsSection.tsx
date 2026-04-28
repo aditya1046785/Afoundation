@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Quote, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import Image from "next/image";
 import { getInitials } from "@/lib/utils";
@@ -39,15 +38,10 @@ export function TestimonialsSection({ settings }: TestimonialsProps) {
             />
             
             {/* Massive background Quote Icon decoration */}
-            <Quote className="absolute top-[20%] left-[10%] w-[400px] h-[400px] text-amber-100/40 -rotate-12 pointer-events-none stroke-[0.5]" />
+            <Quote className="absolute top-[20%] left-[10%] w-100 h-100 text-amber-100/40 -rotate-12 pointer-events-none stroke-[0.5]" />
 
             <div className="container mx-auto px-6 max-w-5xl relative z-10">
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="text-center mb-16"
-                >
+                <div className="text-center mb-16">
                     <p className="font-serif italic text-amber-600 text-xl tracking-wide mb-4">{eyebrow}</p>
                     <h2 className="font-serif text-4xl lg:text-5xl font-bold text-slate-800 relative inline-block">
                         {heading}
@@ -55,18 +49,10 @@ export function TestimonialsSection({ settings }: TestimonialsProps) {
                             <path d="M0,5 Q50,-2 100,5" fill="none" strokeWidth="4" strokeLinecap="round" />
                         </svg>
                     </h2>
-                </motion.div>
+                </div>
 
                 <div className="relative">
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={current}
-                            initial={{ opacity: 0, filter: "blur(10px)", scale: 0.95 }}
-                            animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
-                            exit={{ opacity: 0, filter: "blur(10px)", scale: 0.95 }}
-                            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                            className="text-center px-4 md:px-12"
-                        >
+                    <div className="text-center px-4 md:px-12">
                             <p className="text-slate-700 text-2xl md:text-4xl font-serif italic leading-relaxed mb-10 text-balance max-w-4xl mx-auto font-light">
                                 &ldquo;{active.quote}&rdquo;
                             </p>
@@ -101,8 +87,7 @@ export function TestimonialsSection({ settings }: TestimonialsProps) {
                                     <p className="text-slate-500 text-sm tracking-widest uppercase font-medium">{active.designation}</p>
                                 </div>
                             </div>
-                        </motion.div>
-                    </AnimatePresence>
+                    </div>
 
                     {/* Navigation */}
                     {testimonials.length > 1 && (

@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Heart, ArrowRight } from "lucide-react";
@@ -31,25 +30,12 @@ export function DonateCTA({ settings }: DonateCTAProps) {
             />
             {/* Background glowing artistic decoration */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none mix-blend-screen">
-                <motion.div 
-                    animate={{ rotate: 360, scale: [1, 1.2, 1] }} 
-                    transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-                    className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-amber-500/10 filter blur-[100px]" 
-                />
-                <motion.div 
-                    animate={{ rotate: -360, scale: [1, 1.1, 1] }} 
-                    transition={{ duration: 60, repeat: Infinity, ease: "linear", delay: 1 }}
-                    className="absolute -bottom-32 -left-32 w-[600px] h-[600px] rounded-full bg-blue-500/10 filter blur-[100px]" 
-                />
+                <div className="absolute -top-32 -right-32 w-150 h-150 rounded-full bg-amber-500/10 filter blur-[100px]" />
+                <div className="absolute -bottom-32 -left-32 w-150 h-150 rounded-full bg-blue-500/10 filter blur-[100px]" />
             </div>
 
             <div className="container mx-auto px-6 max-w-5xl text-center relative z-10">
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                >
+                <div>
                     <div className="w-16 h-16 rounded-full bg-slate-800/50 border border-slate-700/50 flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(251,191,36,0.1)]">
                         <Heart className="w-6 h-6 text-amber-400 fill-amber-400/50" />
                     </div>
@@ -68,23 +54,15 @@ export function DonateCTA({ settings }: DonateCTAProps) {
                     <div className="flex flex-wrap gap-4 justify-center mb-12">
                         {presetAmounts.map((amount) => (
                             <Link key={amount} href={`/donate?amount=${amount}`}>
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="bg-slate-800/40 hover:bg-slate-800 border-2 border-slate-700 hover:border-amber-500/50 text-slate-300 hover:text-white font-medium px-8 py-4 rounded-full transition-all duration-300 text-lg shadow-none hover:shadow-[0_0_20px_rgba(251,191,36,0.15)]"
-                                >
+                                <button className="bg-slate-800/40 hover:bg-slate-800 border-2 border-slate-700 hover:border-amber-500/50 text-slate-300 hover:text-white font-medium px-8 py-4 rounded-full transition-all duration-300 text-lg shadow-none hover:shadow-[0_0_20px_rgba(251,191,36,0.15)]">
                                     ₹{parseInt(amount).toLocaleString("en-IN")}
-                                </motion.button>
+                                </button>
                             </Link>
                         ))}
                         <Link href="/donate">
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                className="bg-transparent hover:bg-slate-800/60 border-2 border-slate-700 hover:border-slate-500 text-slate-400 font-medium px-8 py-4 rounded-full transition-all duration-300 text-lg"
-                            >
+                            <button className="bg-transparent hover:bg-slate-800/60 border-2 border-slate-700 hover:border-slate-500 text-slate-400 font-medium px-8 py-4 rounded-full transition-all duration-300 text-lg">
                                 Custom ₹
-                            </motion.button>
+                            </button>
                         </Link>
                     </div>
 
@@ -99,7 +77,7 @@ export function DonateCTA({ settings }: DonateCTAProps) {
                     <p className="mt-8 text-sm text-slate-500 tracking-wide font-light">
                         {trustText}
                     </p>
-                </motion.div>
+                </div>
             </div>
         </section>
     );

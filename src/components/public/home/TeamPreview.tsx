@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -45,19 +44,10 @@ export function TeamPreview({ settings, members }: TeamPreviewProps) {
                 }}
             />
             {/* Artistic Paint Splash */}
-            <motion.div 
-                animate={{ rotate: -360, scale: [1, 1.1, 1] }} 
-                transition={{ duration: 55, repeat: Infinity, ease: "linear" }}
-                className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-amber-100/40 rounded-full mix-blend-multiply filter blur-[90px] pointer-events-none"
-            />
+            <div className="absolute bottom-[-10%] left-[-10%] w-125 h-125 bg-amber-100/40 rounded-full mix-blend-multiply filter blur-[90px] pointer-events-none" />
 
             <div className="container mx-auto px-6 max-w-7xl relative z-10">
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="text-center mb-16"
-                >
+                <div className="text-center mb-16">
                     <p className="font-serif italic text-amber-600 text-xl tracking-wide mb-4">Our People</p>
                     <h2 className="font-serif text-4xl lg:text-5xl font-bold text-slate-800 mb-6 tracking-tight relative inline-block">
                         {heading}
@@ -66,20 +56,16 @@ export function TeamPreview({ settings, members }: TeamPreviewProps) {
                         </svg>
                     </h2>
                     <p className="text-slate-500 max-w-xl mx-auto font-light text-lg">{subtext}</p>
-                </motion.div>
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
                     {members.map((member, idx) => (
-                        <motion.div
+                        <div
                             key={member.id}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: idx * 0.1, duration: 0.8 }}
                             className={`group relative flex-col items-center ${idx >= 3 ? "hidden md:flex" : "flex"}`}
                         >
                             {/* Photo with artistic portrait framing */}
-                            <div className="aspect-[3/4] w-full relative bg-slate-100 rounded-[2rem_1rem_3rem_1rem] overflow-hidden mb-6 shadow-md transition-all duration-500 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.2)] group-hover:rounded-[1rem_3rem_1rem_2rem]">
+                            <div className="aspect-3/4 w-full relative bg-slate-100 rounded-[2rem_1rem_3rem_1rem] overflow-hidden mb-6 shadow-md transition-all duration-500 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.2)] group-hover:rounded-[1rem_3rem_1rem_2rem]">
                                 {member.photo ? (
                                     <Image
                                         src={member.photo}
@@ -118,10 +104,10 @@ export function TeamPreview({ settings, members }: TeamPreviewProps) {
                             <div className="text-center w-full">
                                 <p className="font-serif font-bold text-slate-900 text-xl tracking-wide mb-1 transition-colors group-hover:text-amber-700">{member.name}</p>
                                 <p className="text-amber-600 text-sm font-medium tracking-widest uppercase">{member.role}</p>
-                                <div className="w-12 h-[1px] bg-slate-200 mx-auto my-3 group-hover:w-full group-hover:bg-amber-300 transition-all duration-500" />
+                                <div className="w-12 h-px bg-slate-200 mx-auto my-3 group-hover:w-full group-hover:bg-amber-300 transition-all duration-500" />
                                 <span className="inline-block text-xs text-slate-400 italic">"{member.category}"</span>
                             </div>
-                        </motion.div>
+                        </div>
                     ))}
                 </div>
 

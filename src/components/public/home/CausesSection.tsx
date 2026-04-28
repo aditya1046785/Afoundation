@@ -1,7 +1,5 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
 import { GraduationCap, HeartPulse, Users, Heart, Home, Leaf, BookOpen, Star, ArrowRight } from "lucide-react";
 
 interface CausesProps {
@@ -13,9 +11,6 @@ const ICON_MAP: Record<string, React.ElementType> = {
 };
 
 export function CausesSection({ settings }: CausesProps) {
-    const ref = useRef(null);
-    const isInView = useInView(ref, { once: true, amount: 0.2 });
-
     const eyebrow = settings.causes_eyebrow || "What We Do";
     const heading = settings.causes_heading || "Our Canvas of Impact";
     const subtext = settings.causes_subtext || "We focus on three core pillars that drive sustainable change in communities, approaching every challenge with heart.";
@@ -30,7 +25,7 @@ export function CausesSection({ settings }: CausesProps) {
     if (!causes.length) return null;
 
     return (
-        <section ref={ref} className="py-32 bg-[#fdfcfa] relative overflow-hidden">
+        <section className="py-32 bg-[#fdfcfa] relative overflow-hidden">
             {/* Very faint background noise */}
             <div 
                 className="absolute inset-0 opacity-[0.25] pointer-events-none mix-blend-multiply"
@@ -40,20 +35,11 @@ export function CausesSection({ settings }: CausesProps) {
             />
 
             {/* Subtle watercolor blob */}
-            <motion.div 
-                animate={{ rotate: -360, scale: [1, 1.2, 1] }} 
-                transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
-                className="absolute top-[20%] -right-[10%] w-[600px] h-[600px] bg-blue-100/30 rounded-full mix-blend-multiply filter blur-[100px] pointer-events-none"
-            />
+            <div className="absolute top-[20%] -right-[10%] w-150 h-150 bg-blue-100/30 rounded-full mix-blend-multiply filter blur-[100px] pointer-events-none" />
 
             <div className="container mx-auto px-6 max-w-7xl relative z-10">
                 {/* Header */}
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                    className="text-center mb-24"
-                >
+                <div className="text-center mb-24">
                     <p className="font-serif italic text-amber-600 text-xl tracking-wide mb-4">
                         {eyebrow}
                     </p>
@@ -66,17 +52,14 @@ export function CausesSection({ settings }: CausesProps) {
                     <p className="text-slate-500 max-w-xl mx-auto font-light text-lg">
                         {subtext}
                     </p>
-                </motion.div>
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
                     {causes.map((cause, idx) => {
                         const IconComponent = ICON_MAP[cause.icon] || Heart;
                         return (
-                            <motion.div
+                            <div
                                 key={idx}
-                                initial={{ opacity: 0, y: 40 }}
-                                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                                transition={{ duration: 0.8, delay: idx * 0.2, ease: [0.16, 1, 0.3, 1] }}
                                 className="relative group cursor-pointer"
                             >
                                 {/* 01, 02, 03 Massive Background Number */}
@@ -96,7 +79,7 @@ export function CausesSection({ settings }: CausesProps) {
                                         <ArrowRight className="w-4 h-4 ml-2 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
                                     </div>
                                 </div>
-                            </motion.div>
+                            </div>
                         );
                     })}
                 </div>

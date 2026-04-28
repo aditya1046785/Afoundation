@@ -1,7 +1,5 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
 import { Heart, Users, Calendar, IndianRupee, GraduationCap, HeartPulse, Target, Shield } from "lucide-react";
 
 interface ImpactStatsProps {
@@ -12,32 +10,21 @@ const ICON_MAP: Record<string, React.ElementType> = {
     Heart, Users, Calendar, IndianRupee, GraduationCap, HeartPulse, Target, Shield,
 };
 
-function StatCard({ number, label, icon, index }: { number: string; label: string; icon: string; index: number }) {
-    const ref = useRef(null);
-    const isInView = useInView(ref, { once: true, amount: 0.5 });
+function StatCard({ number, label, icon }: { number: string; label: string; icon: string }) {
     const IconComponent = ICON_MAP[icon] || Heart;
 
     return (
-        <motion.div
-            ref={ref}
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: index * 0.15, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col items-center text-center p-8 relative group"
-        >
+        <div className="flex flex-col items-center text-center p-8 relative group">
             {/* Artistic border line */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-[1px] bg-amber-300 transition-all duration-500 group-hover:w-full group-hover:bg-amber-400" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-px bg-amber-300 transition-all duration-500 group-hover:w-full group-hover:bg-amber-400" />
             
-            <motion.div 
-                whileHover={{ rotate: 5, scale: 1.1 }}
-                className="w-16 h-16 rounded-full bg-[#fbfaf8] border border-amber-100/50 flex items-center justify-center mb-6 shadow-sm group-hover:bg-amber-50 group-hover:border-amber-200 transition-colors duration-500"
-            >
+            <div className="w-16 h-16 rounded-full bg-[#fbfaf8] border border-amber-100/50 flex items-center justify-center mb-6 shadow-sm group-hover:bg-amber-50 group-hover:border-amber-200 transition-colors duration-500">
                 <IconComponent className="w-6 h-6 text-amber-500" />
-            </motion.div>
+            </div>
             
             <p className="font-serif text-5xl lg:text-6xl font-bold text-slate-800 mb-3 tracking-tighter">{number}</p>
             <p className="text-slate-500 text-sm font-medium tracking-wide uppercase">{label}</p>
-        </motion.div>
+        </div>
     );
 }
 
@@ -63,16 +50,12 @@ export function ImpactStats({ settings }: ImpactStatsProps) {
                 }}
             />
             {/* Subtle watercolor blob */}
-            <motion.div 
-                animate={{ rotate: 360, scale: [1, 1.1, 1] }} 
-                transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-                className="absolute top-[20%] right-[30%] w-[500px] h-[500px] bg-amber-50/50 rounded-full mix-blend-multiply filter blur-[80px] pointer-events-none"
-            />
+            <div className="absolute top-[20%] right-[30%] w-125 h-125 bg-amber-50/50 rounded-full mix-blend-multiply filter blur-[80px] pointer-events-none" />
 
             <div className="container mx-auto px-6 max-w-7xl relative z-10">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
                     {stats.map((stat, idx) => (
-                        <StatCard key={idx} index={idx} number={stat.number || ""} label={stat.label || ""} icon={stat.icon || "Heart"} />
+                        <StatCard key={idx} number={stat.number || ""} label={stat.label || ""} icon={stat.icon || "Heart"} />
                     ))}
                 </div>
             </div>

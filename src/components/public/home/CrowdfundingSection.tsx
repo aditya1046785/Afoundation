@@ -1,9 +1,6 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, HandHeart, Sparkles } from "lucide-react";
 
@@ -30,30 +27,18 @@ const formatCurrency = (amount: number) => {
 };
 
 export function CrowdfundingSection({ campaigns }: CrowdfundingProps) {
-    const ref = useRef(null);
-    const isInView = useInView(ref, { once: true, amount: 0.1 });
-
     if (!campaigns || campaigns.length === 0) return null;
 
     return (
-        <section ref={ref} className="py-24 lg:py-32 bg-[#FAF7F2] relative overflow-hidden">
+        <section className="py-24 lg:py-32 bg-[#FAF7F2] relative overflow-hidden">
             {/* Background elements */}
             <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-amber-50/50 to-transparent pointer-events-none" />
-            <motion.div 
-                animate={{ rotate: -360, scale: [1, 1.1, 1] }} 
-                transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-                className="absolute -bottom-[20%] -left-[10%] w-[600px] h-[600px] bg-rose-100/30 rounded-full mix-blend-multiply filter blur-[120px] pointer-events-none"
-            />
+            <div className="absolute -bottom-[20%] -left-[10%] w-150 h-150 bg-rose-100/30 rounded-full mix-blend-multiply filter blur-[120px] pointer-events-none" />
 
             <div className="container mx-auto px-6 max-w-7xl relative z-10">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
-                    <motion.div
-                        initial={{ opacity: 0, x: -30 }}
-                        animate={isInView ? { opacity: 1, x: 0 } : {}}
-                        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                        className="max-w-2xl"
-                    >
+                    <div className="max-w-2xl">
                         <p className="font-serif italic text-amber-600 text-xl tracking-wide mb-4 flex items-center gap-2">
                             <Sparkles className="w-5 h-5" /> Active Campaigns
                         </p>
@@ -66,21 +51,16 @@ export function CrowdfundingSection({ campaigns }: CrowdfundingProps) {
                         <p className="text-slate-500 font-light text-lg">
                             Your support directly impacts lives. Explore our ongoing crowdfunding campaigns and help us reach our target to create sustainable change.
                         </p>
-                    </motion.div>
+                    </div>
                     
-                    <motion.div
-                        initial={{ opacity: 0, x: 30 }}
-                        animate={isInView ? { opacity: 1, x: 0 } : {}}
-                        transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                        className="shrink-0"
-                    >
+                    <div className="shrink-0">
                         <Link href="/donate">
                             <Button className="rounded-full px-8 py-6 text-base font-medium bg-slate-800 hover:bg-slate-700 text-white transition-all shadow-xl shadow-slate-900/10 group">
                                 View All Campaigns
                                 <ArrowRight className="w-4 h-4 ml-2 opacity-70 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                             </Button>
                         </Link>
-                    </motion.div>
+                    </div>
                 </div>
 
                 {/* Campaign Cards Grid */}
@@ -89,11 +69,8 @@ export function CrowdfundingSection({ campaigns }: CrowdfundingProps) {
                         const progress = Math.min(100, Math.round((campaign.raised / campaign.target) * 100));
                         
                         return (
-                            <motion.div
+                            <div
                                 key={campaign.id}
-                                initial={{ opacity: 0, y: 40 }}
-                                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                                transition={{ duration: 0.8, delay: 0.1 * idx, ease: [0.16, 1, 0.3, 1] }}
                                 className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 flex flex-col h-full"
                             >
                                 {/* Image Container */}
@@ -135,15 +112,10 @@ export function CrowdfundingSection({ campaigns }: CrowdfundingProps) {
                                         {/* Unique Progress Bar Design */}
                                         <div className="relative h-3 w-full bg-slate-100 rounded-full overflow-hidden mt-3 mb-2 shadow-inner">
                                             {/* Animated liquid fill */}
-                                            <motion.div
-                                                initial={{ width: 0 }}
-                                                animate={isInView ? { width: `${progress}%` } : {}}
-                                                transition={{ duration: 1.5, delay: 0.5 + (idx * 0.1), ease: "easeOut" }}
+                                            <div
                                                 className="absolute top-0 left-0 h-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 rounded-full"
-                                            >
-                                                {/* Shimmer effect */}
-                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
-                                            </motion.div>
+                                                style={{ width: `${progress}%` }}
+                                            />
                                         </div>
                                         
                                         <div className="flex justify-between items-center mt-2">
@@ -166,19 +138,11 @@ export function CrowdfundingSection({ campaigns }: CrowdfundingProps) {
                                         </div>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </div>
                         );
                     })}
                 </div>
             </div>
-            
-            <style jsx global>{`
-                @keyframes shimmer {
-                    100% {
-                        transform: translateX(100%);
-                    }
-                }
-            `}</style>
         </section>
     );
 }
