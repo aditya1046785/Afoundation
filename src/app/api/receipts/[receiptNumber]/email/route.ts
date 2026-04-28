@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { sendDonationReceiptEmail } from "@/lib/email";
+import { generateReceiptPdfBuffer, type ReceiptPdfData } from "@/lib/receipt-pdf";
 
 const ADMIN_ROLES = ["SUPER_ADMIN", "ADMIN", "MANAGER"] as const;
 
@@ -27,6 +28,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<P
             receiptNumber: true,
             donorName: true,
             donorEmail: true,
+            donorPhone: true,
+            donorPAN: true,
             amount: true,
             purpose: true,
                 paymentReference: true,
@@ -46,22 +49,41 @@ export async function POST(request: NextRequest, { params }: { params: Promise<P
         return NextResponse.json({ success: false, error: "Recipient email is missing" }, { status: 400 });
     }
 
-    const emailSent = await sendDonationReceiptEmail(emailTo, {
-        donorName: donation.donorName,
-        amount: donation.amount,
-        receiptNumber: donation.receiptNumber,
-        date: (donation.paidAt || donation.createdAt).toISOString(),
-        purpose: donation.purpose || "General Donation",
+    try {
+        // Generate PDF from donation data
+        const pdfBuffer = await generateReceiptPdfBuffer({
+            receiptNumber: donation.receiptNumber,
+            donorName: donation.donorName,
+            donorEmail: donation.donorEmail,
+            donorPhone: donation.donorPhone,
+            donorPAN: donation.donorPAN,
+            amount: donation.amount,
+            purpose: donation.purpose || "General Donation",
             transactionId: donation.paymentReference || donation.razorpayPaymentId || donation.razorpayOrderId || `MANUAL-${donation.receiptNumber}`,
-    });
+            date: donation.paidAt || donation.createdAt,
+        } as ReceiptPdfData);
 
-    if (!emailSent) {
-        return NextResponse.json({ success: false, error: "Failed to send receipt email" }, { status: 500 });
+        // Send email WITH PDF attachment
+        const emailSent = await sendDonationReceiptEmail(emailTo, {
+            donorName: donation.donorName,
+            amount: donation.amount,
+            receiptNumber: donation.receiptNumber,
+            date: (donation.paidAt || donation.createdAt).toISOString(),
+            purpose: donation.purpose || "General Donation",
+            transactionId: donation.paymentReference || donation.razorpayPaymentId || donation.razorpayOrderId || `MANUAL-${donation.receiptNumber}`,
+        }, pdfBuffer);
+
+        if (!emailSent) {
+            return NextResponse.json({ success: false, error: "Failed to send receipt email" }, { status: 500 });
+        }
+
+        return NextResponse.json({
+            success: true,
+            message: `Receipt emailed to ${emailTo} with PDF attachment`,
+            data: { receiptNumber: donation.receiptNumber, to: emailTo },
+        });
+    } catch (error) {
+        console.error("Error sending receipt email:", error);
+        return NextResponse.json({ success: false, error: "Failed to process receipt email" }, { status: 500 });
     }
-
-    return NextResponse.json({
-        success: true,
-        message: `Receipt emailed to ${emailTo}`,
-        data: { receiptNumber: donation.receiptNumber, to: emailTo },
-    });
 }

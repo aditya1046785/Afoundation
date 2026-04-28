@@ -70,7 +70,7 @@ export function HeroSection({ settings, galleryImages }: HeroProps) {
                 <div className="grid grid-cols-1 min-[900px]:grid-cols-12 gap-12 min-[900px]:gap-8 items-center">
                     
                     {/* Left Content Column (The Editorial Typography) */}
-                    <div className="min-[900px]:col-span-6 flex flex-col justify-center text-left pt-12 min-[900px]:pt-0">
+                    <div className="min-[900px]:col-span-6 flex flex-col justify-center text-left pt-14 min-[900px]:pt-4">
                         <div>
                             <p className="font-serif italic text-amber-600 text-xl md:text-2xl mb-4 tracking-wide">
                                 {badgeText}

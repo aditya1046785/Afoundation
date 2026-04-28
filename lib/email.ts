@@ -8,58 +8,45 @@ import { IDCardIssuedEmail } from "@/emails/IDCardIssued";
 import type { ReactElement } from "react";
 
 const resend = new Resend(process.env.RESEND_API_KEY || "");
-const FROM = process.env.EMAIL_FROM || "Nirashray Foundation <onboarding@resend.dev>";
+const FROM = process.env.EMAIL_FROM || "Nirashray Foundation <info@nirashrayfoundation.com>";
 
 type SendEmailOptions = {
     to: string;
     subject: string;
     react: ReactElement;
     logContext: string;
+    attachments?: Array<{
+        filename: string;
+        content: Buffer;
+    }>;
 };
 
-const MAX_EMAIL_RETRIES = 3;
-
-async function sleep(ms: number): Promise<void> {
-    await new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function sendEmail({ to, subject, react, logContext }: SendEmailOptions): Promise<boolean> {
+async function sendEmail({ to, subject, react, logContext, attachments }: SendEmailOptions): Promise<boolean> {
     if (!process.env.RESEND_API_KEY) {
         console.error(`Failed to send ${logContext}: RESEND_API_KEY is not configured.`);
         return false;
     }
 
-    if (!to || !to.trim()) {
-        console.error(`Failed to send ${logContext}: recipient email is missing.`);
+    try {
+        const html = await render(react);
+        const emailPayload: any = {
+            from: FROM,
+            to,
+            subject,
+            html,
+        };
+
+        // Add attachments if provided
+        if (attachments && attachments.length > 0) {
+            emailPayload.attachments = attachments;
+        }
+
+        await resend.emails.send(emailPayload);
+        return true;
+    } catch (error) {
+        console.error(`Failed to send ${logContext}:`, error);
         return false;
     }
-
-    const html = await render(react);
-
-    for (let attempt = 1; attempt <= MAX_EMAIL_RETRIES; attempt++) {
-        try {
-            const { data, error } = await resend.emails.send({
-                from: FROM,
-                to: [to],
-                subject,
-                html,
-            });
-
-            if (!error && data?.id) {
-                return true;
-            }
-
-            console.error(`Failed to send ${logContext} (attempt ${attempt}/${MAX_EMAIL_RETRIES}):`, error || "Unknown Resend error");
-        } catch (error) {
-            console.error(`Failed to send ${logContext} (attempt ${attempt}/${MAX_EMAIL_RETRIES}):`, error);
-        }
-
-        if (attempt < MAX_EMAIL_RETRIES) {
-            await sleep(attempt * 500);
-        }
-    }
-
-    return false;
 }
 
 /**
@@ -86,13 +73,24 @@ export async function sendDonationReceiptEmail(
         date: string;
         purpose: string;
         transactionId: string;
-    }
+    },
+    pdfBuffer?: Buffer
 ) {
+    const attachments = pdfBuffer
+        ? [
+              {
+                  filename: `Receipt_${data.receiptNumber}.pdf`,
+                  content: pdfBuffer,
+              },
+          ]
+        : undefined;
+
     return sendEmail({
         to,
         subject: `Donation Receipt - ${data.receiptNumber}`,
         react: DonationReceiptEmail(data),
         logContext: "donation receipt email",
+        attachments,
     });
 }
 
