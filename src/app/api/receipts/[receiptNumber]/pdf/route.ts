@@ -28,6 +28,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<Pa
             donorPAN: true,
             amount: true,
             purpose: true,
+            status: true,
             paymentReference: true,
             razorpayPaymentId: true,
             razorpayOrderId: true,
