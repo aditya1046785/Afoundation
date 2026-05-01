@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -7,17 +8,45 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 
 interface AboutBriefProps {
     settings: Record<string, string>;
+    galleryImages: string[];
 }
 
-export function AboutBrief({ settings }: AboutBriefProps) {
+export function AboutBrief({ settings, galleryImages }: AboutBriefProps) {
     const eyebrow = settings.about_brief_eyebrow || "Our Story";
     const heading = settings.about_brief_heading || "Who We Are";
     const text = settings.about_brief_text || "";
     const image = settings.about_brief_image || "/about-brief.jpg";
     const ctaText = settings.about_brief_cta_text || "Learn More About Us";
     const ctaLink = settings.about_brief_cta_link || "/about";
+    const storyPhotos = useMemo(() => {
+        const fallbackPhotos = [image, settings.hero_image || "/hero-bg.jpg"];
+        const uniquePhotos = Array.from(
+            new Set([...(galleryImages || []), ...fallbackPhotos].filter(Boolean))
+        );
+
+        return uniquePhotos.length > 0 ? uniquePhotos : ["/hero-bg.jpg"];
+    }, [galleryImages, image, settings.hero_image]);
+
+    const [activePhotoIndex, setActivePhotoIndex] = useState(0);
+
+    useEffect(() => {
+        if (storyPhotos.length <= 1) return;
+
+        const timer = window.setInterval(() => {
+            setActivePhotoIndex((current) => (current + 1) % storyPhotos.length);
+        }, 4500);
+
+        return () => window.clearInterval(timer);
+    }, [storyPhotos]);
 
     if (!text) return null;
+
+    const visiblePhotoIndex = activePhotoIndex % storyPhotos.length;
+    const getPhoto = (offset: number) => storyPhotos[(visiblePhotoIndex + offset) % storyPhotos.length];
+
+    const mainPhoto = getPhoto(0);
+    const sidePhotoOne = getPhoto(1);
+    const sidePhotoTwo = getPhoto(2);
 
     const highlights = (settings.about_brief_highlights || "Registered NGO under Societies Registration Act\n80G Tax Exemption Certificate\nFully transparent fund utilization\nActive across multiple communities")
         .split(/\r?\n/)
@@ -31,30 +60,61 @@ export function AboutBrief({ settings }: AboutBriefProps) {
             
             <div className="container mx-auto px-6 max-w-7xl relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-12 items-center">
-                    {/* Artistic Image Mask - Hidden on Mobile */}
-                    <div className="hidden lg:flex relative w-full justify-center lg:justify-start">
-                        <div
-                            className="relative w-full aspect-square max-w-md mx-auto lg:mx-0 lg:max-w-[500px]"
-                            style={{
-                                WebkitMaskImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M39.6,-66.6C52.4,-57.4,64.8,-47.9,73.1,-35.1C81.4,-22.4,85.6,-6.4,84.1,9.4C82.7,25.3,75.6,41,64.2,52C52.9,63.1,37.3,69.5,21.9,73.8C6.6,78.2,-8.6,80.6,-22.8,77C-37,73.4,-50.2,63.8,-61.6,51.8C-73,39.9,-82.6,25.6,-86.3,10C-90.1,-5.5,-88,-22.3,-79.6,-36.1C-71.1,-49.9,-56.3,-60.7,-41.8,-69.1C-27.4,-77.6,-13.7,-83.8,-0.2,-83.4C13.2,-83.1,26.8,-75.9,39.6,-66.6Z' transform='translate(100 100)' /%3E%3C/svg%3E")`,
-                                WebkitMaskSize: "contain",
-                                WebkitMaskRepeat: "no-repeat",
-                                WebkitMaskPosition: "center",
-                                maskImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M39.6,-66.6C52.4,-57.4,64.8,-47.9,73.1,-35.1C81.4,-22.4,85.6,-6.4,84.1,9.4C82.7,25.3,75.6,41,64.2,52C52.9,63.1,37.3,69.5,21.9,73.8C6.6,78.2,-8.6,80.6,-22.8,77C-37,73.4,-50.2,63.8,-61.6,51.8C-73,39.9,-82.6,25.6,-86.3,10C-90.1,-5.5,-88,-22.3,-79.6,-36.1C-71.1,-49.9,-56.3,-60.7,-41.8,-69.1C-27.4,-77.6,-13.7,-83.8,-0.2,-83.4C13.2,-83.1,26.8,-75.9,39.6,-66.6Z' transform='translate(100 100)' /%3E%3C/svg%3E")`,
-                                maskSize: "contain",
-                                maskRepeat: "no-repeat",
-                                maskPosition: "center"
-                            }}
-                        >
-                            <div className="w-full h-full relative">
-                                <Image
-                                    src={image}
-                                    alt="About Nirashray Foundation"
-                                    fill
-                                    className="object-cover"
-                                    sizes="(max-width: 1024px) 100vw, 50vw"
-                                />
+                    {/* Authentic Framed Collage */}
+                    <div className="relative flex w-full justify-center lg:justify-start">
+                        <div className="relative h-88 w-full max-w-md sm:h-104 lg:h-112 min-[1200px]:h-128 lg:max-w-[540px]">
+                            <div className="absolute inset-0 rounded-[2rem] sm:rounded-[2.4rem] bg-linear-to-br from-white/90 to-amber-50/90 border border-amber-100 shadow-[0_25px_70px_-30px_rgba(15,23,42,0.45)]" />
+                            <div
+                                className="absolute inset-0 rounded-[2rem] sm:rounded-[2.4rem] opacity-25 pointer-events-none mix-blend-multiply"
+                                style={{
+                                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                                }}
+                            />
+
+                            <div className="absolute inset-4 sm:inset-5 rounded-[1.6rem] sm:rounded-[1.9rem] overflow-hidden bg-slate-200">
+                                <div className="absolute inset-0">
+                                    <Image
+                                        src={mainPhoto}
+                                        alt="Community moments"
+                                        fill
+                                        className="object-cover"
+                                        sizes="(max-width: 640px) 90vw, (max-width: 1024px) 448px, 50vw"
+                                    />
+                                    <div className="absolute inset-0 bg-linear-to-t from-slate-900/35 via-slate-900/10 to-transparent" />
+                                </div>
                             </div>
+
+                            <div className="absolute -left-2 top-10 h-36 w-28 rounded-2xl bg-white p-1.5 shadow-xl border border-slate-200 sm:-left-6 sm:top-14 sm:h-52 sm:w-40 sm:p-2">
+                                <div className="relative h-full w-full rounded-xl overflow-hidden bg-slate-100">
+                                    <Image
+                                        src={sidePhotoOne}
+                                        alt="Volunteer highlight"
+                                        fill
+                                        className="object-cover"
+                                        sizes="(max-width: 640px) 112px, 160px"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="absolute -right-2 bottom-10 h-40 w-32 rounded-2xl bg-white p-1.5 shadow-xl border border-slate-200 sm:-right-6 sm:bottom-16 sm:h-56 sm:w-44 sm:p-2">
+                                <div className="relative h-full w-full rounded-xl overflow-hidden bg-slate-100">
+                                    <Image
+                                        src={sidePhotoTwo}
+                                        alt="Field work highlight"
+                                        fill
+                                        className="object-cover"
+                                        sizes="(max-width: 640px) 128px, 176px"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="absolute top-1/4 right-[12%] w-5 h-5 rounded-full bg-amber-400 mix-blend-multiply blur-[2px] sm:w-6 sm:h-6" />
+                        <div className="absolute bottom-1/3 left-[8%] w-8 h-8 rounded-full bg-blue-300 mix-blend-multiply blur-[3px] sm:w-10 sm:h-10" />
+                        <div className="absolute bottom-[12%] right-[22%] hidden sm:block">
+                            <svg width="40" height="40" viewBox="0 0 100 100" className="text-amber-500/50 fill-current">
+                                <path d="M50 0 L60 40 L100 50 L60 60 L50 100 L40 60 L0 50 L40 40 Z"/>
+                            </svg>
                         </div>
                     </div>
                     
@@ -78,7 +138,7 @@ export function AboutBrief({ settings }: AboutBriefProps) {
 
                         {/* Elegantly styled Highlights */}
                         <ul className="space-y-4 mb-10">
-                            {highlights.map((item, index) => (
+                            {highlights.map((item) => (
                                 <li key={item} className="flex items-center gap-4">
                                     <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center shrink-0 border border-amber-100">
                                         <CheckCircle2 className="w-4 h-4 text-amber-500" />

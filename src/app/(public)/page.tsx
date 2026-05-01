@@ -65,9 +65,9 @@ export default async function HomePage() {
 
     return (
         <>
-            <HeroSection settings={settings} galleryImages={heroGalleryImages} />
+            <HeroSection settings={settings} />
             <ImpactStats settings={settings} />
-            <AboutBrief settings={settings} />
+            <AboutBrief settings={settings} galleryImages={heroGalleryImages} />
             <CausesSection settings={settings} />
             {activeCampaigns.length > 0 && <CrowdfundingSection campaigns={activeCampaigns} />}
             <DonateCTA settings={settings} />
