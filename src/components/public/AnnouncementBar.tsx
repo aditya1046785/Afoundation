@@ -64,6 +64,20 @@ export function AnnouncementBar() {
     }, [announcements.length, dismissed, currentIndex]);
 
     useEffect(() => {
+        if (!announcements.length || dismissed) return;
+
+        const handleScroll = () => {
+            setDismissed(true);
+        };
+
+        window.addEventListener("scroll", handleScroll, { passive: true, once: true });
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
+    }, [announcements.length, dismissed]);
+
+    useEffect(() => {
         return () => {
             setAnnouncementHeight(0);
         };
