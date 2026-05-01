@@ -1,6 +1,7 @@
 import "server-only";
 import { readFile } from "fs/promises";
 import path from "path";
+import { getSiteSettings } from "@/lib/site-settings";
 
 export type ReceiptPdfData = {
     receiptNumber: string;
@@ -16,6 +17,23 @@ export type ReceiptPdfData = {
 
 export async function generateReceiptPdfBuffer(receiptData: ReceiptPdfData): Promise<Buffer> {
     const { jsPDF } = await import("jspdf");
+    const settings = await getSiteSettings([
+        "site_name",
+        "site_tagline",
+        "contact_address",
+        "address_line1",
+        "address_line2",
+        "contact_phone",
+        "contact_email",
+        "registration_number",
+    ]);
+
+    const organizationName = settings.site_name?.trim() || "Nirashray Foundation";
+    const organizationTagline = settings.site_tagline?.trim() || "Empowering Lives, Building Hope";
+    const registeredOffice = settings.contact_address?.trim() || [settings.address_line1?.trim(), settings.address_line2?.trim()].filter(Boolean).join(" ") || "Asrhi Lalganj-ajhara Pratapgarh UP 230132";
+    const contactPhone = settings.contact_phone?.trim() || "";
+    const contactEmail = settings.contact_email?.trim() || "";
+    const registrationNumber = settings.registration_number?.trim() || "";
 
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
     const pageWidth = pdf.internal.pageSize.getWidth();
@@ -45,10 +63,10 @@ export async function generateReceiptPdfBuffer(receiptData: ReceiptPdfData): Pro
     pdf.setTextColor(255, 255, 255);
     pdf.setFontSize(20);
     pdf.setFont("helvetica", "bold");
-    pdf.text("NIRASHRAY FOUNDATION", pageWidth / 2, 18, { align: "center" });
+    pdf.text(organizationName.toUpperCase(), pageWidth / 2, 18, { align: "center" });
     pdf.setFontSize(10);
     pdf.setFont("helvetica", "normal");
-    pdf.text("Empowering Lives, Building Hope", pageWidth / 2, 27, { align: "center" });
+    pdf.text(organizationTagline, pageWidth / 2, 27, { align: "center" });
     pdf.setFontSize(9);
     pdf.text("Registered under Societies Registration Act", pageWidth / 2, 35, { align: "center" });
 
@@ -57,29 +75,42 @@ export async function generateReceiptPdfBuffer(receiptData: ReceiptPdfData): Pro
     pdf.setFont("helvetica", "bold");
     pdf.text("DONATION RECEIPT", pageWidth / 2, 55, { align: "center" });
 
+    pdf.setTextColor(75, 85, 99);
+    pdf.setFontSize(8.5);
+    pdf.setFont("helvetica", "normal");
+    const centerInfoLine = (label: string, value: string, y: number) => {
+        if (!value) return;
+        pdf.text(`${label}: ${value}`, pageWidth / 2, y, { align: "center", maxWidth: pageWidth - 30 });
+    };
+
+    centerInfoLine("Registered Office", registeredOffice, 61);
+    centerInfoLine("Contact", contactPhone, 66);
+    centerInfoLine("Email", contactEmail, 71);
+    centerInfoLine("Registration No.", registrationNumber, 76);
+
     pdf.setFontSize(10);
     pdf.setFont("helvetica", "normal");
     pdf.setTextColor(100, 100, 100);
-    pdf.text(`Receipt No: ${receiptData.receiptNumber}`, 20, 65);
+    pdf.text(`Receipt No: ${receiptData.receiptNumber}`, 20, 84);
     pdf.text(
         `Date: ${receiptData.date.toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}`,
         pageWidth - 20,
-        65,
+        84,
         { align: "right" }
     );
 
     pdf.setDrawColor(30, 64, 175);
     pdf.setLineWidth(0.5);
-    pdf.line(20, 70, pageWidth - 20, 70);
+    pdf.line(20, 90, pageWidth - 20, 90);
 
     pdf.setTextColor(0, 0, 0);
     pdf.setFontSize(12);
     pdf.setFont("helvetica", "bold");
-    pdf.text("Donor Information", 20, 82);
+    pdf.text("Donor Information", 20, 102);
 
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(10);
-    let y = 92;
+    let y = 112;
 
     const addRow = (label: string, value: string) => {
         pdf.setFont("helvetica", "bold");

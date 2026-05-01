@@ -19,6 +19,7 @@ const SITE_SETTINGS: Record<string, string> = {
     contact_email: "info@nirashray.org",
     contact_phone: "+91 98XXXXXXXX",
     contact_phone_2: "",
+    contact_address: "Asrhi Lalganj-ajhara Pratapgarh UP 230132",
     address_line1: "123, Main Street",
     address_line2: "City, State - 000000",
     google_maps_url: "",
