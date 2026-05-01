@@ -18,6 +18,14 @@ export const metadata: Metadata = {
     description: "Nirashray Foundation — Empowering Lives, Building Hope. Join us in making a difference through education, healthcare, and community development.",
 };
 
+function pickRandomItems<T>(items: T[], limit: number) {
+    return [...items]
+        .map((item) => ({ item, sort: Math.random() }))
+        .sort((first, second) => first.sort - second.sort)
+        .slice(0, limit)
+        .map(({ item }) => item);
+}
+
 export default async function HomePage() {
     const [settings, teamMembers, recentBlogs, galleryAlbums, allVisibleGalleryAlbums, activeCampaigns] = await Promise.all([
         getAllSiteSettings(),
@@ -62,12 +70,13 @@ export default async function HomePage() {
                 .filter((imageUrl): imageUrl is string => Boolean(imageUrl))
         )
     );
+    const storyGalleryImages = pickRandomItems(heroGalleryImages, 6);
 
     return (
         <>
             <HeroSection settings={settings} />
             <ImpactStats settings={settings} />
-            <AboutBrief settings={settings} galleryImages={heroGalleryImages} />
+            <AboutBrief settings={settings} galleryImages={storyGalleryImages} />
             <CausesSection settings={settings} />
             {activeCampaigns.length > 0 && <CrowdfundingSection campaigns={activeCampaigns} />}
             <DonateCTA settings={settings} />

@@ -26,27 +26,24 @@ export function AboutBrief({ settings, galleryImages }: AboutBriefProps) {
 
         return uniquePhotos.length > 0 ? uniquePhotos : ["/hero-bg.jpg"];
     }, [galleryImages, image, settings.hero_image]);
+    const showcasedPhotos = useMemo(() => storyPhotos.slice(0, 6), [storyPhotos]);
 
     const [activePhotoIndex, setActivePhotoIndex] = useState(0);
 
     useEffect(() => {
-        if (storyPhotos.length <= 1) return;
+        if (showcasedPhotos.length <= 1) return;
 
         const timer = window.setInterval(() => {
-            setActivePhotoIndex((current) => (current + 1) % storyPhotos.length);
+            setActivePhotoIndex((current) => (current + 1) % showcasedPhotos.length);
         }, 4500);
 
         return () => window.clearInterval(timer);
-    }, [storyPhotos]);
+    }, [showcasedPhotos]);
 
     if (!text) return null;
 
-    const visiblePhotoIndex = activePhotoIndex % storyPhotos.length;
-    const getPhoto = (offset: number) => storyPhotos[(visiblePhotoIndex + offset) % storyPhotos.length];
-
-    const mainPhoto = getPhoto(0);
-    const sidePhotoOne = getPhoto(1);
-    const sidePhotoTwo = getPhoto(2);
+    const visiblePhotoIndex = activePhotoIndex % showcasedPhotos.length;
+    const mainPhoto = showcasedPhotos[visiblePhotoIndex];
 
     const highlights = (settings.about_brief_highlights || "Registered NGO under Societies Registration Act\n80G Tax Exemption Certificate\nFully transparent fund utilization\nActive across multiple communities")
         .split(/\r?\n/)
@@ -60,61 +57,66 @@ export function AboutBrief({ settings, galleryImages }: AboutBriefProps) {
             
             <div className="container mx-auto px-6 max-w-7xl relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-12 items-center">
-                    {/* Authentic Framed Collage */}
-                    <div className="relative flex w-full justify-center lg:justify-start">
-                        <div className="relative h-88 w-full max-w-md sm:h-104 lg:h-112 min-[1200px]:h-128 lg:max-w-[540px]">
-                            <div className="absolute inset-0 rounded-[2rem] sm:rounded-[2.4rem] bg-linear-to-br from-white/90 to-amber-50/90 border border-amber-100 shadow-[0_25px_70px_-30px_rgba(15,23,42,0.45)]" />
+                    {/* Featured Moment Gallery */}
+                    <div className="relative w-full">
+                        <div className="relative mx-auto w-full max-w-md lg:mx-0 lg:max-w-[560px]">
+                            <div className="absolute -inset-3 rounded-[2rem] border border-amber-100 bg-white/75 shadow-[0_25px_70px_-34px_rgba(15,23,42,0.55)] sm:-inset-4 sm:rounded-[2.25rem]" />
                             <div
-                                className="absolute inset-0 rounded-[2rem] sm:rounded-[2.4rem] opacity-25 pointer-events-none mix-blend-multiply"
+                                className="absolute -inset-3 rounded-[2rem] opacity-25 pointer-events-none mix-blend-multiply sm:-inset-4 sm:rounded-[2.25rem]"
                                 style={{
                                     backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
                                 }}
                             />
 
-                            <div className="absolute inset-4 sm:inset-5 rounded-[1.6rem] sm:rounded-[1.9rem] overflow-hidden bg-slate-200">
-                                <div className="absolute inset-0">
+                            <div className="relative grid gap-3 lg:grid-cols-[1fr_5.75rem]">
+                                <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-slate-200 shadow-[0_22px_55px_-30px_rgba(15,23,42,0.75)] sm:rounded-[1.8rem] lg:aspect-[5/6]">
                                     <Image
+                                        key={mainPhoto}
                                         src={mainPhoto}
-                                        alt="Community moments"
+                                        alt="Nirashray Foundation community moment"
                                         fill
-                                        className="object-cover"
-                                        sizes="(max-width: 640px) 90vw, (max-width: 1024px) 448px, 50vw"
+                                        className="object-cover transition-opacity duration-500"
+                                        sizes="(max-width: 640px) 90vw, (max-width: 1024px) 448px, 460px"
                                     />
-                                    <div className="absolute inset-0 bg-linear-to-t from-slate-900/35 via-slate-900/10 to-transparent" />
+                                    <div className="absolute inset-0 bg-linear-to-t from-slate-950/30 via-transparent to-white/5" />
+                                    <div className="absolute left-4 top-4 flex gap-1.5">
+                                        {showcasedPhotos.map((photo, index) => (
+                                            <span
+                                                key={`${photo}-dot`}
+                                                className={`h-1.5 rounded-full transition-all duration-300 ${
+                                                    index === visiblePhotoIndex ? "w-8 bg-white" : "w-3 bg-white/45"
+                                                }`}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-6 gap-2 lg:grid-cols-1 lg:grid-rows-6">
+                                    {showcasedPhotos.map((photo, index) => (
+                                        <button
+                                            key={photo}
+                                            type="button"
+                                            aria-label={`Show story image ${index + 1}`}
+                                            onClick={() => setActivePhotoIndex(index)}
+                                            className={`relative aspect-square overflow-hidden rounded-xl border bg-white p-1 shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 ${
+                                                index === visiblePhotoIndex
+                                                    ? "border-amber-400 shadow-[0_12px_30px_-18px_rgba(180,83,9,0.9)]"
+                                                    : "border-slate-200 opacity-75 hover:opacity-100"
+                                            }`}
+                                        >
+                                            <span className="relative block h-full w-full overflow-hidden rounded-lg bg-slate-100">
+                                                <Image
+                                                    src={photo}
+                                                    alt=""
+                                                    fill
+                                                    className="object-cover"
+                                                    sizes="(max-width: 1024px) 15vw, 92px"
+                                                />
+                                            </span>
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
-
-                            <div className="absolute -left-2 top-10 h-36 w-28 rounded-2xl bg-white p-1.5 shadow-xl border border-slate-200 sm:-left-6 sm:top-14 sm:h-52 sm:w-40 sm:p-2">
-                                <div className="relative h-full w-full rounded-xl overflow-hidden bg-slate-100">
-                                    <Image
-                                        src={sidePhotoOne}
-                                        alt="Volunteer highlight"
-                                        fill
-                                        className="object-cover"
-                                        sizes="(max-width: 640px) 112px, 160px"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="absolute -right-2 bottom-10 h-40 w-32 rounded-2xl bg-white p-1.5 shadow-xl border border-slate-200 sm:-right-6 sm:bottom-16 sm:h-56 sm:w-44 sm:p-2">
-                                <div className="relative h-full w-full rounded-xl overflow-hidden bg-slate-100">
-                                    <Image
-                                        src={sidePhotoTwo}
-                                        alt="Field work highlight"
-                                        fill
-                                        className="object-cover"
-                                        sizes="(max-width: 640px) 128px, 176px"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="absolute top-1/4 right-[12%] w-5 h-5 rounded-full bg-amber-400 mix-blend-multiply blur-[2px] sm:w-6 sm:h-6" />
-                        <div className="absolute bottom-1/3 left-[8%] w-8 h-8 rounded-full bg-blue-300 mix-blend-multiply blur-[3px] sm:w-10 sm:h-10" />
-                        <div className="absolute bottom-[12%] right-[22%] hidden sm:block">
-                            <svg width="40" height="40" viewBox="0 0 100 100" className="text-amber-500/50 fill-current">
-                                <path d="M50 0 L60 40 L100 50 L60 60 L50 100 L40 60 L0 50 L40 40 Z"/>
-                            </svg>
                         </div>
                     </div>
                     
