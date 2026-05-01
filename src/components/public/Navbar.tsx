@@ -52,8 +52,9 @@ export function Navbar({ settings }: NavbarProps) {
 
     return (
         <header
+            style={{ top: "var(--announcement-height, 0px)" }}
             className={cn(
-                "fixed top-0 w-full z-50 transition-all duration-500",
+                "fixed w-full z-50 transition-all duration-500",
                 isScrolled
                     ? "backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.03)] border-b border-slate-200/50 bg-[#fdfcfa]/80 py-2 md:py-0"
                     : "bg-transparent py-4 md:py-2"

@@ -17,6 +17,7 @@ export function Footer({ settings }: FooterProps) {
     const siteName = settings.site_name || "Nirashray Foundation";
     const footerDesc = settings.footer_description || "";
     const copyright = settings.footer_copyright || `© ${new Date().getFullYear()} Nirashray Foundation. All rights reserved.`;
+    const footerAddress = (settings.contact_address || "").trim() || [settings.address_line1, settings.address_line2].filter(Boolean).join("\n");
 
     const socialLinks = [
         { icon: Facebook, url: settings.facebook_url, label: "Facebook" },
@@ -154,15 +155,12 @@ export function Footer({ settings }: FooterProps) {
                                     </a>
                                 </li>
                             )}
-                            {(settings.address_line1 || settings.address_line2) && (
+                            {footerAddress && (
                                 <li className="flex items-start gap-4">
                                     <div className="w-8 h-8 rounded-full bg-slate-800/50 flex items-center justify-center shrink-0 border border-slate-700/50 mt-1">
                                         <MapPin className="w-4 h-4 text-amber-500/80" />
                                     </div>
-                                    <span className="text-slate-400 text-sm leading-relaxed font-light py-1">
-                                        {settings.address_line1}
-                                        {settings.address_line2 && <><br />{settings.address_line2}</>}
-                                    </span>
+                                    <span className="text-slate-400 text-sm leading-relaxed font-light py-1 whitespace-pre-line">{footerAddress}</span>
                                 </li>
                             )}
                         </ul>

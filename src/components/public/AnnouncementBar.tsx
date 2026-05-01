@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ExternalLink } from "lucide-react";
@@ -24,6 +24,11 @@ export function AnnouncementBar() {
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [dismissed, setDismissed] = useState(false);
+    const barRef = useRef<HTMLDivElement | null>(null);
+
+    const setAnnouncementHeight = (height: number) => {
+        document.documentElement.style.setProperty("--announcement-height", `${height}px`);
+    };
 
     useEffect(() => {
         fetch("/api/announcements")
@@ -34,6 +39,34 @@ export function AnnouncementBar() {
                 }
             })
             .catch(() => { });
+    }, []);
+
+    useEffect(() => {
+        if (!announcements.length || dismissed) {
+            setAnnouncementHeight(0);
+            return;
+        }
+
+        const updateHeight = () => {
+            setAnnouncementHeight(barRef.current?.offsetHeight ?? 0);
+        };
+
+        updateHeight();
+
+        const resizeObserver = new ResizeObserver(updateHeight);
+        if (barRef.current) resizeObserver.observe(barRef.current);
+        window.addEventListener("resize", updateHeight);
+
+        return () => {
+            resizeObserver.disconnect();
+            window.removeEventListener("resize", updateHeight);
+        };
+    }, [announcements.length, dismissed, currentIndex]);
+
+    useEffect(() => {
+        return () => {
+            setAnnouncementHeight(0);
+        };
     }, []);
 
     // Rotate announcements every 5 seconds if multiple
@@ -53,6 +86,7 @@ export function AnnouncementBar() {
     return (
         <AnimatePresence>
             <motion.div
+                ref={barRef}
                 initial={{ y: -40, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -40, opacity: 0 }}
