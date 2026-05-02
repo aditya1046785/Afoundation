@@ -24,6 +24,7 @@ const SITE_SETTINGS: Record<string, string> = {
     address_line2: "City, State - 000000",
     google_maps_url: "",
     registration_number: "REG/2024/XXXXX",
+    "80g_registration_number": "U94990UP2025NPL218986",
     facebook_url: "",
     instagram_url: "",
     twitter_url: "",

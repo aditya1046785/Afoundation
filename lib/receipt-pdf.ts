@@ -26,14 +26,16 @@ export async function generateReceiptPdfBuffer(receiptData: ReceiptPdfData): Pro
         "contact_phone",
         "contact_email",
         "registration_number",
+        "80g_registration_number",
     ]);
 
     const organizationName = settings.site_name?.trim() || "Nirashray Foundation";
     const organizationTagline = settings.site_tagline?.trim() || "Empowering Lives, Building Hope";
-    const registeredOffice = settings.contact_address?.trim() || [settings.address_line1?.trim(), settings.address_line2?.trim()].filter(Boolean).join(" ") || "Asrhi Lalganj-ajhara Pratapgarh UP 230132";
+    const registeredOffice = "Asrhi Lalganj-ajhara Pratapgarh UP 230132"; /*settings.contact_address?.trim() || [settings.address_line1?.trim(), settings.address_line2?.trim()].filter(Boolean).join(" ") */
     const contactPhone = settings.contact_phone?.trim() || "";
     const contactEmail = settings.contact_email?.trim() || "";
     const registrationNumber = settings.registration_number?.trim() || "";
+    const eightGNumber = "U94990UP2025NPL218986";
 
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
     const pageWidth = pdf.internal.pageSize.getWidth();
@@ -68,7 +70,7 @@ export async function generateReceiptPdfBuffer(receiptData: ReceiptPdfData): Pro
     pdf.setFont("helvetica", "normal");
     pdf.text(organizationTagline, pageWidth / 2, 27, { align: "center" });
     pdf.setFontSize(9);
-    pdf.text("Registered under Societies Registration Act", pageWidth / 2, 35, { align: "center" });
+    pdf.text("Registered under Company Registration Act", pageWidth / 2, 35, { align: "center" });
 
     pdf.setTextColor(0, 0, 0);
     pdf.setFontSize(16);
@@ -87,30 +89,31 @@ export async function generateReceiptPdfBuffer(receiptData: ReceiptPdfData): Pro
     centerInfoLine("Contact", contactPhone, 66);
     centerInfoLine("Email", contactEmail, 71);
     centerInfoLine("Registration No.", registrationNumber, 76);
+    centerInfoLine("80G Reg. No.", eightGNumber, 81);
 
     pdf.setFontSize(10);
     pdf.setFont("helvetica", "normal");
     pdf.setTextColor(100, 100, 100);
-    pdf.text(`Receipt No: ${receiptData.receiptNumber}`, 20, 84);
+    pdf.text(`Receipt No: ${receiptData.receiptNumber}`, 20, 89);
     pdf.text(
         `Date: ${receiptData.date.toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}`,
         pageWidth - 20,
-        84,
+        89,
         { align: "right" }
     );
 
     pdf.setDrawColor(30, 64, 175);
     pdf.setLineWidth(0.5);
-    pdf.line(20, 90, pageWidth - 20, 90);
+    pdf.line(20, 95, pageWidth - 20, 95);
 
     pdf.setTextColor(0, 0, 0);
     pdf.setFontSize(12);
     pdf.setFont("helvetica", "bold");
-    pdf.text("Donor Information", 20, 102);
+    pdf.text("Donor Information", 20, 107);
 
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(10);
-    let y = 112;
+    let y = 117;
 
     const addRow = (label: string, value: string) => {
         pdf.setFont("helvetica", "bold");
