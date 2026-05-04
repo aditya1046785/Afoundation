@@ -69,6 +69,17 @@ enum BlogStatus {
   ARCHIVED
 }
 
+enum AutopayFrequency {
+  WEEKLY
+  MONTHLY
+}
+
+enum AutopayStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+}
+
 // ============================================================
 // MODELS
 // ============================================================
@@ -153,6 +164,8 @@ model Member {
   referredMembers Member[] @relation("MemberReferrals")
   donations         Donation[] @relation("MemberDonations")
   referredDonations Donation[] @relation("ReferralDonations")
+  autopaySubscriptions AutopaySubscription[] @relation("AutopayMemberSubscriptions")
+  referredAutopaySubscriptions AutopaySubscription[] @relation("AutopayReferralSubscriptions")
   certificates Certificate[]
   idCards      IDCard[]
 
@@ -201,6 +214,44 @@ model Donation {
   @@index([source])
   @@index([paymentMode])
   @@index([recordedByUserId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model AutopaySubscription {
+  id                       String          @id @default(cuid())
+  donorName                String
+  donorEmail               String
+  donorPhone               String?
+  donorPAN                 String?
+  amount                   Float
+  frequency                AutopayFrequency
+  currency                 String          @default("INR")
+  purpose                  String?
+  message                  String?         @db.Text
+  memberId                 String?
+  referrerMemberId         String?
+  referralCodeUsed         String?
+  razorpayCustomerId       String?         // Razorpay Customer ID
+  razorpaySubscriptionId   String?         @unique // Razorpay Subscription ID
+  razorpayPlanId           String?         // Razorpay Plan ID
+  status                   AutopayStatus   @default(ACTIVE)
+  startDate                DateTime        @default(now())
+  nextPaymentDate          DateTime?
+  endDate                  DateTime?
+  totalAmountCollected     Float           @default(0)
+  paymentsMade             Int             @default(0)
+  lastPaymentDate          DateTime?
+  createdAt                DateTime        @default(now())
+  updatedAt                DateTime        @updatedAt
+
+  member         Member? @relation("AutopayMemberSubscriptions", fields: [memberId], references: [id])
+  referrerMember Member? @relation("AutopayReferralSubscriptions", fields: [referrerMemberId], references: [id])
+
+  @@index([donorEmail])
+  @@index([memberId])
+  @@index([referrerMemberId])
+  @@index([razorpaySubscriptionId])
   @@index([status])
   @@index([createdAt])
 }

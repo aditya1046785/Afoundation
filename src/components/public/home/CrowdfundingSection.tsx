@@ -32,7 +32,7 @@ export function CrowdfundingSection({ campaigns }: CrowdfundingProps) {
     return (
         <section className="py-20 md:py-24 lg:py-28 bg-[#FAF7F2] relative overflow-hidden">
             {/* Background elements */}
-            <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-amber-50/50 to-transparent pointer-events-none" />
+            <div className="absolute top-0 right-0 w-1/3 h-full bg-linear-to-l from-amber-50/50 to-transparent pointer-events-none" />
             <div className="absolute -bottom-[20%] -left-[10%] w-150 h-150 bg-rose-100/30 rounded-full mix-blend-multiply filter blur-[120px] pointer-events-none" />
 
             <div className="container mx-auto px-6 max-w-7xl relative z-10">
@@ -113,14 +113,14 @@ export function CrowdfundingSection({ campaigns }: CrowdfundingProps) {
                                         <div className="relative h-3 w-full bg-slate-100 rounded-full overflow-hidden mt-3 mb-2 shadow-inner">
                                             {/* Animated liquid fill */}
                                             <div
-                                                className="absolute top-0 left-0 h-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 rounded-full"
+                                                className="absolute top-0 left-0 h-full bg-linear-to-r from-amber-400 via-amber-500 to-amber-600 rounded-full"
                                                 style={{ width: `${progress}%` }}
                                             />
                                         </div>
                                         
-                                        <div className="flex justify-between items-center mt-2">
-                                            <span className="text-xs font-bold text-amber-600">{progress}% Funded</span>
-                                            
+                                        <div className="mt-3 space-y-3">
+                                            <span className="text-xs font-bold text-amber-700">{progress}% Funded</span>
+
                                             <Link
                                                 href={{
                                                     pathname: "/donate",
@@ -129,10 +129,17 @@ export function CrowdfundingSection({ campaigns }: CrowdfundingProps) {
                                                         campaignTitle: campaign.title,
                                                     },
                                                 }}
-                                                className="inline-flex items-center justify-center"
+                                                className="block"
                                             >
-                                                <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
-                                                    <HandHeart className="w-4 h-4" />
+                                                <div className="relative overflow-hidden rounded-xl px-4 py-2.5 bg-linear-to-r from-rose-500 via-red-500 to-amber-500 text-white shadow-lg shadow-rose-500/25 transition-transform duration-300 group-hover:scale-[1.02] motion-safe:animate-pulse motion-reduce:animate-none">
+                                                    <div className="absolute inset-0 bg-[linear-gradient(115deg,transparent_20%,rgba(255,255,255,0.28)_45%,transparent_70%)] -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                                                    <div className="relative flex items-center justify-between">
+                                                        <span className="text-sm font-semibold tracking-wide">Donate To This Campaign</span>
+                                                        <span className="inline-flex items-center gap-1 text-xs font-medium bg-white/20 px-2 py-1 rounded-full">
+                                                            <HandHeart className="w-3.5 h-3.5" />
+                                                            Give
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </Link>
                                         </div>

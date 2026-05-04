@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import { Metadata } from "next";
 import { getAllSiteSettings } from "@/lib/site-settings";
-import { DonateForm } from "@/components/public/DonateForm";
+import { DonatePageContent } from "@/components/public/DonatePageContent";
 import { Shield, FileText, Heart, CheckCircle } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -49,7 +49,7 @@ export default async function DonatePage() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
                     {/* Form Component */}
                     <div className="lg:col-span-7 xl:col-span-8">
-                        <DonateForm presetAmounts={presetAmounts} purposes={purposes} />
+                        <DonatePageContent presetAmounts={presetAmounts} purposes={purposes} />
                     </div>
 
                     {/* Sidebar */}

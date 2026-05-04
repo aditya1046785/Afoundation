@@ -126,6 +126,28 @@ export const manualDonationSchema = z.object({
 });
 
 // ============================================================
+// AUTOPAY DONATION SCHEMA
+// ============================================================
+
+export const autopaySchema = z.object({
+    amount: z.number().min(100, "Amount must be at least ₹100"),
+    frequency: z.enum(["WEEKLY", "MONTHLY"]),
+    donorName: z.string().min(2, "Name must be at least 2 characters"),
+    donorEmail: z.string().email("Invalid email address"),
+    donorPhone: z
+        .string()
+        .optional()
+        .refine(
+            (val) => !val || (val.length === 10 && /^[6-9]\d{9}$/.test(val)),
+            "Enter a valid 10-digit Indian phone number"
+        ),
+    donorPAN: z.string().optional(),
+    purpose: z.string().optional(),
+    message: z.string().optional(),
+    referralCode: z.string().trim().optional(),
+});
+
+// ============================================================
 // CONTACT SCHEMA
 // ============================================================
 
@@ -290,6 +312,7 @@ export type MemberInput = z.infer<typeof memberSchema>;
 export type MemberProfileInput = z.infer<typeof memberProfileSchema>;
 export type DonationInput = z.infer<typeof donationSchema>;
 export type ManualDonationInput = z.infer<typeof manualDonationSchema>;
+export type AutopayInput = z.infer<typeof autopaySchema>;
 export type ContactInput = z.infer<typeof contactSchema>;
 export type EventInput = z.infer<typeof eventSchema>;
 export type CertificateInput = z.infer<typeof certificateSchema>;
