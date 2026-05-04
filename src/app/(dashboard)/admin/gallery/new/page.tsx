@@ -14,13 +14,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Save, ImageIcon, Images, FolderPlus, UploadCloud, CheckCircle2, FileText } from "lucide-react";
 import { generateSlug } from "@/lib/utils";
-import { CloudinaryUploadButton } from "@/components/ui/cloudinary-upload-button";
+import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
 
 const uploadSchema = z.object({
     mode: z.enum(["select", "create"]),
     albumId: z.string().optional(),
     newAlbumTitle: z.string().optional(),
-    imageUrl: z.string().url("Please enter a valid Image URL").min(1, "Image URL is required"),
     caption: z.string().optional(),
 }).refine(data => {
     if (data.mode === "select" && !data.albumId) return false;
@@ -35,6 +34,8 @@ export default function GalleryUploadPage() {
     const [saving, setSaving] = useState(false);
     const [albums, setAlbums] = useState<{ id: string, title: string }[]>([]);
     const [loadingAlbums, setLoadingAlbums] = useState(true);
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    const [previewUrl, setPreviewUrl] = useState("");
 
     const { register, handleSubmit, setValue, watch, control, formState: { errors } } = useForm<UploadFormData>({
         resolver: zodResolver(uploadSchema),
@@ -42,13 +43,23 @@ export default function GalleryUploadPage() {
             mode: "select",
             albumId: "",
             newAlbumTitle: "",
-            imageUrl: "",
             caption: ""
         },
     });
 
     const mode = watch("mode");
-    const imageUrl = watch("imageUrl");
+    const caption = watch("caption");
+
+    useEffect(() => {
+        if (!selectedFiles.length) {
+            setPreviewUrl("");
+            return;
+        }
+
+        const url = URL.createObjectURL(selectedFiles[0]);
+        setPreviewUrl(url);
+        return () => URL.revokeObjectURL(url);
+    }, [selectedFiles]);
 
     useEffect(() => {
         const fetchAlbums = async () => {
@@ -75,7 +86,13 @@ export default function GalleryUploadPage() {
     const onSubmit = async (data: UploadFormData) => {
         setSaving(true);
         try {
+            if (!selectedFiles.length) {
+                toast.error("Please choose at least one image.");
+                return;
+            }
+
             let finalAlbumId = data.albumId;
+            const uploadedUrls: string[] = [];
 
             // 1. If mode is "create", we must first create the new album
             if (data.mode === "create" && data.newAlbumTitle) {
@@ -84,7 +101,7 @@ export default function GalleryUploadPage() {
                     body: JSON.stringify({
                         title: data.newAlbumTitle,
                         slug: generateSlug(data.newAlbumTitle),
-                        coverImage: data.imageUrl, // Set the first image as cover
+                        coverImage: "",
                         isFeatured: false,
                         isVisible: true
                     }),
@@ -105,23 +122,37 @@ export default function GalleryUploadPage() {
                 return;
             }
 
-            const photoRes = await fetch("/api/gallery/photos", {
-                method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    albumId: finalAlbumId,
-                    imageUrl: data.imageUrl,
-                    caption: data.caption,
-                    displayOrder: 0
-                }),
-            });
-            const photoData = await photoRes.json();
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const imageUrl = await uploadImageToCloudinary(selectedFiles[i]);
+                uploadedUrls.push(imageUrl);
 
-            if (photoData.success) {
-                toast.success("Image uploaded successfully! 🎉");
-                router.push("/admin/gallery");
-            } else {
-                toast.error(photoData.error || "Failed to upload image.");
+                const photoRes = await fetch("/api/gallery/photos", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        albumId: finalAlbumId,
+                        imageUrl,
+                        caption: data.caption,
+                        displayOrder: i,
+                    }),
+                });
+
+                const photoData = await photoRes.json();
+                if (!photoData.success) {
+                    throw new Error(photoData.error || `Failed to upload image ${i + 1}`);
+                }
             }
+
+            if (data.mode === "create" && finalAlbumId && uploadedUrls[0]) {
+                await fetch(`/api/gallery/albums/${finalAlbumId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ coverImage: uploadedUrls[0] }),
+                });
+            }
+
+            toast.success(`${selectedFiles.length} image${selectedFiles.length > 1 ? "s" : ""} uploaded successfully! 🎉`);
+            router.push("/admin/gallery");
         } catch {
             toast.error("An error occurred while uploading.");
         } finally {
@@ -133,38 +164,38 @@ export default function GalleryUploadPage() {
         <div className="min-h-screen bg-[#fdfcfa] relative overflow-hidden">
             {/* Texture */}
             <div className="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }} />
-            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-[800px] h-[800px] bg-blue-300/10 rounded-full blur-3xl pointer-events-none z-0" />
-            <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/4 w-[600px] h-[600px] bg-amber-300/10 rounded-full blur-3xl pointer-events-none z-0" />
+            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-200 h-200 bg-blue-300/10 rounded-full blur-3xl pointer-events-none z-0" />
+            <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/4 w-150 h-150 bg-amber-300/10 rounded-full blur-3xl pointer-events-none z-0" />
 
             {/* Top bar */}
             <div className="sticky top-0 z-30 bg-white/70 backdrop-blur-xl border-b border-blue-900/10 shadow-sm">
-                <div className="max-w-screen-xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+                <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4 min-w-0">
                         <Button variant="ghost" size="sm" onClick={() => router.push("/admin/gallery")}
-                            className="text-blue-800/60 hover:text-blue-900 hover:bg-blue-100/50 flex-shrink-0 -ml-2 rounded-xl transition-colors">
+                            className="text-blue-800/60 hover:text-blue-900 hover:bg-blue-100/50 shrink-0 -ml-2 rounded-xl transition-colors">
                             <ArrowLeft className="w-4 h-4 mr-1.5" /> Back
                         </Button>
-                        <div className="w-px h-6 bg-blue-900/10 flex-shrink-0" />
+                        <div className="w-px h-6 bg-blue-900/10 shrink-0" />
                         <div className="flex items-center gap-2.5 min-w-0">
-                            <UploadCloud className="w-4 h-4 text-blue-600 flex-shrink-0" strokeWidth={2} />
+                            <UploadCloud className="w-4 h-4 text-blue-600 shrink-0" strokeWidth={2} />
                             <span className="text-[15px] font-bold text-slate-800 tracking-tight truncate font-serif">
                                 Upload Photo to Gallery
                             </span>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3 flex-shrink-0">
+                    <div className="flex items-center gap-3 shrink-0">
                         <Button size="sm" onClick={handleSubmit(onSubmit)} disabled={saving}
                             className="h-9 px-5 text-xs bg-blue-700 hover:bg-blue-800 text-white rounded-xl shadow-md shadow-blue-900/10 transition-all font-semibold tracking-wide">
-                            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <><Save className="w-3.5 h-3.5 mr-1.5" />Upload Photo</>}
+                            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <><Save className="w-3.5 h-3.5 mr-1.5" />Upload Photos</>}
                         </Button>
                     </div>
                 </div>
             </div>
 
             {/* Main form layout */}
-            <div className="max-w-screen-xl mx-auto px-6 py-10 relative z-10 flex flex-col md:flex-row gap-10">
-                <div className="w-full md:w-[480px] flex-shrink-0 space-y-6">
+            <div className="max-w-7xl mx-auto px-6 py-10 relative z-10 flex flex-col md:flex-row gap-10">
+                <div className="w-full md:w-120 shrink-0 space-y-6">
                     <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-white shadow-xl shadow-slate-200/50 p-6 md:p-8">
                         <h2 className="font-serif text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
                             <Images className="w-6 h-6 text-blue-600" /> Photo Details
@@ -222,29 +253,26 @@ export default function GalleryUploadPage() {
                                 )}
                             </div>
 
-                            {/* Image URL */}
+                            {/* Image Upload */}
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><ImageIcon className="w-3 h-3" /> Image URL *</Label>
-                                <Input {...register("imageUrl")} placeholder="https://..." className="h-11 bg-slate-50 border-slate-200 shadow-sm rounded-xl" />
-                                <CloudinaryUploadButton
-                                    buttonText="Upload Photo"
-                                    className="w-full"
+                                <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><ImageIcon className="w-3 h-3" /> Select One or More Images *</Label>
+                                <Input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
                                     disabled={saving}
-                                    onUploaded={(url) => {
-                                        setValue("imageUrl", url, { shouldValidate: true, shouldDirty: true });
-                                        toast.success("Photo uploaded successfully.");
-                                    }}
-                                    onError={() => {
-                                        toast.error("Failed to upload photo.");
-                                    }}
+                                    className="h-11 bg-slate-50 border-slate-200 shadow-sm rounded-xl file:mr-4 file:rounded-lg file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-white file:font-semibold hover:file:bg-blue-700"
+                                    onChange={(e) => setSelectedFiles(Array.from(e.target.files || []))}
                                 />
-                                {errors.imageUrl && <p className="text-red-500 text-[10px] uppercase font-bold tracking-wider">{errors.imageUrl.message}</p>}
+                                <p className="text-xs text-slate-500">
+                                    {selectedFiles.length > 0 ? `${selectedFiles.length} image${selectedFiles.length > 1 ? "s" : ""} selected` : "Choose multiple images at once for faster upload."}
+                                </p>
                             </div>
 
                             {/* Caption */}
                             <div className="space-y-2">
                                 <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><FileText className="w-3 h-3" /> Heading / Caption</Label>
-                                <Textarea {...register("caption")} placeholder="Add a descriptive heading for this photo..." className="bg-slate-50 border-slate-200 shadow-sm rounded-xl min-h-[100px] resize-none" />
+                                <Textarea {...register("caption")} placeholder="Add a descriptive heading for this photo..." className="bg-slate-50 border-slate-200 shadow-sm rounded-xl min-h-25 resize-none" />
                             </div>
                         </form>
                     </div>
@@ -252,14 +280,14 @@ export default function GalleryUploadPage() {
 
                 {/* Preview Window */}
                 <div className="flex-1">
-                    <div className="bg-white/40 backdrop-blur-sm rounded-[2rem] border border-white p-6 shadow-inner h-full min-h-[400px] flex flex-col items-center justify-center text-center relative overflow-hidden group">
+                    <div className="bg-white/40 backdrop-blur-sm rounded-[2rem] border border-white p-6 shadow-inner h-full min-h-100 flex flex-col items-center justify-center text-center relative overflow-hidden group">
                         
-                        {imageUrl ? (
+                        {previewUrl ? (
                             <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={imageUrl} alt="Preview" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onError={(e) => { e.currentTarget.src = "https://via.placeholder.com/800x600?text=Invalid+Image+URL"; }} />
-                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 text-left opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
-                                    <h3 className="text-white font-serif text-xl font-bold line-clamp-2">{watch("caption") || "No caption added"}</h3>
+                                <img src={previewUrl} alt="Preview" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onError={(e) => { e.currentTarget.src = "https://via.placeholder.com/800x600?text=Invalid+Image+URL"; }} />
+                                <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent p-6 text-left opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
+                                    <h3 className="text-white font-serif text-xl font-bold line-clamp-2">{caption || "No caption added"}</h3>
                                     <p className="text-white/60 text-xs font-bold uppercase tracking-widest mt-2 flex items-center gap-1">
                                         <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />
                                         Adding to: {mode === 'select' ? (albums.find(a => a.id === watch("albumId"))?.title || 'Unknown') : (watch("newAlbumTitle") || 'New Category')}
@@ -273,7 +301,7 @@ export default function GalleryUploadPage() {
                                 </div>
                                 <div>
                                     <h3 className="font-serif text-2xl font-bold text-slate-700">Image Preview</h3>
-                                    <p className="text-sm font-medium opacity-70 mt-1 max-w-xs mx-auto">Paste a generic Image URL on the left to see your photo preview here.</p>
+                                    <p className="text-sm font-medium opacity-70 mt-1 max-w-xs mx-auto">Choose one or more images on the left to preview the first file here.</p>
                                 </div>
                             </div>
                         )}
