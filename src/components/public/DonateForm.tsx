@@ -71,13 +71,15 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
     const referralCode = searchParams.get("ref")?.trim() || "";
     const campaignId = searchParams.get("campaign")?.trim() || "";
     const campaignTitle = searchParams.get("campaignTitle")?.trim() || "";
+    const customPurpose = searchParams.get("purpose")?.trim() || "";
     const campaignPurpose = campaignTitle ? `Crowdfunding - ${campaignTitle}` : "";
+    const selectedPurpose = customPurpose || campaignPurpose;
     const purposeOptions = useMemo(() => {
-        if (!campaignPurpose || purposes.includes(campaignPurpose)) {
+        if (!selectedPurpose || purposes.includes(selectedPurpose)) {
             return purposes;
         }
-        return [campaignPurpose, ...purposes];
-    }, [campaignPurpose, purposes]);
+        return [selectedPurpose, ...purposes];
+    }, [selectedPurpose, purposes]);
     const prefillName = searchParams.get("name")?.trim() || "";
     const prefillEmail = searchParams.get("email")?.trim() || "";
     const prefillPhone = searchParams.get("phone")?.trim() || "";
@@ -88,10 +90,10 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
     }, [referralCode, setValue]);
 
     useEffect(() => {
-        if (campaignPurpose) {
-            setValue("purpose", campaignPurpose);
+        if (selectedPurpose) {
+            setValue("purpose", selectedPurpose);
         }
-    }, [campaignPurpose, setValue]);
+    }, [selectedPurpose, setValue]);
 
     useEffect(() => {
         if (prefillName) setValue("donorName", prefillName);

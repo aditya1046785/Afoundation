@@ -63,15 +63,16 @@ export function CrowdfundingSection({ campaigns }: CrowdfundingProps) {
                     </div>
                 </div>
 
-                {/* Campaign Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {/* Campaign Cards: horizontal scroller on mobile, grid on larger screens */}
+                <div className="overflow-x-auto pb-4 md:overflow-visible md:pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    <div className="flex gap-6 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-8">
                     {campaigns.map((campaign, idx) => {
                         const progress = Math.min(100, Math.round((campaign.raised / campaign.target) * 100));
                         
                         return (
                             <div
                                 key={campaign.id}
-                                className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 flex flex-col h-full"
+                                className="group min-w-[82vw] max-w-[82vw] sm:min-w-[70vw] sm:max-w-[70vw] md:min-w-0 md:max-w-none bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 flex flex-col h-full"
                             >
                                 {/* Image Container */}
                                 <div className="relative h-56 w-full overflow-hidden">
@@ -148,6 +149,7 @@ export function CrowdfundingSection({ campaigns }: CrowdfundingProps) {
                             </div>
                         );
                     })}
+                    </div>
                 </div>
             </div>
         </section>

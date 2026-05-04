@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { GraduationCap, HeartPulse, Users, Heart, Home, Leaf, BookOpen, Star, ArrowRight } from "lucide-react";
 
 interface CausesProps {
@@ -75,10 +76,16 @@ export function CausesSection({ settings }: CausesProps) {
                                     <h3 className="font-serif text-2xl font-bold text-slate-800 mb-4">{cause.title}</h3>
                                     <p className="text-slate-500 leading-relaxed font-light mb-8">{cause.description}</p>
                                     
-                                    <div className="flex items-center text-sm font-medium text-amber-600 transition-colors">
+                                    <Link
+                                        href={{
+                                            pathname: "/donate",
+                                            query: { purpose: cause.title },
+                                        }}
+                                        className="inline-flex items-center text-sm font-medium text-amber-600 transition-colors hover:text-amber-700"
+                                    >
                                         {cardCtaText}
                                         <ArrowRight className="w-4 h-4 ml-2 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
-                                    </div>
+                                    </Link>
                                 </div>
                             </div>
                         );
