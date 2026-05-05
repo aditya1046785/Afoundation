@@ -131,7 +131,7 @@ export const manualDonationSchema = z.object({
 
 export const autopaySchema = z.object({
     amount: z.number().min(100, "Amount must be at least ₹100"),
-    frequency: z.enum(["WEEKLY", "MONTHLY"]),
+    frequency: z.enum(["WEEKLY", "MONTHLY","YEARLY"]),
     donorName: z.string().min(2, "Name must be at least 2 characters"),
     donorEmail: z.string().email("Invalid email address"),
     donorPhone: z

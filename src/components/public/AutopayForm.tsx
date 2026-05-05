@@ -52,7 +52,12 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
     const watchedFrequency = watch("frequency");
     const watchedPurpose = watch("purpose");
 
-    const submitLabel = watchedFrequency === "WEEKLY" ? "Start Weekly Donation" : "Start Monthly Donation";
+    const submitLabel =
+        watchedFrequency === "WEEKLY"
+            ? "Start Weekly Donation"
+            : watchedFrequency === "MONTHLY"
+                ? "Start Monthly Donation"
+                : "Start Yearly Donation";
 
     const referralCode = searchParams.get("ref")?.trim() || "";
     const prefillName = searchParams.get("name")?.trim() || "";
@@ -163,10 +168,12 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                         );
                     }
                 },
-                modal: { ondismiss: () => {
-                    console.log("Razorpay modal dismissed");
-                    setIsLoading(false);
-                } },
+                modal: {
+                    ondismiss: () => {
+                        console.log("Razorpay modal dismissed");
+                        setIsLoading(false);
+                    }
+                },
             });
 
             rzp.open();
@@ -203,7 +210,7 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                 </h2>
                 <p className="text-slate-600 text-lg mb-8 leading-relaxed">
                     Your autopay subscription is now active. You will be charged ₹{watchedAmount} every{" "}
-                    {watchedFrequency === "WEEKLY" ? "week" : "month"}.
+                    {watchedFrequency === "WEEKLY" ? "week" : watchedFrequency === "MONTHLY" ? "month" : "year"}.
                 </p>
                 <p className="text-slate-500 text-base mb-4">
                     A confirmation email has been sent to your registered email address.
@@ -253,7 +260,7 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                                 htmlFor="amount-autopay"
                                 className="block text-slate-700 font-semibold mb-3"
                             >
-                                Monthly/Weekly Amount *
+                                Monthly/Weekly/Yearly Amount *
                             </Label>
                             <div className="relative">
                                 <span className="absolute left-4 top-3.5 text-slate-500 text-lg font-semibold">₹</span>
@@ -278,7 +285,7 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                             </Label>
                             <Select
                                 defaultValue="MONTHLY"
-                                onValueChange={(value) => setValue("frequency", value as "WEEKLY" | "MONTHLY")}
+                                onValueChange={(value) => setValue("frequency", value as "WEEKLY" | "MONTHLY"|"YEARLY")}
                             >
                                 <SelectTrigger id="frequency" className="h-12 rounded-xl border-slate-200">
                                     <SelectValue />
@@ -286,6 +293,7 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                                 <SelectContent>
                                     <SelectItem value="WEEKLY">Weekly</SelectItem>
                                     <SelectItem value="MONTHLY">Monthly</SelectItem>
+                                    <SelectItem value="YEARLY">Yearly</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -408,7 +416,7 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                             charged{" "}
                             <span className="font-semibold text-amber-900">₹{watchedAmount || 500}</span> every{" "}
                             <span className="font-semibold text-amber-900">
-                                {watchedFrequency === "WEEKLY" ? "week" : "month"}
+                                {watchedFrequency === "WEEKLY" ? "week" : watchedFrequency === "MONTHLY" ? "month" : "yearly"}
                             </span>{" "}
                             until you cancel.
                         </p>
@@ -428,7 +436,7 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                         ) : (
                             <>
                                 <Heart className="w-4 h-4 mr-2 fill-current" />
-                                    {submitLabel}
+                                {submitLabel}
                             </>
                         )}
                     </Button>

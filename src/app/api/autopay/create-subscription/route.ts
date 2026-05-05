@@ -74,7 +74,11 @@ export async function POST(request: NextRequest) {
         const customerId = customer.id;
 
         // Convert frequency to Razorpay interval
-        const interval = frequency === "WEEKLY" ? "weekly" : "monthly";
+        const interval = frequency === "WEEKLY"
+            ? "weekly"
+            : frequency === "MONTHLY"
+                ? "monthly"
+                : "yearly";
 
         // Create a Razorpay Plan
         const createPlan = promisify<RazorpayPlan>(razorpay.plans.create, razorpay.plans);
@@ -85,9 +89,8 @@ export async function POST(request: NextRequest) {
                 amount: amount * 100, // Convert to paise
                 currency: "INR",
                 name: `${frequency === "WEEKLY" ? "Weekly" : "Monthly"} Donation`,
-                description: `Donation to Nirashray Foundation${
-                    purpose ? ` - ${purpose}` : ""
-                }`,
+                description: `Donation to Nirashray Foundation${purpose ? ` - ${purpose}` : ""
+                    }`,
             },
         });
 
