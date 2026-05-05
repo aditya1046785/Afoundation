@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import razorpay from "@/lib/razorpay";
 import prisma from "@/lib/prisma";
 import { autopaySchema } from "@/lib/validations";
-import { generateReceiptNumber } from "@/lib/utils";
 
 // Helper to promisify Razorpay methods
 const promisify = <T,>(fn: any, context: any) => {
@@ -37,6 +36,24 @@ interface RazorpaySubscription {
     id: string;
     start_at: number;
     [key: string]: any;
+}
+
+function getErrorMessage(error: unknown) {
+    if (typeof error === "object" && error !== null) {
+        const maybeError = error as {
+            error?: { description?: string; message?: string };
+            message?: string;
+        };
+
+        return (
+            maybeError.error?.description ||
+            maybeError.error?.message ||
+            maybeError.message ||
+            "Failed to create subscription"
+        );
+    }
+
+    return "Failed to create subscription";
 }
 
 // POST — Create a Razorpay subscription for autopay
@@ -88,7 +105,7 @@ export async function POST(request: NextRequest) {
             item: {
                 amount: amount * 100, // Convert to paise
                 currency: "INR",
-                name: `${frequency === "WEEKLY" ? "Weekly" : "Monthly"} Donation`,
+                name: `${frequency === "WEEKLY" ? "Weekly" :frequency==="MONTHLY" ? "Monthly" : "Yearly"} Donation`,
                 description: `Donation to Nirashray Foundation${purpose ? ` - ${purpose}` : ""
                     }`,
             },
@@ -121,7 +138,7 @@ export async function POST(request: NextRequest) {
             plan_id: plan.id,
             customer_id: customerId,
             quantity: 1,
-            total_count: 0, // Infinite subscription
+            total_count: 1200,
             start_at: Math.floor(Date.now() / 1000) + 3600, // Start 1 hour from now
             notes: {
                 donorName,
@@ -167,7 +184,7 @@ export async function POST(request: NextRequest) {
         });
     } catch (error) {
         console.error("Error creating autopay subscription:", error);
-        const errorMessage = error instanceof Error ? error.message : "Failed to create subscription";
+        const errorMessage = getErrorMessage(error);
         return NextResponse.json(
             { success: false, error: errorMessage },
             { status: 500 }
