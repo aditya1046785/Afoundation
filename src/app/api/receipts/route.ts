@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { manualDonationSchema } from "@/lib/validations";
 import { generateReceiptNumber } from "@/lib/utils";
+import bcrypt from "bcryptjs";
 
 const ADMIN_ROLES = ["SUPER_ADMIN", "ADMIN", "MANAGER"] as const;
 
@@ -323,5 +324,58 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         console.error("Manual receipt creation error:", error);
         return NextResponse.json({ success: false, error: "Failed to generate receipt" }, { status: 500 });
+    }
+}
+
+export async function DELETE(request: NextRequest) {
+    const session = await auth();
+    if (!session?.user) {
+        return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!ADMIN_ROLES.includes(session.user.role as (typeof ADMIN_ROLES)[number])) {
+        return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
+    }
+
+    try {
+        const body = await request.json().catch(() => ({}));
+        const password = typeof body.password === "string" ? body.password : "";
+        const confirmText = typeof body.confirmText === "string" ? body.confirmText.trim() : "";
+
+        if (!password) {
+            return NextResponse.json({ success: false, error: "Admin password is required" }, { status: 400 });
+        }
+
+        if (confirmText !== "DELETE ALL") {
+            return NextResponse.json(
+                { success: false, error: "Type DELETE ALL to confirm bulk deletion" },
+                { status: 400 }
+            );
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { id: session.user.id },
+            select: { password: true },
+        });
+
+        if (!user) {
+            return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
+        }
+
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) {
+            return NextResponse.json({ success: false, error: "Admin password is incorrect" }, { status: 400 });
+        }
+
+        const deleted = await prisma.donation.deleteMany({});
+
+        return NextResponse.json({
+            success: true,
+            message: `Deleted ${deleted.count} donation records`,
+            data: { deletedCount: deleted.count },
+        });
+    } catch (error) {
+        console.error("Delete all donations error:", error);
+        return NextResponse.json({ success: false, error: "Failed to delete donation records" }, { status: 500 });
     }
 }

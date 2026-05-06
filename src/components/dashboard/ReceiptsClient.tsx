@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Search, Plus, Download, Loader2, Mail } from "lucide-react";
+import { Search, Plus, Download, Loader2, Mail, Trash2, AlertTriangle, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { PAYMENT_STATUS_LABELS } from "@/lib/constants";
@@ -85,16 +85,21 @@ export function ReceiptsClient() {
     const [source, setSource] = useState("all");
     const [isLoading, setIsLoading] = useState(true);
     const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isDeletingAll, setIsDeletingAll] = useState(false);
     const [downloadingReceipt, setDownloadingReceipt] = useState<string | null>(null);
     const [emailingReceipt, setEmailingReceipt] = useState<string | null>(null);
     const [form, setForm] = useState<ManualReceiptForm>(EMPTY_FORM);
+    const [deletePassword, setDeletePassword] = useState("");
+    const [deleteConfirmText, setDeleteConfirmText] = useState("");
 
-    const fetchReceipts = useCallback(async () => {
+    const fetchReceipts = useCallback(async (pageOverride?: number) => {
         setIsLoading(true);
         try {
+            const currentPage = pageOverride ?? page;
             const params = new URLSearchParams({
-                page: String(page),
+                page: String(currentPage),
                 pageSize: String(pageSize),
                 search,
             });
@@ -233,6 +238,47 @@ export function ReceiptsClient() {
         }
     };
 
+    const handleDeleteAll = async () => {
+        if (!deletePassword.trim()) {
+            toast.error("Admin password is required");
+            return;
+        }
+
+        if (deleteConfirmText.trim() !== "DELETE ALL") {
+            toast.error('Type DELETE ALL to confirm');
+            return;
+        }
+
+        setIsDeletingAll(true);
+        try {
+            const res = await fetch("/api/receipts", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    password: deletePassword,
+                    confirmText: deleteConfirmText,
+                }),
+            });
+
+            const data = await res.json();
+            if (!data.success) {
+                toast.error(data.error || "Failed to delete receipts");
+                return;
+            }
+
+            toast.success(data.message || "All receipt entries deleted");
+            setIsDeleteAllOpen(false);
+            setDeletePassword("");
+            setDeleteConfirmText("");
+            setPage(1);
+            await fetchReceipts(1);
+        } catch {
+            toast.error("Failed to delete receipts");
+        } finally {
+            setIsDeletingAll(false);
+        }
+    };
+
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
     return (
@@ -330,6 +376,69 @@ export function ReceiptsClient() {
                                 <Button onClick={handleCreateReceipt} disabled={isSubmitting} className="bg-amber-600 hover:bg-amber-700 text-white">
                                     {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                                     Create and Download
+                                </Button>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+
+                    <Dialog
+                        open={isDeleteAllOpen}
+                        onOpenChange={(open) => {
+                            setIsDeleteAllOpen(open);
+                            if (!open) {
+                                setDeletePassword("");
+                                setDeleteConfirmText("");
+                            }
+                        }}
+                    >
+                        <DialogTrigger asChild>
+                            <Button variant="destructive" className="shadow-sm">
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete All Entries
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-lg">
+                            <DialogHeader>
+                                <DialogTitle className="flex items-center gap-2 text-red-700">
+                                    <AlertTriangle className="w-5 h-5" />
+                                    Dangerous action
+                                </DialogTitle>
+                                <DialogDescription>
+                                    This will permanently delete all receipt / donation entries from the database.
+                                    Admin password is required.
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                                This does not affect users or members. It only clears donation records, so the next
+                                donation count will start from zero again.
+                            </div>
+
+                            <div className="space-y-3">
+                                <div className="relative">
+                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <Input
+                                        type="password"
+                                        placeholder="Enter admin password"
+                                        className="pl-9"
+                                        value={deletePassword}
+                                        onChange={(e) => setDeletePassword(e.target.value)}
+                                    />
+                                </div>
+                                <Input
+                                    placeholder='Type DELETE ALL to confirm'
+                                    value={deleteConfirmText}
+                                    onChange={(e) => setDeleteConfirmText(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="flex justify-end gap-2 mt-2">
+                                <Button variant="outline" onClick={() => setIsDeleteAllOpen(false)} disabled={isDeletingAll}>
+                                    Cancel
+                                </Button>
+                                <Button variant="destructive" onClick={handleDeleteAll} disabled={isDeletingAll}>
+                                    {isDeletingAll ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                                    Delete Everything
                                 </Button>
                             </div>
                         </DialogContent>
