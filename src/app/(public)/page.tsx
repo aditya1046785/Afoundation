@@ -3,7 +3,6 @@ import { Metadata } from "next";
 import { getAllSiteSettings } from "@/lib/site-settings";
 import prisma from "@/lib/prisma";
 import { HeroSection } from "@/components/public/home/HeroSection";
-import { ImpactStats } from "@/components/public/home/ImpactStats";
 import { AboutBrief } from "@/components/public/home/AboutBrief";
 import { CausesSection } from "@/components/public/home/CausesSection";
 import { CrowdfundingSection } from "@/components/public/home/CrowdfundingSection";
@@ -27,7 +26,7 @@ function pickRandomItems<T>(items: T[], limit: number) {
 }
 
 export default async function HomePage() {
-    const [settings, teamMembers, recentBlogs, galleryAlbums, allVisibleGalleryAlbums, activeCampaigns] = await Promise.all([
+    const [settings, teamMembers, recentBlogs, galleryAlbums, allVisibleGalleryAlbums, activeCampaigns, approvedMembers, donationTotals, uniqueSupporters, recentDonations] = await Promise.all([
         getAllSiteSettings(),
         prisma.teamMember.findMany({
             where: { isVisible: true },
@@ -61,6 +60,29 @@ export default async function HomePage() {
             orderBy: { createdAt: "desc" },
             take: 4,
         }),
+        prisma.member.count({ where: { isApproved: true } }),
+        prisma.donation.aggregate({
+            where: { status: "COMPLETED" },
+            _sum: { amount: true },
+        }),
+        prisma.donation.groupBy({
+            by: ["donorEmail"],
+            where: { status: "COMPLETED" },
+            _count: { donorEmail: true },
+        }),
+        prisma.donation.findMany({
+            where: { status: "COMPLETED" },
+            orderBy: [{ paidAt: "desc" }, { createdAt: "desc" }],
+            take: 8,
+            select: {
+                id: true,
+                donorName: true,
+                amount: true,
+                message: true,
+                purpose: true,
+                paidAt: true,
+            },
+        }),
     ]);
 
     const heroGalleryImages = Array.from(
@@ -71,11 +93,19 @@ export default async function HomePage() {
         )
     );
     const storyGalleryImages = pickRandomItems(heroGalleryImages, 6);
+    const liveImpact = {
+        livesChanged: approvedMembers || 0,
+        donationsRaised: donationTotals._sum.amount || 0,
+        activeSupporters: uniqueSupporters.length,
+    };
+    const heroRecentDonations = recentDonations.map((donation) => ({
+        ...donation,
+        paidAt: donation.paidAt?.toISOString() || null,
+    }));
 
     return (
         <>
-            <HeroSection settings={settings} />
-            <ImpactStats settings={settings} />
+            <HeroSection settings={settings} liveImpact={liveImpact} recentDonations={heroRecentDonations} />
             <AboutBrief settings={settings} galleryImages={storyGalleryImages} />
             <CausesSection settings={settings} />
             {activeCampaigns.length > 0 && <CrowdfundingSection campaigns={activeCampaigns} />}
