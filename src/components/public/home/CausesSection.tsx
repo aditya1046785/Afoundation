@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { GraduationCap, HeartPulse, Users, Heart, Home, Leaf, BookOpen, Star, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface CausesProps {
     settings: Record<string, string>;
@@ -26,7 +27,13 @@ export function CausesSection({ settings }: CausesProps) {
     if (!causes.length) return null;
 
     return (
-        <section className="py-20 md:py-24 bg-[#fdfcfa] relative overflow-hidden">
+        <motion.section
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.6 }}
+            className="py-16 md:py-20 bg-[#fdfcfa] relative overflow-hidden"
+        >
             {/* Very faint background noise */}
             <div 
                 className="absolute inset-0 opacity-[0.25] pointer-events-none mix-blend-multiply"
@@ -40,36 +47,35 @@ export function CausesSection({ settings }: CausesProps) {
 
             <div className="container mx-auto px-6 max-w-7xl relative z-10">
                 {/* Header */}
-                <div className="text-center mb-16 md:mb-20">
+                <div className="text-center mb-12 md:mb-16">
                     <p className="font-serif italic text-amber-600 text-xl tracking-wide mb-4">
                         {eyebrow}
                     </p>
-                    <h2 className="font-serif text-4xl lg:text-5xl font-bold text-slate-800 mb-6 tracking-tight relative inline-block">
+                    <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 mb-4 tracking-tight relative inline-block">
                         {heading}
                         <svg className="absolute -bottom-1 -left-1 w-[110%] h-3 text-amber-300 stroke-current opacity-80" viewBox="0 0 100 10" preserveAspectRatio="none">
                             <path d="M0,5 Q50,-2 100,5" fill="none" strokeWidth="4" strokeLinecap="round" />
                         </svg>
                     </h2>
-                    <p className="text-slate-500 max-w-xl mx-auto font-light text-lg">
+                    <p className="text-slate-600 max-w-xl mx-auto font-light text-base md:text-lg">
                         {subtext}
                     </p>
                 </div>
-
                 <div className="overflow-x-auto pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                    <div className="flex flex-nowrap gap-6 lg:gap-8 min-w-max">
+                    <div className="flex flex-nowrap gap-4 lg:gap-6 min-w-max">
                     {causes.map((cause, idx) => {
                         const IconComponent = ICON_MAP[cause.icon] || Heart;
                         return (
                             <div
                                 key={idx}
-                                className="relative group cursor-pointer flex-none w-70 sm:w-80 lg:w-85"
+                                className="relative group cursor-pointer flex-none w-64 sm:w-72 lg:w-80"
                             >
                                 {/* 01, 02, 03 Massive Background Number */}
-                                <div className="absolute -top-12 -left-6 font-serif text-8xl md:text-9xl font-bold text-slate-100 opacity-50 select-none group-hover:-translate-y-2 transition-transform duration-500">
+                                <div className="absolute -top-12 -left-6 font-serif text-7xl md:text-8xl font-bold text-slate-100 opacity-50 select-none group-hover:-translate-y-2 transition-transform duration-500">
                                     0{idx + 1}
                                 </div>
                                 
-                                <div className="relative z-10 bg-white/40 backdrop-blur-md p-10 rounded-2xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.02)] transition-all duration-500 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:bg-white/80">
+                                <motion.div whileHover={{ y: -4 }} className="relative z-10 bg-white/40 backdrop-blur-md p-8 rounded-2xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.02)] transition-all duration-400 hover:shadow-[0_10px_38px_rgb(0,0,0,0.06)] hover:bg-white/80">
                                     <div className="w-14 h-14 rounded-full bg-[#fdfcfa] border border-amber-100 flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 group-hover:bg-amber-50 transition-all duration-500">
                                         <IconComponent className="w-6 h-6 text-amber-500" />
                                     </div>
@@ -86,13 +92,13 @@ export function CausesSection({ settings }: CausesProps) {
                                         {cardCtaText}
                                         <ArrowRight className="w-4 h-4 ml-2 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
                                     </Link>
-                                </div>
+                                </motion.div>
                             </div>
                         );
                     })}
                     </div>
                 </div>
             </div>
-        </section>
+        </motion.section>
     );
 }

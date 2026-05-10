@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -51,25 +52,31 @@ export function AboutBrief({ settings, galleryImages }: AboutBriefProps) {
         .filter(Boolean);
 
     return (
-        <section className="py-20 md:py-24 bg-[#fffdfa] relative overflow-hidden">
+        <motion.section
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="py-16 md:py-20 bg-[#fffdfa] relative overflow-hidden"
+        >
             {/* Delicate Watercolor Splash in BG */}
             <div className="absolute -top-[10%] left-[20%] w-125 h-125 bg-amber-100/30 rounded-full mix-blend-multiply filter blur-[90px] pointer-events-none" />
             
             <div className="container mx-auto px-6 max-w-7xl relative z-10">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-12 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 items-center">
                     {/* Featured Moment Gallery */}
                     <div className="relative w-full">
                         <div className="relative mx-auto w-full max-w-md lg:mx-0 lg:max-w-[560px]">
-                            <div className="absolute -inset-3 rounded-[2rem] border border-amber-100 bg-white/75 shadow-[0_25px_70px_-34px_rgba(15,23,42,0.55)] sm:-inset-4 sm:rounded-[2.25rem]" />
+                            <div className="absolute -inset-3 rounded-2xl border border-amber-100 bg-white/75 shadow-[0_22px_60px_-30px_rgba(15,23,42,0.45)] sm:-inset-4 sm:rounded-[1.5rem]" />
                             <div
-                                className="absolute -inset-3 rounded-[2rem] opacity-25 pointer-events-none mix-blend-multiply sm:-inset-4 sm:rounded-[2.25rem]"
+                                className="absolute -inset-3 rounded-2xl opacity-25 pointer-events-none mix-blend-multiply sm:-inset-4 sm:rounded-[1.5rem]"
                                 style={{
                                     backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
                                 }}
                             />
 
                             <div className="relative grid gap-3 lg:grid-cols-[1fr_5.75rem]">
-                                <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-slate-200 shadow-[0_22px_55px_-30px_rgba(15,23,42,0.75)] sm:rounded-[1.8rem] lg:aspect-[5/6]">
+                                <div className="relative aspect-[4/3] overflow-hidden rounded-[1.25rem] bg-slate-200 shadow-[0_18px_45px_-26px_rgba(15,23,42,0.55)] sm:rounded-[1.5rem] lg:aspect-[5/6]">
                                     <Image
                                         key={mainPhoto}
                                         src={mainPhoto}
@@ -121,19 +128,19 @@ export function AboutBrief({ settings, galleryImages }: AboutBriefProps) {
                     </div>
                     
                     {/* Content Editorial Layout */}
-                    <div className="pl-0 lg:pl-4">
+                    <div className="pl-0 lg:pl-6">
                         <div>
-                            <p className="font-serif italic text-amber-600 text-xl tracking-wide mb-4">
+                            <p className="font-serif italic text-amber-600 text-lg md:text-xl tracking-wide mb-3">
                                 {eyebrow}
                             </p>
-                            <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-slate-800 mb-8 leading-[1.1] tracking-tight relative inline-block">
+                            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 mb-6 leading-[1.08] tracking-tight relative inline-block">
                                 {heading}
                                 <svg className="absolute -bottom-1 -left-1 w-[110%] h-3 text-amber-300 stroke-current opacity-80" viewBox="0 0 100 10" preserveAspectRatio="none">
                                     <path d="M0,5 Q50,-2 100,5" fill="none" strokeWidth="4" strokeLinecap="round" />
                                 </svg>
                             </h2>
                             
-                            <p className="text-slate-500 leading-relaxed mb-10 text-lg font-light max-w-lg">
+                            <p className="text-slate-600 leading-relaxed mb-8 text-base md:text-lg font-light max-w-lg">
                                 {text}
                             </p>
                         </div>
@@ -152,15 +159,15 @@ export function AboutBrief({ settings, galleryImages }: AboutBriefProps) {
 
                         <div>
                             <Link href={ctaLink}>
-                                <Button variant="ghost" className="rounded-full px-8 py-6 text-base font-medium text-slate-700 border-2 border-slate-200 hover:border-slate-800 hover:bg-transparent transition-all duration-300 group shadow-none">
+                                <Button variant="ghost" className="rounded-full px-6 py-4 text-base font-medium text-slate-700 border-2 border-slate-200 hover:border-slate-800 hover:bg-transparent transition-all duration-300 group shadow-sm">
                                     {ctaText}
-                                    <ArrowRight className="w-4 h-4 ml-2 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                                    <ArrowRight className="ml-2 h-4 w-4 text-amber-600 transition-transform group-hover:translate-x-1" />
                                 </Button>
                             </Link>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </motion.section>
     );
 }

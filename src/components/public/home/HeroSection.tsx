@@ -250,15 +250,7 @@ export function HeroSection({ settings, liveImpact, recentDonations }: HeroProps
                         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                         className="max-w-2xl"
                     >
-                        <div className="inline-flex items-center gap-3 rounded-full border border-white/70 bg-white/60 px-4 py-3 shadow-[0_10px_35px_-25px_rgba(15,23,42,0.4)] backdrop-blur-md">
-                            <div className="relative h-12 w-12 overflow-hidden rounded-full border border-amber-100 bg-white shadow-sm">
-                                <Image src="/favicon.ico" alt={`${siteName} logo`} fill sizes="48px" className="object-cover" priority />
-                            </div>
-                            <div className="leading-tight">
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-amber-700">{siteName}</p>
-                                <p className="mt-1 text-sm text-slate-500">{badgeText}</p>
-                            </div>
-                        </div>
+                      
 
                         <p className="mt-10 font-serif italic text-lg md:text-2xl tracking-wide text-amber-700/90">
                             {badgeText}
