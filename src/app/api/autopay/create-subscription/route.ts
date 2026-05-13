@@ -38,6 +38,12 @@ interface RazorpaySubscription {
     [key: string]: any;
 }
 
+interface RazorpayCustomerList {
+    items?: RazorpayCustomer[];
+    count?: number;
+    [key: string]: any;
+}
+
 function getErrorMessage(error: unknown) {
     if (typeof error === "object" && error !== null) {
         const maybeError = error as {
@@ -54,6 +60,81 @@ function getErrorMessage(error: unknown) {
     }
 
     return "Failed to create subscription";
+}
+
+async function getOrCreateRazorpayCustomer(params: {
+    donorName: string;
+    donorEmail: string;
+    donorPhone?: string;
+}) {
+    const normalizedEmail = params.donorEmail.trim().toLowerCase();
+    const normalizedPhone = params.donorPhone?.trim() || undefined;
+
+    const existingSubscription = await prisma.autopaySubscription.findFirst({
+        where: {
+            donorEmail: {
+                equals: normalizedEmail,
+                mode: "insensitive",
+            },
+            ...(normalizedPhone ? { donorPhone: normalizedPhone } : {}),
+            razorpayCustomerId: { not: null },
+        },
+        orderBy: { createdAt: "desc" },
+        select: { razorpayCustomerId: true },
+    });
+
+    if (existingSubscription?.razorpayCustomerId) {
+        return existingSubscription.razorpayCustomerId;
+    }
+
+    const createCustomer = promisify<RazorpayCustomer>(razorpay.customers.create, razorpay.customers);
+
+    try {
+        const customer = await createCustomer({
+            email: normalizedEmail,
+            contact: normalizedPhone,
+            name: params.donorName.trim(),
+        });
+
+        return customer.id;
+    } catch (error) {
+        const errorMessage = getErrorMessage(error).toLowerCase();
+
+        if (errorMessage.includes("customer already exists")) {
+            const listCustomers = promisify<RazorpayCustomerList>(razorpay.customers.all, razorpay.customers);
+            const customerList = await listCustomers({ count: 100 });
+            const matchedCustomer = customerList.items?.find((customer) => {
+                const customerEmail = customer.email?.trim().toLowerCase();
+                const customerContact = customer.contact?.trim();
+
+                return customerEmail === normalizedEmail || (
+                    normalizedPhone ? customerContact === normalizedPhone : false
+                );
+            });
+
+            if (matchedCustomer?.id) {
+                return matchedCustomer.id;
+            }
+
+            const fallbackSubscription = await prisma.autopaySubscription.findFirst({
+                where: {
+                    donorEmail: {
+                        equals: normalizedEmail,
+                        mode: "insensitive",
+                    },
+                    razorpayCustomerId: { not: null },
+                },
+                orderBy: { createdAt: "desc" },
+                select: { razorpayCustomerId: true },
+            });
+
+            if (fallbackSubscription?.razorpayCustomerId) {
+                return fallbackSubscription.razorpayCustomerId;
+            }
+        }
+
+        throw error;
+    }
 }
 
 // POST — Create a Razorpay subscription for autopay
@@ -81,14 +162,16 @@ export async function POST(request: NextRequest) {
             referralCode,
         } = validation.data;
 
-        // Create or fetch Razorpay Customer
-        const createCustomer = promisify<RazorpayCustomer>(razorpay.customers.create, razorpay.customers);
-        const customer = await createCustomer({
-            email: donorEmail,
-            contact: donorPhone,
-            name: donorName,
+        const normalizedEmail = donorEmail.trim().toLowerCase();
+        const normalizedPhone = donorPhone?.trim() || undefined;
+        const normalizedName = donorName.trim();
+
+        // Create or reuse Razorpay Customer
+        const customerId = await getOrCreateRazorpayCustomer({
+            donorName: normalizedName,
+            donorEmail: normalizedEmail,
+            donorPhone: normalizedPhone,
         });
-        const customerId = customer.id;
 
         // Convert frequency to Razorpay interval
         const interval = frequency === "WEEKLY"
@@ -126,7 +209,7 @@ export async function POST(request: NextRequest) {
 
         // Find member if email matches
         const member = await prisma.member.findFirst({
-            where: { user: { email: donorEmail } },
+            where: { user: { email: normalizedEmail } },
         });
 
         // Create Razorpay Subscription
@@ -141,8 +224,8 @@ export async function POST(request: NextRequest) {
             total_count: 1200,
             start_at: Math.floor(Date.now() / 1000) + 3600, // Start 1 hour from now
             notes: {
-                donorName,
-                donorEmail,
+                donorName: normalizedName,
+                donorEmail: normalizedEmail,
                 purpose: purpose || "General Donation",
                 frequency,
             },
@@ -151,9 +234,9 @@ export async function POST(request: NextRequest) {
         // Create AutopaySubscription record in database
         const autopaySubscription = await prisma.autopaySubscription.create({
             data: {
-                donorName,
-                donorEmail,
-                donorPhone,
+                donorName: normalizedName,
+                donorEmail: normalizedEmail,
+                donorPhone: normalizedPhone,
                 donorPAN,
                 amount,
                 frequency: frequency as "WEEKLY" | "MONTHLY",
