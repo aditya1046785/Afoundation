@@ -268,7 +268,7 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                                     id="amount-autopay"
                                     type="number"
                                     placeholder="500"
-                                    min="100"
+                                    min="1"
                                     step="1"
                                     {...register("amount", { valueAsNumber: true })}
                                     className="pl-8 h-12 rounded-xl border-slate-200 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
