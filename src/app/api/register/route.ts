@@ -4,6 +4,12 @@ import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { registerSchema } from "@/lib/validations";
 import { sendWelcomeEmail } from "@/lib/email";
+import {
+    checkRegistrationRateLimit,
+    getClientIpAddress,
+    recordRegistrationAttempt,
+    verifyCaptchaChallenge,
+} from "@/lib/security";
 
 const MAX_MEMBER_ID_RETRIES = 5;
 
@@ -38,25 +44,60 @@ function isMemberIdUniqueConflict(error: unknown): boolean {
 }
 
 export async function POST(request: NextRequest) {
+    const ipAddress = await getClientIpAddress();
+
     try {
         const body = await request.json();
 
         // Validate input
         const validation = registerSchema.safeParse(body);
         if (!validation.success) {
+            await recordRegistrationAttempt({ ipAddress, email: body?.email, outcome: "validation_failed" });
             return NextResponse.json(
                 { success: false, error: validation.error.issues[0]?.message },
                 { status: 400 }
             );
         }
 
-        const { name, phone, position, password } = validation.data;
+        const { name, phone, position, password, captchaAnswer, captchaToken, website } = validation.data;
         const email = validation.data.email.trim().toLowerCase();
         const referralCode = validation.data.referralCode?.trim() || null;
+
+        if (website) {
+            await recordRegistrationAttempt({ ipAddress, email, outcome: "honeypot_blocked" });
+            return NextResponse.json(
+                { success: false, error: "Unable to process registration." },
+                { status: 400 }
+            );
+        }
+
+        if (!verifyCaptchaChallenge(captchaToken, captchaAnswer)) {
+            await recordRegistrationAttempt({ ipAddress, email, outcome: "captcha_failed" });
+            return NextResponse.json(
+                { success: false, error: "CAPTCHA verification failed. Please try again." },
+                { status: 400 }
+            );
+        }
+
+        const rateLimit = await checkRegistrationRateLimit(ipAddress, email);
+        if (rateLimit.blocked) {
+            await recordRegistrationAttempt({ ipAddress, email, outcome: "rate_limited" });
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: "Too many signup attempts. Please wait about 1 hour before trying again.",
+                },
+                {
+                    status: 429,
+                    headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
+                }
+            );
+        }
 
         // Check if email already exists
         const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
+            await recordRegistrationAttempt({ ipAddress, email, outcome: "duplicate_email" });
             return NextResponse.json(
                 { success: false, error: "Email already registered. Please login instead." },
                 { status: 400 }
@@ -137,6 +178,7 @@ export async function POST(request: NextRequest) {
 
         // Keep registration successful even if email delivery fails, but report true status to client.
         const welcomeEmailSent = await sendWelcomeEmail(email, name, member.memberId);
+        await recordRegistrationAttempt({ ipAddress, email, outcome: "success" });
 
         return NextResponse.json(
             {
@@ -151,6 +193,7 @@ export async function POST(request: NextRequest) {
         );
     } catch (error) {
         console.error("Register error:", error);
+        await recordRegistrationAttempt({ ipAddress, outcome: "server_error" });
         return NextResponse.json(
             { success: false, error: "An error occurred during registration." },
             { status: 500 }

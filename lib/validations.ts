@@ -22,6 +22,9 @@ export const registerSchema = z
         confirmPassword: z.string(),
         agreeToTerms: z.boolean().refine((val) => val === true, "You must agree to the terms"),
         referralCode: z.string().trim().optional(),
+        captchaAnswer: z.string().trim().min(1, "Please solve the CAPTCHA"),
+        captchaToken: z.string().trim().min(1, "CAPTCHA expired. Please refresh and try again."),
+        website: z.string().max(0, "Invalid submission").optional().default(""),
     })
     .refine((data) => data.password === data.confirmPassword, {
         message: "Passwords don't match",

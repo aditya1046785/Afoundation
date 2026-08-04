@@ -513,3 +513,15 @@ model ChatMessage {
   @@index([sessionId])
   @@index([createdAt])
 }
+
+model RegistrationAttempt {
+  id        String   @id @default(cuid())
+  ipAddress String
+  email     String?
+  outcome   String
+  createdAt DateTime @default(now())
+
+  @@index([ipAddress, createdAt])
+  @@index([email, createdAt])
+  @@index([outcome, createdAt])
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "@/lib/validations";
@@ -21,17 +21,42 @@ export function RegisterForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [success, setSuccess] = useState(false);
     const [welcomeEmailSent, setWelcomeEmailSent] = useState(false);
+    const [captchaPrompt, setCaptchaPrompt] = useState("");
+    const [captchaLoading, setCaptchaLoading] = useState(true);
     const router = useRouter();
     const searchParams = useSearchParams();
     const referralCode = searchParams.get("ref")?.trim() || "";
 
-    const { register, handleSubmit, setValue, formState: { errors } } = useForm<RegisterFormInput, any, RegisterFormOutput>({
+    const { register, handleSubmit, setValue, resetField, formState: { errors } } = useForm<RegisterFormInput, undefined, RegisterFormOutput>({
         resolver: zodResolver(registerSchema),
     });
+
+    const loadCaptcha = useCallback(async () => {
+        try {
+            setCaptchaLoading(true);
+            const res = await fetch("/api/register/captcha", { cache: "no-store" });
+            const result = await res.json();
+            if (!result.success) {
+                throw new Error("Failed to load CAPTCHA.");
+            }
+            setCaptchaPrompt(result.data.prompt);
+            setValue("captchaToken", result.data.token, { shouldValidate: true });
+            resetField("captchaAnswer");
+        } catch {
+            setCaptchaPrompt("");
+            toast.error("Could not load CAPTCHA. Please refresh and try again.");
+        } finally {
+            setCaptchaLoading(false);
+        }
+    }, [resetField, setValue]);
 
     useEffect(() => {
         setValue("referralCode", referralCode || undefined);
     }, [referralCode, setValue]);
+
+    useEffect(() => {
+        void loadCaptcha();
+    }, [loadCaptcha]);
 
     const onSubmit = async (data: RegisterFormOutput) => {
         try {
@@ -44,6 +69,9 @@ export function RegisterForm() {
             const result = await res.json();
             if (!result.success) {
                 toast.error(result.error || "Registration failed. Please try again.");
+                if (res.status === 400 || res.status === 429) {
+                    await loadCaptcha();
+                }
                 return;
             }
             const emailSent = Boolean(result.emailSent);
@@ -162,6 +190,15 @@ export function RegisterForm() {
             </div>
 
             <input type="hidden" {...register("referralCode")} />
+            <input type="hidden" {...register("captchaToken")} />
+            <input
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+                {...register("website")}
+                className="hidden"
+                aria-hidden="true"
+            />
 
             <div>
                 <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase ml-1">Password *</Label>
@@ -211,10 +248,40 @@ export function RegisterForm() {
             </div>
             {errors.agreeToTerms && <p className="text-red-500 text-xs -mt-1 ml-2 font-medium">{errors.agreeToTerms.message}</p>}
 
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                    <div>
+                        <p className="text-xs font-semibold text-slate-500 tracking-widest uppercase">Security Check</p>
+                        <p className="text-sm text-slate-700 mt-1">
+                            {captchaLoading ? "Loading CAPTCHA..." : captchaPrompt || "Refresh to load CAPTCHA"}
+                        </p>
+                    </div>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => void loadCaptcha()}
+                        disabled={captchaLoading || isLoading}
+                        className="rounded-full"
+                    >
+                        Refresh
+                    </Button>
+                </div>
+                <div>
+                    <Input
+                        {...register("captchaAnswer")}
+                        inputMode="numeric"
+                        placeholder="Enter your answer"
+                        className="h-12 rounded-2xl bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus-visible:ring-amber-500 shadow-sm transition-all"
+                    />
+                    {errors.captchaAnswer && <p className="text-red-500 text-xs mt-1.5 ml-2 font-medium">{errors.captchaAnswer.message}</p>}
+                    {errors.captchaToken && <p className="text-red-500 text-xs mt-1.5 ml-2 font-medium">{errors.captchaToken.message}</p>}
+                </div>
+            </div>
+
             <div className="pt-2">
                 <Button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={isLoading || captchaLoading || !captchaPrompt}
                     className="w-full h-14 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-lg font-bold shadow-lg shadow-slate-900/10 transition-all duration-300 hover:scale-[1.02]"
                 >
                     {isLoading ? (

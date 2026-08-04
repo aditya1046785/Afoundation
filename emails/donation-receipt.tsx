@@ -73,7 +73,7 @@ export default function DonationReceiptEmail({
 
                     <Section style={footerStyle}>
                         <Text style={footerSmallStyle}>
-                            © 2025 Nirashray Foundation. All rights reserved.
+                            © 2026 Nirashray Foundation. All rights reserved.
                         </Text>
                     </Section>
                 </Container>
