@@ -107,7 +107,7 @@ export default async function HomePage() {
         <>
             <HeroSection settings={settings} liveImpact={liveImpact} recentDonations={heroRecentDonations} />
             <AboutBrief settings={settings} galleryImages={storyGalleryImages} />
-            <CausesSection settings={settings} />
+            
             {activeCampaigns.length > 0 && <CrowdfundingSection campaigns={activeCampaigns} />}
             <DonateCTA settings={settings} />
             {teamMembers.length > 0 && <TeamPreview settings={settings} members={teamMembers} />}

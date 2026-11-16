@@ -17,6 +17,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://nirashrayfoundation.in"),
   title: {
     default: "Nirashray Foundation | Empowering Lives, Building Hope",
     template: "%s | Nirashray Foundation",
@@ -27,11 +28,10 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+    url: "https://nirashrayfoundation.in",
     siteName: "Nirashray Foundation",
     title: "Nirashray Foundation | Empowering Lives, Building Hope",
     description: "Join us in making a difference for those who need it most.",
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630 }],
   },
   icons: { icon: "/favicon.ico" },
   robots: { index: true, follow: true },
