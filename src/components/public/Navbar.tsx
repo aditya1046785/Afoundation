@@ -52,7 +52,7 @@ export function Navbar({ settings }: NavbarProps) {
 
     return (
         <header
-            style={{ top: "var(--announcement-height, 0px)" }}
+            style={{ top: "44px" }}
             className={cn(
                 "fixed w-full z-50 transition-all duration-500",
                 isScrolled

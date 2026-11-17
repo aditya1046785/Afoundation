@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, ExternalLink } from "lucide-react";
+import { ExternalLink, Megaphone, Pause, Play, X } from "lucide-react";
+import styles from "./AnnouncementBar.module.css";
 
 interface Announcement {
     id: string;
@@ -14,129 +15,97 @@ interface Announcement {
 }
 
 const typeColors: Record<string, string> = {
-    INFO: "bg-blue-600",
-    URGENT: "bg-red-600",
-    SUCCESS: "bg-emerald-600",
-    WARNING: "bg-amber-500",
+    INFO: "bg-sky-300",
+    URGENT: "bg-rose-400",
+    SUCCESS: "bg-emerald-300",
+    WARNING: "bg-amber-300",
 };
 
 export function AnnouncementBar() {
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
+    const [loaded, setLoaded] = useState(false);
     const [dismissed, setDismissed] = useState(false);
-    const barRef = useRef<HTMLDivElement | null>(null);
-
-    const setAnnouncementHeight = (height: number) => {
-        document.documentElement.style.setProperty("--announcement-height", `${height}px`);
-    };
+    const [paused, setPaused] = useState(false);
+    const [duration, setDuration] = useState(30);
+    const groupRef = useRef<HTMLDivElement>(null);
+    const visible = announcements.length > 0 && !dismissed;
 
     useEffect(() => {
-        fetch("/api/announcements")
-            .then((res) => res.json())
+        const controller = new AbortController();
+        fetch("/api/announcements", { signal: controller.signal })
+            .then((res) => res.ok ? res.json() : null)
             .then((data) => {
-                if (data.success && data.data.length > 0) {
-                    setAnnouncements(data.data);
-                }
+                if (data?.success && Array.isArray(data.data)) setAnnouncements(data.data);
             })
-            .catch(() => { });
+            .catch(() => { /* Keep the reserved strip when updates are unavailable. */ })
+            .finally(() => {
+                if (!controller.signal.aborted) setLoaded(true);
+            });
+        return () => controller.abort();
     }, []);
 
     useEffect(() => {
-        if (!announcements.length || dismissed) {
-            setAnnouncementHeight(0);
-            return;
-        }
+        const group = groupRef.current;
+        if (!group) return;
+        // A constant pixel speed keeps long messages as readable as short ones.
+        const observer = new ResizeObserver(() => setDuration(Math.max(20, group.offsetWidth / 45)));
+        observer.observe(group);
+        return () => observer.disconnect();
+    }, [visible, announcements]);
 
-        const updateHeight = () => {
-            setAnnouncementHeight(barRef.current?.offsetHeight ?? 0);
-        };
-
-        updateHeight();
-
-        const resizeObserver = new ResizeObserver(updateHeight);
-        if (barRef.current) resizeObserver.observe(barRef.current);
-        window.addEventListener("resize", updateHeight);
-
-        return () => {
-            resizeObserver.disconnect();
-            window.removeEventListener("resize", updateHeight);
-        };
-    }, [announcements.length, dismissed, currentIndex]);
-
-    useEffect(() => {
-        if (!announcements.length || dismissed) return;
-
-        const handleScroll = () => {
-            setDismissed(true);
-        };
-
-        window.addEventListener("scroll", handleScroll, { passive: true, once: true });
-
-        return () => {
-            window.removeEventListener("scroll", handleScroll);
-        };
-    }, [announcements.length, dismissed]);
-
-    useEffect(() => {
-        return () => {
-            setAnnouncementHeight(0);
-        };
-    }, []);
-
-    // Rotate announcements every 5 seconds if multiple
-    useEffect(() => {
-        if (announcements.length <= 1) return;
-        const interval = setInterval(() => {
-            setCurrentIndex((i) => (i + 1) % announcements.length);
-        }, 5000);
-        return () => clearInterval(interval);
-    }, [announcements.length]);
-
-    if (!announcements.length || dismissed) return null;
-
-    const current = announcements[currentIndex];
-    const colorClass = typeColors[current.type] || "bg-blue-600";
+    const renderMessages = (duplicate: boolean) => announcements.map((announcement) => (
+        <span key={announcement.id} className={styles.message}>
+            <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${typeColors[announcement.type] || typeColors.INFO}`} aria-hidden="true" />
+            <span className="sr-only">{announcement.type}: </span>
+            <span>{announcement.message}</span>
+            {announcement.linkText && announcement.linkUrl && (
+                <Link
+                    href={announcement.linkUrl}
+                    tabIndex={duplicate ? -1 : undefined}
+                    className="inline-flex items-center gap-1 font-semibold text-amber-200 underline underline-offset-4 hover:text-white"
+                    target={announcement.linkUrl.startsWith("http") ? "_blank" : undefined}
+                    rel={announcement.linkUrl.startsWith("http") ? "noopener noreferrer" : undefined}
+                >
+                    {announcement.linkText}
+                    {announcement.linkUrl.startsWith("http") && <ExternalLink className="h-3 w-3" aria-hidden="true" />}
+                </Link>
+            )}
+        </span>
+    ));
 
     return (
-        <AnimatePresence>
-            <motion.div
-                ref={barRef}
-                initial={{ y: -40, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -40, opacity: 0 }}
-                className={`relative ${colorClass} text-white text-sm py-2 px-4`}
-            >
-                <div className="container mx-auto flex items-center justify-center gap-3 text-center max-w-5xl">
-                    <AnimatePresence mode="wait">
-                        <motion.p
-                            key={current.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className="font-medium flex items-center gap-2 flex-wrap justify-center"
+        <aside className={styles.bar} aria-label="Latest announcements">
+            <div className={styles.label}>
+                <Megaphone className="h-4 w-4" aria-hidden="true" />
+                <span className="hidden sm:inline">Updates</span>
+            </div>
+            {visible ? (
+                <>
+                    <div className={styles.viewport} tabIndex={0} aria-label="Announcements. Focus to pause; scroll horizontally to read.">
+                        <div
+                            className={styles.track}
+                            data-paused={paused}
+                            style={{ "--ticker-duration": `${duration}s` } as CSSProperties}
                         >
-                            {current.message}
-                            {current.linkText && current.linkUrl && (
-                                <Link
-                                    href={current.linkUrl}
-                                    className="underline font-bold inline-flex items-center gap-1 hover:opacity-80 transition-opacity"
-                                    target={current.linkUrl.startsWith("http") ? "_blank" : undefined}
-                                >
-                                    {current.linkText}
-                                    {current.linkUrl.startsWith("http") && <ExternalLink className="w-3 h-3" />}
-                                </Link>
-                            )}
-                        </motion.p>
-                    </AnimatePresence>
+                            <div ref={groupRef} className={styles.group}>{renderMessages(false)}</div>
+                            <div className={`${styles.group} ${styles.duplicate}`} aria-hidden="true">{renderMessages(true)}</div>
+                        </div>
+                    </div>
+                    <div className={styles.controls}>
+                        <button className={styles.button} onClick={() => setPaused(!paused)} aria-label={paused ? "Resume announcements" : "Pause announcements"} aria-pressed={paused}>
+                            {paused ? <Play size={14} /> : <Pause size={14} />}
+                        </button>
+                        <button className={styles.button} onClick={() => setDismissed(true)} aria-label="Hide announcements">
+                            <X size={16} />
+                        </button>
+                    </div>
+                </>
+            ) : (
+                <div className={styles.empty}>
+                    <span>{dismissed ? "Updates hidden" : loaded ? "No updates right now" : "Loading updates…"}</span>
+                    {dismissed && <button className="shrink-0 text-amber-200 underline underline-offset-4" onClick={() => setDismissed(false)}>Show updates</button>}
                 </div>
-                <button
-                    onClick={() => setDismissed(true)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:opacity-70 transition-opacity"
-                    aria-label="Dismiss announcement"
-                >
-                    <X className="w-4 h-4" />
-                </button>
-            </motion.div>
-        </AnimatePresence>
+            )}
+        </aside>
     );
 }
