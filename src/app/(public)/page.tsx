@@ -3,116 +3,38 @@ import { Metadata } from "next";
 import { getAllSiteSettings } from "@/lib/site-settings";
 import prisma from "@/lib/prisma";
 import { HeroSection } from "@/components/public/home/HeroSection";
-import { AboutBrief } from "@/components/public/home/AboutBrief";
-import { CausesSection } from "@/components/public/home/CausesSection";
-import { CrowdfundingSection } from "@/components/public/home/CrowdfundingSection";
-import { DonateCTA } from "@/components/public/home/DonateCTA";
+import { SacredPillarsSection } from "@/components/public/home/SacredPillarsSection";
 import { TeamPreview } from "@/components/public/home/TeamPreview";
-import { GalleryPreview } from "@/components/public/home/GalleryPreview";
-import { BlogPreview } from "@/components/public/home/BlogPreview";
 import { TestimonialsSection } from "@/components/public/home/TestimonialsSection";
+import { SevaInActionSection } from "@/components/public/home/SevaInActionSection";
+import { QuickDonationSection } from "@/components/public/home/QuickDonationSection";
+import { OnboardingSection } from "@/components/public/home/OnboardingSection";
+import { EventsComplianceSection } from "@/components/public/home/EventsComplianceSection";
 
 export const metadata: Metadata = {
     title: "Home | Nirashray Foundation",
     description: "Nirashray Foundation — Empowering Lives, Building Hope. Join us in making a difference through education, healthcare, and community development.",
 };
 
-function pickRandomItems<T>(items: T[], limit: number) {
-    return [...items]
-        .map((item) => ({ item, sort: Math.random() }))
-        .sort((first, second) => first.sort - second.sort)
-        .slice(0, limit)
-        .map(({ item }) => item);
-}
-
 export default async function HomePage() {
-    const [settings, teamMembers, recentBlogs, galleryAlbums, allVisibleGalleryAlbums, activeCampaigns, approvedMembers, donationTotals, uniqueSupporters, recentDonations] = await Promise.all([
+    const [settings, teamMembers] = await Promise.all([
         getAllSiteSettings(),
         prisma.teamMember.findMany({
             where: { isVisible: true },
             orderBy: [{ displayOrder: "asc" }],
             take: 8,
         }),
-        prisma.blogPost.findMany({
-            where: { status: "PUBLISHED" },
-            orderBy: { publishedAt: "desc" },
-            take: 3,
-        }),
-        prisma.galleryAlbum.findMany({
-            where: { isVisible: true, isFeatured: true },
-            include: { photos: { take: 4, orderBy: { displayOrder: "asc" } } },
-            take: 3,
-            orderBy: { displayOrder: "asc" },
-        }),
-        prisma.galleryAlbum.findMany({
-            where: { isVisible: true },
-            select: {
-                coverImage: true,
-                photos: {
-                    select: { imageUrl: true },
-                    orderBy: { displayOrder: "asc" },
-                },
-            },
-            orderBy: { displayOrder: "asc" },
-        }),
-        prisma.crowdfundingCampaign.findMany({
-            where: { isActive: true },
-            orderBy: { createdAt: "desc" },
-            take: 4,
-        }),
-        prisma.member.count({ where: { isApproved: true } }),
-        prisma.donation.aggregate({
-            where: { status: "COMPLETED" },
-            _sum: { amount: true },
-        }),
-        prisma.donation.groupBy({
-            by: ["donorEmail"],
-            where: { status: "COMPLETED" },
-            _count: { donorEmail: true },
-        }),
-        prisma.donation.findMany({
-            where: { status: "COMPLETED" },
-            orderBy: [{ paidAt: "desc" }, { createdAt: "desc" }],
-            take: 8,
-            select: {
-                id: true,
-                donorName: true,
-                amount: true,
-                message: true,
-                purpose: true,
-                paidAt: true,
-            },
-        }),
     ]);
-
-    const heroGalleryImages = Array.from(
-        new Set(
-            allVisibleGalleryAlbums
-                .flatMap((album) => [album.coverImage, ...album.photos.map((photo) => photo.imageUrl)])
-                .filter((imageUrl): imageUrl is string => Boolean(imageUrl))
-        )
-    );
-    const storyGalleryImages = pickRandomItems(heroGalleryImages, 6);
-    const liveImpact = {
-        livesChanged: approvedMembers || 0,
-        donationsRaised: donationTotals._sum.amount || 0,
-        activeSupporters: uniqueSupporters.length,
-    };
-    const heroRecentDonations = recentDonations.map((donation) => ({
-        ...donation,
-        paidAt: donation.paidAt?.toISOString() || null,
-    }));
 
     return (
         <>
-            <HeroSection settings={settings} liveImpact={liveImpact} recentDonations={heroRecentDonations} />
-            <AboutBrief settings={settings} galleryImages={storyGalleryImages} />
-            
-            {activeCampaigns.length > 0 && <CrowdfundingSection campaigns={activeCampaigns} />}
-            <DonateCTA settings={settings} />
+            <HeroSection />
+            <SacredPillarsSection />
+            <SevaInActionSection />
+            <QuickDonationSection />
+            <OnboardingSection />
+            <EventsComplianceSection />
             {teamMembers.length > 0 && <TeamPreview settings={settings} members={teamMembers} />}
-            {galleryAlbums.length > 0 && <GalleryPreview settings={settings} albums={galleryAlbums} />}
-            {recentBlogs.length > 0 && <BlogPreview settings={settings} posts={recentBlogs} />}
             <TestimonialsSection settings={settings} />
         </>
     );

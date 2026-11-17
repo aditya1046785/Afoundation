@@ -1,0 +1,25 @@
+.section {
+  font-family: var(--font-home-body), sans-serif;
+  color: #1c1c19;
+  scroll-margin-top: 156px;
+}
+.section :is(a, button, input):focus-visible {
+  outline: 2px solid #ab3600;
+  outline-offset: 4px;
+}
+.section button {
+  cursor: pointer;
+}
+.section input {
+  min-width: 0;
+}
+.section [role="tab"] {
+  white-space: nowrap;
+}
+.section [aria-pressed="true"] {
+  box-shadow: inset 0 0 0 2px #ab3600;
+}
+
+.section :global(.amount-btn)[aria-pressed="true"] {
+  background: #ffdbcf66;
+}

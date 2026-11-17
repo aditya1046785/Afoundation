@@ -1,0 +1,9 @@
+.section {
+  font-family: var(--font-pillars-body), sans-serif;
+  color: #1c1c19;
+}
+
+.section a:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 4px;
+}

@@ -80,6 +80,7 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
         }
         return [selectedPurpose, ...purposes];
     }, [selectedPurpose, purposes]);
+    const prefillAmount = searchParams.get("amount") || "";
     const prefillName = searchParams.get("name")?.trim() || "";
     const prefillEmail = searchParams.get("email")?.trim() || "";
     const prefillPhone = searchParams.get("phone")?.trim() || "";
@@ -101,6 +102,30 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
         if (prefillPhone) setValue("donorPhone", prefillPhone);
         if (prefillPAN) setValue("donorPAN", prefillPAN);
     }, [prefillName, prefillEmail, prefillPhone, prefillPAN, setValue]);
+
+    useEffect(() => {
+        const amount = Number(prefillAmount);
+        if (prefillAmount && Number.isFinite(amount) && amount >= 1) {
+            setValue("amount", amount);
+            setSelectedAmount(null);
+        }
+    }, [prefillAmount, setValue]);
+
+    useEffect(() => {
+        try {
+            const stored = sessionStorage.getItem("nirashray-quick-donation");
+            if (!stored) return;
+            sessionStorage.removeItem("nirashray-quick-donation");
+            const donor: unknown = JSON.parse(stored);
+            if (!donor || typeof donor !== "object") return;
+            for (const field of ["donorName", "donorPhone", "donorEmail", "donorPAN"] as const) {
+                const value = (donor as Record<string, unknown>)[field];
+                if (typeof value === "string") setValue(field, value);
+            }
+        } catch {
+            // Leave the regular checkout form available if browser storage is unavailable.
+        }
+    }, [setValue]);
 
     const normalizeDonationPayload = (data: DonationFormData) => {
         const payload: Record<string, unknown> = {

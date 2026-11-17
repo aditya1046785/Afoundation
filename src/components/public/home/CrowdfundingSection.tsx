@@ -1,8 +1,9 @@
 "use client";
 
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, HandHeart, Sparkles } from "lucide-react";
+import { ArrowRight, BadgeCheck, HandHeart, Heart, LockKeyhole, ShieldCheck, Sparkles, Tag, Users } from "lucide-react";
+import styles from "./CrowdfundingSection.module.css";
 
 interface Campaign {
     id: string;
@@ -14,143 +15,148 @@ interface Campaign {
     category: string;
 }
 
-interface CrowdfundingProps {
-    campaigns: Campaign[];
+const HAS_80G = false;
+const CAUSE_STAT = "100% goes to the cause";
+const IMPACT_TEXT = "Every ₹500 can feed 10 children for a day.";
+const formatCurrency = (amount: number) => new Intl.NumberFormat("en-IN", {
+    style: "currency", currency: "INR", maximumFractionDigits: 0,
+}).format(amount);
+const validAmount = (amount: number) => Number.isFinite(amount) ? Math.max(0, amount) : 0;
+const donateHref = (campaign: Campaign) => ({ pathname: "/donate", query: { campaign: campaign.id, campaignTitle: campaign.title } });
+
+function LiveDot() {
+    return <span aria-hidden="true" className={styles.liveDot} />;
 }
 
-const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        maximumFractionDigits: 0,
-    }).format(amount);
-};
+function StatChip({ icon, children }: { icon: ReactNode; children: ReactNode }) {
+    return <div className={styles.statChip}><span aria-hidden="true" className={styles.statIcon}>{icon}</span><span>{children}</span></div>;
+}
 
-export function CrowdfundingSection({ campaigns }: CrowdfundingProps) {
-    if (!campaigns || campaigns.length === 0) return null;
-
+function SectionHeader({ campaigns }: { campaigns: Campaign[] }) {
+    const total = campaigns.reduce((sum, campaign) => sum + validAmount(campaign.raised), 0);
     return (
-        <section className="py-20 md:py-24 lg:py-28 bg-[#FAF7F2] relative overflow-hidden">
-            {/* Background elements */}
-            <div className="absolute top-0 right-0 w-1/3 h-full bg-linear-to-l from-amber-50/50 to-transparent pointer-events-none" />
-            <div className="absolute -bottom-[20%] -left-[10%] w-150 h-150 bg-rose-100/30 rounded-full mix-blend-multiply filter blur-[120px] pointer-events-none" />
+        <div className={styles.copy}>
+            <h2 id="crowdfunding-heading" className="font-serif">Together, we can<br /><span className={styles.highlight}>fund the change.
+                <svg aria-hidden="true" viewBox="0 0 440 20" preserveAspectRatio="none"><path d="M4 12 Q180 1 435 8 M45 18 Q245 9 395 14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" /></svg>
+            </span></h2>
+            <p className={styles.intro}>Help turn care into action. Find a cause close to your heart and support Nirashray&apos;s work with children, families, and communities.</p>
+            <div className={styles.stats}>
+                <StatChip icon={<HandHeart size={18} />}><strong>{formatCurrency(total)}</strong> raised</StatChip>
+                <StatChip icon={<Users size={18} />}><strong>{campaigns.length}</strong> active {campaigns.length === 1 ? "campaign" : "campaigns"}</StatChip>
+                <StatChip icon={<Heart size={18} />}>{CAUSE_STAT}</StatChip>
+            </div>
+            <div className={styles.trustLine}>
+                <span><ShieldCheck size={16} aria-hidden="true" />Secure payments</span>
+                <span><BadgeCheck size={16} aria-hidden="true" />Transparent updates</span>
+                {HAS_80G && <span><BadgeCheck size={16} aria-hidden="true" />Tax benefit (80G)</span>}
+            </div>
+        </div>
+    );
+}
 
-            <div className="container mx-auto px-6 max-w-7xl relative z-10">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
-                    <div className="max-w-2xl">
-                        <p className="font-serif italic text-amber-600 text-xl tracking-wide mb-4 flex items-center gap-2">
-                            <Sparkles className="w-5 h-5" /> Active Campaigns
-                        </p>
-                        <h2 className="font-serif text-4xl lg:text-5xl font-bold text-slate-800 mb-6 tracking-tight relative inline-block">
-                            Fund the Change
-                            <svg className="absolute -bottom-2 lg:-bottom-1 -left-1 w-[110%] h-3 text-amber-300 stroke-current opacity-80" viewBox="0 0 100 10" preserveAspectRatio="none">
-                                <path d="M0,5 Q50,-2 100,5" fill="none" strokeWidth="4" strokeLinecap="round" />
-                            </svg>
-                        </h2>
-                        <p className="text-slate-500 font-light text-lg">
-                            Your support directly impacts lives. Explore our ongoing crowdfunding campaigns and help us reach our target to create sustainable change.
-                        </p>
-                    </div>
-                    
-                    <div className="shrink-0">
-                        <Link href="/donate">
-                            <Button className="rounded-full px-8 py-6 text-base font-medium bg-slate-800 hover:bg-slate-700 text-white transition-all shadow-xl shadow-slate-900/10 group">
-                                View All Campaigns
-                                <ArrowRight className="w-4 h-4 ml-2 opacity-70 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                            </Button>
-                        </Link>
-                    </div>
+function ProgressBar({ raised, target, title }: { raised: number; target: number; title: string }) {
+    const ref = useRef<HTMLDivElement>(null);
+    const [visible, setVisible] = useState(false);
+    const percentage = Math.floor(raised / target * 100);
+    const fill = Math.min(100, percentage);
+    useEffect(() => {
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) { setVisible(true); observer.disconnect(); }
+        }, { threshold: 0.2 });
+        if (ref.current) observer.observe(ref.current);
+        return () => observer.disconnect();
+    }, []);
+    return (
+        <div ref={ref} className={styles.progress}>
+            <div className={styles.bubblePosition} style={{ left: `clamp(24px, ${fill}%, calc(100% - 24px))` }}><span>{percentage}%</span></div>
+            <div role="progressbar" aria-label={`Funding progress for ${title}`} aria-valuenow={fill} aria-valuemin={0} aria-valuemax={100} aria-valuetext={`${percentage}% funded`} className={styles.track}>
+                <div className={styles.fill} style={{ width: `${visible ? fill : 0}%` }} />
+            </div>
+            <div className={styles.progressLabels}><strong>{percentage}% funded</strong><span>{formatCurrency(Math.max(0, target - raised))} to go</span></div>
+        </div>
+    );
+}
+
+function AmountChips({ amount, onChange }: { amount: number | null; onChange: (amount: number | null) => void }) {
+    return (
+        <div className={styles.amounts} role="group" aria-label="Choose a suggested donation amount">
+            {[100, 500, 1000, 2500, null].map(value => <button key={value ?? "custom"} type="button" aria-pressed={value === amount} onClick={() => onChange(value)}>{value === null ? "Custom" : formatCurrency(value)}</button>)}
+        </div>
+    );
+}
+
+function DonateLink({ campaign, amount }: { campaign: Campaign; amount: number | null }) {
+    // The existing form does not consume an amount query parameter. Presets are visual only.
+    return <Link href={donateHref(campaign)} className={styles.donate} aria-label={`Support ${campaign.title}${amount ? ` — suggested donation ${formatCurrency(amount)}` : ""}`}>
+        <span>{amount ? `Donate ${formatCurrency(amount)} now` : "Support this campaign"}</span><span className={styles.arrow}><ArrowRight size={19} aria-hidden="true" /></span>
+    </Link>;
+}
+
+function StickyDonateBar({ campaign, amount, visible }: { campaign: Campaign; amount: number | null; visible: boolean }) {
+    if (!visible) return null;
+    return <div className={styles.sticky} aria-label="Support the featured campaign"><DonateLink campaign={campaign} amount={amount} /></div>;
+}
+
+function CampaignCard({ campaign, compact = false }: { campaign: Campaign; compact?: boolean }) {
+    const [amount, setAmount] = useState<number | null>(500);
+    const [sticky, setSticky] = useState(false);
+    const cardRef = useRef<HTMLElement>(null);
+    const ctaRef = useRef<HTMLDivElement>(null);
+    const raised = validAmount(campaign.raised);
+    const target = validAmount(campaign.target);
+    useEffect(() => {
+        if (compact) return;
+        let cardVisible = false;
+        let ctaVisible = false;
+        const observer = new IntersectionObserver(entries => {
+            for (const entry of entries) {
+                if (entry.target === cardRef.current) cardVisible = entry.isIntersecting;
+                if (entry.target === ctaRef.current) ctaVisible = entry.isIntersecting;
+            }
+            setSticky(cardVisible && !ctaVisible);
+        });
+        if (cardRef.current) observer.observe(cardRef.current);
+        if (ctaRef.current) observer.observe(ctaRef.current);
+        return () => observer.disconnect();
+    }, [compact]);
+    return (
+        <>
+            <article ref={cardRef} className={`${styles.card} ${compact ? styles.compact : ""}`}>
+                <div className={styles.image}>
+                    {/* Replace CMS banners containing baked-in text/buttons with a clean photo. Preserve the supplied image until then. */}
+                    {campaign.image ? (
+                        // CMS images may use external hosts.
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={campaign.image} alt={campaign.title} loading="lazy" decoding="async" />
+                    ) : <HandHeart className={styles.placeholder} size={72} aria-hidden="true" />}
+                    <div className={styles.imageShade} aria-hidden="true" />
+                    <div className={styles.imageChips}><span className={styles.category}><Tag size={14} aria-hidden="true" />{campaign.category.trim() || "Community Support"}</span><span className={styles.status}><LiveDot />Open for support</span></div>
                 </div>
-
-                {/* Campaign Cards: horizontal scroller on mobile, grid on larger screens */}
-                <div className="overflow-x-auto pb-4 md:overflow-visible md:pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                    <div className="flex gap-6 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-8">
-                    {campaigns.map((campaign, idx) => {
-                        const progress = Math.min(100, Math.round((campaign.raised / campaign.target) * 100));
-                        
-                        return (
-                            <div
-                                key={campaign.id}
-                                className="group min-w-[82vw] max-w-[82vw] sm:min-w-[70vw] sm:max-w-[70vw] md:min-w-0 md:max-w-none bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 flex flex-col h-full"
-                            >
-                                {/* Image Container */}
-                                <div className="relative h-56 w-full overflow-hidden">
-                                    <div className="absolute inset-0 bg-slate-900/20 group-hover:bg-slate-900/10 transition-colors duration-500 z-10" />
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
-                                        src={campaign.image}
-                                        alt={campaign.title}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                                    />
-                                    <div className="absolute top-4 left-4 z-20 bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full text-xs font-semibold text-amber-700 shadow-sm">
-                                        {campaign.category}
-                                    </div>
-                                </div>
-
-                                {/* Content */}
-                                <div className="p-6 flex-1 flex flex-col">
-                                    <h3 className="font-serif text-xl font-bold text-slate-800 mb-3 group-hover:text-amber-600 transition-colors">
-                                        {campaign.title}
-                                    </h3>
-                                    <p className="text-slate-500 text-sm leading-relaxed mb-6 font-light flex-1">
-                                        {campaign.description}
-                                    </p>
-
-                                    {/* Elaborate Artistic Progress Bar */}
-                                    <div className="mt-auto">
-                                        <div className="flex justify-between items-end mb-2">
-                                            <div>
-                                                <p className="text-xs text-slate-400 font-medium mb-1 uppercase tracking-wider">Raised</p>
-                                                <p className="text-lg font-bold text-slate-800">{formatCurrency(campaign.raised)}</p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-xs text-slate-400 font-medium mb-1 uppercase tracking-wider">Goal</p>
-                                                <p className="text-sm font-semibold text-slate-500">{formatCurrency(campaign.target)}</p>
-                                            </div>
-                                        </div>
-
-                                        {/* Unique Progress Bar Design */}
-                                        <div className="relative h-3 w-full bg-slate-100 rounded-full overflow-hidden mt-3 mb-2 shadow-inner">
-                                            {/* Animated liquid fill */}
-                                            <div
-                                                className="absolute top-0 left-0 h-full bg-linear-to-r from-amber-400 via-amber-500 to-amber-600 rounded-full"
-                                                style={{ width: `${progress}%` }}
-                                            />
-                                        </div>
-                                        
-                                        <div className="mt-3 space-y-3">
-                                            <span className="text-xs font-bold text-amber-700">{progress}% Funded</span>
-
-                                            <Link
-                                                href={{
-                                                    pathname: "/donate",
-                                                    query: {
-                                                        campaign: campaign.id,
-                                                        campaignTitle: campaign.title,
-                                                    },
-                                                }}
-                                                className="block"
-                                            >
-                                                <div className="relative overflow-hidden rounded-xl px-4 py-2.5 bg-linear-to-r from-rose-500 via-red-500 to-amber-500 text-white shadow-lg shadow-rose-500/25 transition-transform duration-300 group-hover:scale-[1.02] motion-safe:animate-pulse motion-reduce:animate-none">
-                                                    <div className="absolute inset-0 bg-[linear-gradient(115deg,transparent_20%,rgba(255,255,255,0.28)_45%,transparent_70%)] -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                                                    <div className="relative flex items-center justify-between">
-                                                        <span className="text-sm font-semibold tracking-wide">Donate To This Campaign</span>
-                                                        <span className="inline-flex items-center gap-1 text-xs font-medium bg-white/20 px-2 py-1 rounded-full">
-                                                            <HandHeart className="w-3.5 h-3.5" />
-                                                            Give
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })}
-                    </div>
+                <div className={styles.body}>
+                    <h3>{campaign.title.charAt(0).toLocaleUpperCase() + campaign.title.slice(1)}</h3>
+                    <p className={`${styles.description} line-clamp-2`}>{campaign.description}</p>
+                    <div className={styles.amountBlock}><strong>{formatCurrency(raised)}</strong><span>{target > 0 ? `raised of ${formatCurrency(target)} goal` : "raised · Open goal"}</span></div>
+                    {target > 0 && <ProgressBar raised={raised} target={target} title={campaign.title} />}
+                    {/* Donor counts and end dates are not supplied by the current campaign model. */}
+                    {target > raised && <dl className={styles.miniStats}><div><dt>To reach our goal</dt><dd>{formatCurrency(target - raised)} to go</dd></div></dl>}
+                    {!compact && <><p className={styles.impact}><Sparkles size={20} aria-hidden="true" />{IMPACT_TEXT}</p><AmountChips amount={amount} onChange={setAmount} /><p className={styles.amountNote}>Choose your final amount on the donation page.</p></>}
+                    <div ref={ctaRef} className={styles.cta}><DonateLink campaign={campaign} amount={compact ? null : amount} /></div>
+                    <p className={styles.paymentTrust}><span><LockKeyhole size={13} aria-hidden="true" />100% secure payment</span><span>UPI, Cards &amp; Netbanking</span></p>
                 </div>
+            </article>
+            {!compact && <StickyDonateBar campaign={campaign} amount={amount} visible={sticky} />}
+        </>
+    );
+}
+
+export function CrowdfundingSection({ campaigns }: { campaigns: Campaign[] }) {
+    if (!campaigns?.length) return null;
+    return (
+        <section aria-labelledby="crowdfunding-heading" className={styles.section}>
+            <div className={styles.container}>
+                <div className={styles.topRow}><p className={styles.badge}><LiveDot />Active Campaigns · Collective Care</p><Link href="/donate" className={styles.ghost}>Make a difference <ArrowRight size={16} aria-hidden="true" /></Link></div>
+                <div className={styles.featured}><SectionHeader campaigns={campaigns} /><CampaignCard key={campaigns[0].id} campaign={campaigns[0]} /></div>
+                {campaigns.length > 1 && <div className={styles.more}><h3 className="font-serif">More ways to make a difference</h3><div className={styles.grid}>{campaigns.slice(1).map(campaign => <CampaignCard key={campaign.id} campaign={campaign} compact />)}</div></div>}
             </div>
         </section>
     );

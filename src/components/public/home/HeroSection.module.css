@@ -1,0 +1,16 @@
+.hero {
+  font-family: var(--font-hero-body), sans-serif;
+  color: #1c1c19;
+  background: #fcf9f4;
+}
+
+.hero h1,
+.hero h3,
+.hero h1 + div {
+  font-family: var(--font-hero-heading), Georgia, serif;
+}
+
+.hero a:focus-visible {
+  outline: 3px solid #ab3600;
+  outline-offset: 4px;
+}
