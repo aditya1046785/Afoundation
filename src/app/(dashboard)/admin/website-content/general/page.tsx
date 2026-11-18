@@ -10,8 +10,8 @@ export default async function CMSGeneralPage() {
     return (
         <div className="space-y-6 max-w-4xl mx-auto">
             <div>
-                <h1 className="font-serif text-2xl font-bold text-slate-900">General Settings</h1>
-                <p className="text-slate-500 text-sm mt-1">Core website information, contact details, and social links.</p>
+                <h1 className="font-serif text-2xl font-bold text-brand-neutral-900">General Settings</h1>
+                <p className="text-brand-neutral-500 text-sm mt-1">Core website information, contact details, and social links.</p>
             </div>
             <CMSGeneralEditor settings={settings} />
         </div>

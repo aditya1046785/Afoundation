@@ -99,8 +99,8 @@ export function RegisterForm() {
                 <div className="w-20 h-20 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-6 shadow-sm">
                     <CheckCircle className="w-10 h-10 text-emerald-500" />
                 </div>
-                <h3 className="text-slate-800 font-serif text-3xl font-bold mb-4">Registration Successful!</h3>
-                <p className="text-slate-500 text-base mb-8 font-light leading-relaxed">
+                <h3 className="text-brand-neutral-800 font-serif text-3xl font-bold mb-4">Registration Successful!</h3>
+                <p className="text-brand-neutral-500 text-base mb-8 font-normal leading-relaxed">
                     {welcomeEmailSent
                         ? "A welcome email has been sent. Your membership is currently pending admin approval."
                         : "Your membership is currently pending admin approval. We could not send the welcome email at the moment."}
@@ -108,7 +108,7 @@ export function RegisterForm() {
                 <Button
                     onClick={() => router.push("/login")}
                     variant="outline"
-                    className="rounded-full px-8 py-6 text-base font-medium text-slate-700 border-2 border-slate-200 hover:border-slate-800 hover:bg-transparent transition-all duration-300 shadow-none w-full"
+                    className="rounded-full px-8 py-6 text-base font-medium text-brand-neutral-700 border-2 border-brand-neutral-200 hover:border-brand-neutral-800 hover:bg-transparent transition-all duration-300 shadow-none w-full"
                 >
                     Proceed to Login
                 </Button>
@@ -129,52 +129,52 @@ export function RegisterForm() {
             )}
 
             <div>
-                <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase ml-1">Full Name *</Label>
+                <Label className="text-xs font-semibold text-brand-neutral-500 mb-2 block tracking-widest uppercase ml-1">Full Name *</Label>
                 <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-neutral-400" />
                     <Input
                         {...register("name")}
                         placeholder="Your full name"
-                        className="pl-12 h-14 rounded-2xl bg-slate-50/50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus-visible:ring-amber-500 shadow-sm transition-all"
+                        className="pl-12 h-14 rounded-2xl bg-brand-neutral-50/50 border-brand-neutral-200 text-brand-neutral-800 placeholder:text-brand-neutral-400 focus-visible:ring-brand-accent-500 shadow-sm transition-all"
                     />
                 </div>
                 {errors.name && <p className="text-red-500 text-xs mt-1.5 ml-2 font-medium">{errors.name.message}</p>}
             </div>
 
             <div>
-                <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase ml-1">Email Address *</Label>
+                <Label className="text-xs font-semibold text-brand-neutral-500 mb-2 block tracking-widest uppercase ml-1">Email Address *</Label>
                 <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-neutral-400" />
                     <Input
                         {...register("email")}
                         type="email"
                         placeholder="your@email.com"
-                        className="pl-12 h-14 rounded-2xl bg-slate-50/50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus-visible:ring-amber-500 shadow-sm transition-all"
+                        className="pl-12 h-14 rounded-2xl bg-brand-neutral-50/50 border-brand-neutral-200 text-brand-neutral-800 placeholder:text-brand-neutral-400 focus-visible:ring-brand-accent-500 shadow-sm transition-all"
                     />
                 </div>
                 {errors.email && <p className="text-red-500 text-xs mt-1.5 ml-2 font-medium">{errors.email.message}</p>}
             </div>
 
             <div>
-                <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase ml-1">Phone Number</Label>
+                <Label className="text-xs font-semibold text-brand-neutral-500 mb-2 block tracking-widest uppercase ml-1">Phone Number</Label>
                 <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-neutral-400" />
                     <Input
                         {...register("phone")}
                         type="tel"
                         placeholder="10-digit mobile number"
-                        className="pl-12 h-14 rounded-2xl bg-slate-50/50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus-visible:ring-amber-500 shadow-sm transition-all"
+                        className="pl-12 h-14 rounded-2xl bg-brand-neutral-50/50 border-brand-neutral-200 text-brand-neutral-800 placeholder:text-brand-neutral-400 focus-visible:ring-brand-accent-500 shadow-sm transition-all"
                     />
                 </div>
                 {errors.phone && <p className="text-red-500 text-xs mt-1.5 ml-2 font-medium">{errors.phone.message}</p>}
             </div>
 
             <div>
-                <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase ml-1">Register As *</Label>
+                <Label className="text-xs font-semibold text-brand-neutral-500 mb-2 block tracking-widest uppercase ml-1">Register As *</Label>
                 <div className="relative">
                     <select
                         {...register("position")}
-                        className="w-full h-14 pl-4 pr-10 rounded-2xl bg-slate-50/50 border border-slate-200 text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 shadow-sm transition-all appearance-none"
+                        className="w-full h-14 pl-4 pr-10 rounded-2xl bg-brand-neutral-50/50 border border-brand-neutral-200 text-brand-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent-500 shadow-sm transition-all appearance-none"
                     >
                         <option value="">Select your position...</option>
                         <option value="Volunteer">Volunteer</option>
@@ -183,7 +183,7 @@ export function RegisterForm() {
                         <option value="Team Member">Team Member</option>
                     </select>
                     <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                        <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                        <svg className="w-4 h-4 text-brand-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
                 </div>
                 {errors.position && <p className="text-red-500 text-xs mt-1.5 ml-2 font-medium">{errors.position.message as string}</p>}
@@ -201,19 +201,19 @@ export function RegisterForm() {
             />
 
             <div>
-                <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase ml-1">Password *</Label>
+                <Label className="text-xs font-semibold text-brand-neutral-500 mb-2 block tracking-widest uppercase ml-1">Password *</Label>
                 <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-neutral-400" />
                     <Input
                         {...register("password")}
                         type={showPassword ? "text" : "password"}
                         placeholder="Min 8 chars, 1 uppercase, 1 number"
-                        className="pl-12 pr-12 h-14 rounded-2xl bg-slate-50/50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus-visible:ring-amber-500 shadow-sm transition-all text-sm"
+                        className="pl-12 pr-12 h-14 rounded-2xl bg-brand-neutral-50/50 border-brand-neutral-200 text-brand-neutral-800 placeholder:text-brand-neutral-400 focus-visible:ring-brand-accent-500 shadow-sm transition-all text-sm"
                     />
                     <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-neutral-400 hover:text-brand-neutral-600 transition-colors"
                     >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -222,14 +222,14 @@ export function RegisterForm() {
             </div>
 
             <div>
-                <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase ml-1">Confirm Password *</Label>
+                <Label className="text-xs font-semibold text-brand-neutral-500 mb-2 block tracking-widest uppercase ml-1">Confirm Password *</Label>
                 <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-neutral-400" />
                     <Input
                         {...register("confirmPassword")}
                         type={showPassword ? "text" : "password"}
                         placeholder="Re-enter password"
-                        className="pl-12 h-14 rounded-2xl bg-slate-50/50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus-visible:ring-amber-500 shadow-sm transition-all text-sm"
+                        className="pl-12 h-14 rounded-2xl bg-brand-neutral-50/50 border-brand-neutral-200 text-brand-neutral-800 placeholder:text-brand-neutral-400 focus-visible:ring-brand-accent-500 shadow-sm transition-all text-sm"
                     />
                 </div>
                 {errors.confirmPassword && <p className="text-red-500 text-xs mt-1.5 ml-2 font-medium">{errors.confirmPassword.message}</p>}
@@ -240,19 +240,19 @@ export function RegisterForm() {
                     type="checkbox"
                     id="agreeToTerms"
                     {...register("agreeToTerms")}
-                    className="mt-1 w-4 h-4 rounded border-slate-300 text-amber-500 focus:ring-amber-500 cursor-pointer"
+                    className="mt-1 w-4 h-4 rounded border-brand-neutral-300 text-brand-accent-500 focus:ring-brand-accent-500 cursor-pointer"
                 />
-                <label htmlFor="agreeToTerms" className="text-slate-500 text-sm font-light leading-relaxed cursor-pointer select-none">
+                <label htmlFor="agreeToTerms" className="text-brand-neutral-500 text-sm font-normal leading-relaxed cursor-pointer select-none">
                     I agree to the foundation rules. Note: Registration requires subsequent admin approval.
                 </label>
             </div>
             {errors.agreeToTerms && <p className="text-red-500 text-xs -mt-1 ml-2 font-medium">{errors.agreeToTerms.message}</p>}
 
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+            <div className="rounded-2xl border border-brand-neutral-200 bg-brand-neutral-50/70 p-4 space-y-3">
                 <div className="flex items-center justify-between gap-3">
                     <div>
-                        <p className="text-xs font-semibold text-slate-500 tracking-widest uppercase">Security Check</p>
-                        <p className="text-sm text-slate-700 mt-1">
+                        <p className="text-xs font-semibold text-brand-neutral-500 tracking-widest uppercase">Security Check</p>
+                        <p className="text-sm text-brand-neutral-700 mt-1">
                             {captchaLoading ? "Loading CAPTCHA..." : captchaPrompt || "Refresh to load CAPTCHA"}
                         </p>
                     </div>
@@ -271,7 +271,7 @@ export function RegisterForm() {
                         {...register("captchaAnswer")}
                         inputMode="numeric"
                         placeholder="Enter your answer"
-                        className="h-12 rounded-2xl bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus-visible:ring-amber-500 shadow-sm transition-all"
+                        className="h-12 rounded-2xl bg-white border-brand-neutral-200 text-brand-neutral-800 placeholder:text-brand-neutral-400 focus-visible:ring-brand-accent-500 shadow-sm transition-all"
                     />
                     {errors.captchaAnswer && <p className="text-red-500 text-xs mt-1.5 ml-2 font-medium">{errors.captchaAnswer.message}</p>}
                     {errors.captchaToken && <p className="text-red-500 text-xs mt-1.5 ml-2 font-medium">{errors.captchaToken.message}</p>}
@@ -282,10 +282,10 @@ export function RegisterForm() {
                 <Button
                     type="submit"
                     disabled={isLoading || captchaLoading || !captchaPrompt}
-                    className="w-full h-14 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-lg font-bold shadow-lg shadow-slate-900/10 transition-all duration-300 hover:scale-[1.02]"
+                    className="w-full h-14 bg-brand-neutral-900 hover:bg-brand-neutral-800 text-white rounded-2xl text-lg font-bold shadow-lg shadow-brand-neutral-900/10 transition-all duration-300 hover:scale-[1.02]"
                 >
                     {isLoading ? (
-                        <><Loader2 className="w-5 h-5 mr-3 animate-spin text-amber-500" /> Processing...</>
+                        <><Loader2 className="w-5 h-5 mr-3 animate-spin text-brand-accent-500" /> Processing...</>
                     ) : (
                         "Submit Application"
                     )}

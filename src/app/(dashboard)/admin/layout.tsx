@@ -11,7 +11,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     }
 
     return (
-        <div className="flex h-screen bg-[#fdfcfa] font-light overflow-hidden">
+        <div className="flex h-screen bg-[#fcf9f4] font-normal overflow-hidden">
             <AdminSidebar role={session.user.role} />
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 <DashboardHeader user={session.user} />

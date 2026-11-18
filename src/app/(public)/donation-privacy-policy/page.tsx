@@ -70,13 +70,13 @@ export default async function DonationPrivacyPolicyPage() {
             ]}
             footerNote={
                 <div className="space-y-2">
-                    <p className="font-serif text-slate-800 text-lg">Contact for Privacy Queries</p>
+                    <p className="font-serif text-brand-neutral-800 text-lg">Contact for Privacy Queries</p>
                     <p>Nirashray Foundation, pratapgharj, Uttar Pradesh</p>
                     <p>
-                        Email: <a className="text-amber-700 hover:text-amber-600 transition-colors" href="mailto:nirashrayfoundation@gmail.com">nirashrayfoundation@gmail.com</a>
+                        Email: <a className="text-brand-accent-700 hover:text-brand-accent-600 transition-colors" href="mailto:nirashrayfoundation@gmail.com">nirashrayfoundation@gmail.com</a>
                     </p>
                     <p>
-                        Phone: <a className="text-amber-700 hover:text-amber-600 transition-colors" href="tel:+919152529033">+91-9152529033</a>
+                        Phone: <a className="text-brand-accent-700 hover:text-brand-accent-600 transition-colors" href="tel:+919152529033">+91-9152529033</a>
                     </p>
                 </div>
             }

@@ -20,7 +20,7 @@ export default async function MemberDashboardLayout({ children }: { children: Re
     if (!member?.isApproved) redirect("/pending-approval");
 
     return (
-        <div className="flex h-screen bg-[#fdfcfa] font-light overflow-hidden">
+        <div className="flex h-screen bg-[#fcf9f4] font-normal overflow-hidden">
             <MemberSidebar />
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 <DashboardHeader user={session.user} />

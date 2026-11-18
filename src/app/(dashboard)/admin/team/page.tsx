@@ -43,8 +43,8 @@ export default function AdminTeamPage() {
         <div className="space-y-6 max-w-7xl mx-auto">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="font-serif text-2xl font-bold text-slate-900">Team Members</h1>
-                    <p className="text-slate-500 text-sm mt-1">Manage team display on the website</p>
+                    <h1 className="font-serif text-2xl font-bold text-brand-neutral-900">Team Members</h1>
+                    <p className="text-brand-neutral-500 text-sm mt-1">Manage team display on the website</p>
                 </div>
                 <Button asChild className="bg-blue-800 hover:bg-blue-900 text-white">
                     <Link href="/admin/team/new">
@@ -57,7 +57,7 @@ export default function AdminTeamPage() {
                 <CardContent className="p-0">
                     <Table>
                         <TableHeader>
-                            <TableRow className="bg-slate-50">
+                            <TableRow className="bg-brand-neutral-50">
                                 <TableHead className="text-xs font-semibold">Photo</TableHead>
                                 <TableHead className="text-xs font-semibold">Name & Role</TableHead>
                                 <TableHead className="text-xs font-semibold">Category</TableHead>
@@ -67,9 +67,9 @@ export default function AdminTeamPage() {
                         </TableHeader>
                         <TableBody>
                             {loading ? (
-                                [...Array(3)].map((_, i) => <TableRow key={i}>{[...Array(5)].map((_, j) => <TableCell key={j}><div className="h-4 bg-slate-100 rounded animate-pulse" /></TableCell>)}</TableRow>)
+                                [...Array(3)].map((_, i) => <TableRow key={i}>{[...Array(5)].map((_, j) => <TableCell key={j}><div className="h-4 bg-brand-neutral-100 rounded animate-pulse" /></TableCell>)}</TableRow>)
                             ) : members.length === 0 ? (
-                                <TableRow><TableCell colSpan={5} className="text-center text-slate-400 py-10">No team members yet</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={5} className="text-center text-brand-neutral-400 py-10">No team members yet</TableCell></TableRow>
                             ) : members.map((m) => (
                                 <TableRow key={m.id}>
                                     <TableCell>
@@ -80,11 +80,11 @@ export default function AdminTeamPage() {
                                         )}
                                     </TableCell>
                                     <TableCell>
-                                        <p className="text-sm font-medium text-slate-800">{m.name}</p>
-                                        <p className="text-xs text-slate-400">{m.role}</p>
+                                        <p className="text-sm font-medium text-brand-neutral-800">{m.name}</p>
+                                        <p className="text-xs text-brand-neutral-400">{m.role}</p>
                                     </TableCell>
-                                    <TableCell className="text-sm text-slate-500">{m.category}</TableCell>
-                                    <TableCell className="text-sm text-slate-400">{m.displayOrder}</TableCell>
+                                    <TableCell className="text-sm text-brand-neutral-500">{m.category}</TableCell>
+                                    <TableCell className="text-sm text-brand-neutral-400">{m.displayOrder}</TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="sm" onClick={() => handleDelete(m.id)} className="text-red-500"><Trash2 className="w-4 h-4" /></Button>
                                     </TableCell>

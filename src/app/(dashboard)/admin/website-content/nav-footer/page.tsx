@@ -56,7 +56,7 @@ export default function CMSNavFooterPage() {
         setLinks(key, links);
     };
 
-    if (loading) return <div className="h-64 bg-slate-100 rounded-2xl animate-pulse" />;
+    if (loading) return <div className="h-64 bg-brand-neutral-100 rounded-2xl animate-pulse" />;
 
     const LinksEditor = ({ title, settingsKey }: { title: string; settingsKey: string }) => {
         const links = getLinks(settingsKey);
@@ -71,7 +71,7 @@ export default function CMSNavFooterPage() {
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                    {links.length === 0 && <p className="text-sm text-slate-400">No links added yet.</p>}
+                    {links.length === 0 && <p className="text-sm text-brand-neutral-400">No links added yet.</p>}
                     {links.map((link, i) => (
                         <div key={i} className="flex items-center gap-2">
                             <Input
@@ -100,8 +100,8 @@ export default function CMSNavFooterPage() {
         <div className="space-y-6 max-w-4xl mx-auto">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="font-serif text-2xl font-bold text-slate-900">Navigation & Footer</h1>
-                    <p className="text-slate-500 text-sm mt-1">Manage navigation links and footer content</p>
+                    <h1 className="font-serif text-2xl font-bold text-brand-neutral-900">Navigation & Footer</h1>
+                    <p className="text-brand-neutral-500 text-sm mt-1">Manage navigation links and footer content</p>
                 </div>
                 <Button onClick={handleSave} disabled={saving} className="bg-blue-800 hover:bg-blue-900 text-white">
                     {saving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</> : <><Save className="w-4 h-4 mr-2" /> Save All</>}

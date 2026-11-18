@@ -68,8 +68,8 @@ export default function AdminAnnouncementsPage() {
         <div className="space-y-6 max-w-7xl mx-auto">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="font-serif text-2xl font-bold text-slate-900">Announcements</h1>
-                    <p className="text-slate-500 text-sm mt-1">Manage site-wide announcements</p>
+                    <h1 className="font-serif text-2xl font-bold text-brand-neutral-900">Announcements</h1>
+                    <p className="text-brand-neutral-500 text-sm mt-1">Manage site-wide announcements</p>
                 </div>
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                     <DialogTrigger asChild>
@@ -109,7 +109,7 @@ export default function AdminAnnouncementsPage() {
                 <CardContent className="p-0">
                     <Table>
                         <TableHeader>
-                            <TableRow className="bg-slate-50">
+                            <TableRow className="bg-brand-neutral-50">
                                 <TableHead className="text-xs font-semibold">Message</TableHead>
                                 <TableHead className="text-xs font-semibold">Type</TableHead>
                                 <TableHead className="text-xs font-semibold">Dates</TableHead>
@@ -118,14 +118,14 @@ export default function AdminAnnouncementsPage() {
                         </TableHeader>
                         <TableBody>
                             {loading ? (
-                                [...Array(2)].map((_, i) => <TableRow key={i}>{[...Array(4)].map((_, j) => <TableCell key={j}><div className="h-4 bg-slate-100 rounded animate-pulse" /></TableCell>)}</TableRow>)
+                                [...Array(2)].map((_, i) => <TableRow key={i}>{[...Array(4)].map((_, j) => <TableCell key={j}><div className="h-4 bg-brand-neutral-100 rounded animate-pulse" /></TableCell>)}</TableRow>)
                             ) : items.length === 0 ? (
-                                <TableRow><TableCell colSpan={4} className="text-center text-slate-400 py-10">No announcements</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={4} className="text-center text-brand-neutral-400 py-10">No announcements</TableCell></TableRow>
                             ) : items.map((a) => (
                                 <TableRow key={a.id}>
-                                    <TableCell className="text-sm text-slate-800">{a.message}</TableCell>
+                                    <TableCell className="text-sm text-brand-neutral-800">{a.message}</TableCell>
                                     <TableCell><Badge className={`text-xs text-white ${ANNOUNCEMENT_COLORS[a.type as keyof typeof ANNOUNCEMENT_COLORS] || "bg-blue-500"}`}>{a.type}</Badge></TableCell>
-                                    <TableCell className="text-xs text-slate-500">{formatDate(new Date(a.startDate))}{a.endDate ? ` — ${formatDate(new Date(a.endDate))}` : ""}</TableCell>
+                                    <TableCell className="text-xs text-brand-neutral-500">{formatDate(new Date(a.startDate))}{a.endDate ? ` — ${formatDate(new Date(a.endDate))}` : ""}</TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="sm" onClick={() => handleDelete(a.id)} className="text-red-500"><Trash2 className="w-4 h-4" /></Button>
                                     </TableCell>

@@ -250,10 +250,10 @@ export function MembersClient() {
     return (
         <div className="space-y-4">
             {/* Filters */}
-            <div className="bg-white rounded-2xl shadow-sm p-4 border border-slate-100">
+            <div className="bg-white rounded-2xl shadow-sm p-4 border border-brand-neutral-100">
                 <div className="flex flex-col sm:flex-row gap-3">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-neutral-400" />
                         <Input
                             placeholder="Search by name, email, or member ID..."
                             className="pl-9"
@@ -286,9 +286,9 @@ export function MembersClient() {
             </div>
 
             {/* Table */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <p className="text-sm text-slate-500">
+            <div className="bg-white rounded-2xl shadow-sm border border-brand-neutral-100 overflow-hidden">
+                <div className="px-5 py-4 border-b border-brand-neutral-100 flex items-center justify-between">
+                    <p className="text-sm text-brand-neutral-500">
                         Showing {members.length} of {total} members
                     </p>
                 </div>
@@ -296,13 +296,13 @@ export function MembersClient() {
                 <div className="overflow-x-auto">
                     <Table>
                         <TableHeader>
-                            <TableRow className="bg-slate-50">
-                                <TableHead className="text-xs font-semibold text-slate-600">Member</TableHead>
-                                <TableHead className="text-xs font-semibold text-slate-600">Member ID</TableHead>
-                                <TableHead className="text-xs font-semibold text-slate-600">Type</TableHead>
-                                <TableHead className="text-xs font-semibold text-slate-600">Status</TableHead>
-                                <TableHead className="text-xs font-semibold text-slate-600">Joined</TableHead>
-                                <TableHead className="text-xs font-semibold text-slate-600 text-right">Actions</TableHead>
+                            <TableRow className="bg-brand-neutral-50">
+                                <TableHead className="text-xs font-semibold text-brand-neutral-600">Member</TableHead>
+                                <TableHead className="text-xs font-semibold text-brand-neutral-600">Member ID</TableHead>
+                                <TableHead className="text-xs font-semibold text-brand-neutral-600">Type</TableHead>
+                                <TableHead className="text-xs font-semibold text-brand-neutral-600">Status</TableHead>
+                                <TableHead className="text-xs font-semibold text-brand-neutral-600">Joined</TableHead>
+                                <TableHead className="text-xs font-semibold text-brand-neutral-600 text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -310,25 +310,25 @@ export function MembersClient() {
                                 [...Array(5)].map((_, i) => (
                                     <TableRow key={i}>
                                         {[...Array(6)].map((_, j) => (
-                                            <TableCell key={j}><div className="h-4 bg-slate-100 rounded animate-pulse" /></TableCell>
+                                            <TableCell key={j}><div className="h-4 bg-brand-neutral-100 rounded animate-pulse" /></TableCell>
                                         ))}
                                     </TableRow>
                                 ))
                             ) : members.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="text-center text-slate-400 py-10">No members found</TableCell>
+                                    <TableCell colSpan={6} className="text-center text-brand-neutral-400 py-10">No members found</TableCell>
                                 </TableRow>
                             ) : (
                                 members.map((member) => (
-                                    <TableRow key={member.id} className="hover:bg-slate-50">
+                                    <TableRow key={member.id} className="hover:bg-brand-neutral-50">
                                         <TableCell>
                                             <div>
-                                                <p className="font-medium text-slate-800 text-sm">{member.user.name}</p>
-                                                <p className="text-xs text-slate-400">{member.user.email}</p>
+                                                <p className="font-medium text-brand-neutral-800 text-sm">{member.user.name}</p>
+                                                <p className="text-xs text-brand-neutral-400">{member.user.email}</p>
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <code className="text-xs bg-slate-100 px-2 py-0.5 rounded">{member.memberId}</code>
+                                            <code className="text-xs bg-brand-neutral-100 px-2 py-0.5 rounded">{member.memberId}</code>
                                         </TableCell>
                                         <TableCell>
                                             <Badge variant="outline" className="text-xs">
@@ -345,7 +345,7 @@ export function MembersClient() {
                                                 {member.isApproved ? "Approved" : "Pending"}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="text-xs text-slate-500">{formatDate(new Date(member.createdAt))}</TableCell>
+                                        <TableCell className="text-xs text-brand-neutral-500">{formatDate(new Date(member.createdAt))}</TableCell>
                                         <TableCell className="text-right">
                                             {(() => {
                                                 const isProtectedAccount = ["SUPER_ADMIN", "ADMIN"].includes(member.user.role || "");
@@ -396,8 +396,8 @@ export function MembersClient() {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                    <div className="flex items-center justify-between px-5 py-4 border-t border-slate-100">
-                        <p className="text-xs text-slate-400">Page {page} of {totalPages}</p>
+                    <div className="flex items-center justify-between px-5 py-4 border-t border-brand-neutral-100">
+                        <p className="text-xs text-brand-neutral-400">Page {page} of {totalPages}</p>
                         <div className="flex gap-2">
                             <Button size="sm" variant="outline" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
                                 Previous
@@ -422,11 +422,11 @@ export function MembersClient() {
                     {isDetailsLoading ? (
                         <div className="space-y-3 py-2">
                             {[...Array(6)].map((_, i) => (
-                                <div key={i} className="h-4 bg-slate-100 rounded animate-pulse" />
+                                <div key={i} className="h-4 bg-brand-neutral-100 rounded animate-pulse" />
                             ))}
                         </div>
                     ) : !selectedMember ? (
-                        <p className="text-sm text-slate-500">No details available.</p>
+                        <p className="text-sm text-brand-neutral-500">No details available.</p>
                     ) : (
                         <div className="space-y-6 text-sm">
                             <div className="flex items-center justify-end gap-2">
@@ -441,10 +441,10 @@ export function MembersClient() {
                             </div>
 
                             <div>
-                                <h4 className="font-semibold text-slate-900 mb-2">Basic Info</h4>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-600">
+                                <h4 className="font-semibold text-brand-neutral-900 mb-2">Basic Info</h4>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-brand-neutral-600">
                                     <p>
-                                        <span className="font-medium text-slate-800">Name:</span>{" "}
+                                        <span className="font-medium text-brand-neutral-800">Name:</span>{" "}
                                         {isEditing ? (
                                             <Input
                                                 value={editForm.name}
@@ -453,9 +453,9 @@ export function MembersClient() {
                                             />
                                         ) : selectedMember.user.name}
                                     </p>
-                                    <p><span className="font-medium text-slate-800">Email:</span> {selectedMember.user.email}</p>
+                                    <p><span className="font-medium text-brand-neutral-800">Email:</span> {selectedMember.user.email}</p>
                                     <p>
-                                        <span className="font-medium text-slate-800">Phone:</span>{" "}
+                                        <span className="font-medium text-brand-neutral-800">Phone:</span>{" "}
                                         {isEditing ? (
                                             <Input
                                                 value={editForm.phone}
@@ -465,7 +465,7 @@ export function MembersClient() {
                                         ) : (selectedMember.user.phone || "-")}
                                     </p>
                                     <p>
-                                        <span className="font-medium text-slate-800">Position:</span>{" "}
+                                        <span className="font-medium text-brand-neutral-800">Position:</span>{" "}
                                         {isEditing ? (
                                             <Input
                                                 value={editForm.position}
@@ -475,11 +475,11 @@ export function MembersClient() {
                                             />
                                         ) : (selectedMember.user.position || "-")}
                                     </p>
-                                    <p><span className="font-medium text-slate-800">Member ID:</span> {selectedMember.memberId}</p>
-                                    <p><span className="font-medium text-slate-800">Status:</span> {selectedMember.isApproved ? "Approved" : "Pending"}</p>
-                                    <p><span className="font-medium text-slate-800">Account:</span> {selectedMember.user.isActive ? "Active" : "Inactive"}</p>
+                                    <p><span className="font-medium text-brand-neutral-800">Member ID:</span> {selectedMember.memberId}</p>
+                                    <p><span className="font-medium text-brand-neutral-800">Status:</span> {selectedMember.isApproved ? "Approved" : "Pending"}</p>
+                                    <p><span className="font-medium text-brand-neutral-800">Account:</span> {selectedMember.user.isActive ? "Active" : "Inactive"}</p>
                                     <p>
-                                        <span className="font-medium text-slate-800">Type:</span>{" "}
+                                        <span className="font-medium text-brand-neutral-800">Type:</span>{" "}
                                         {isEditing ? (
                                             <Select
                                                 value={editForm.membershipType}
@@ -496,32 +496,32 @@ export function MembersClient() {
                                             </Select>
                                         ) : (MEMBERSHIP_LABELS[selectedMember.membershipType as keyof typeof MEMBERSHIP_LABELS] || selectedMember.membershipType)}
                                     </p>
-                                    <p><span className="font-medium text-slate-800">Joined:</span> {formatDate(new Date(selectedMember.joinDate))}</p>
+                                    <p><span className="font-medium text-brand-neutral-800">Joined:</span> {formatDate(new Date(selectedMember.joinDate))}</p>
                                 </div>
                             </div>
 
                             <div>
-                                <h4 className="font-semibold text-slate-900 mb-2">Profile Info</h4>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-600">
+                                <h4 className="font-semibold text-brand-neutral-900 mb-2">Profile Info</h4>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-brand-neutral-600">
                                     <p>
-                                        <span className="font-medium text-slate-800">Father Name:</span>{" "}
+                                        <span className="font-medium text-brand-neutral-800">Father Name:</span>{" "}
                                         {isEditing ? (
                                             <Input value={editForm.fatherName} onChange={(e) => setEditForm((prev) => ({ ...prev, fatherName: e.target.value }))} className="mt-1" />
                                         ) : (selectedMember.fatherName || "-")}
                                     </p>
                                     <p>
-                                        <span className="font-medium text-slate-800">Date of Birth:</span>{" "}
+                                        <span className="font-medium text-brand-neutral-800">Date of Birth:</span>{" "}
                                         {isEditing ? (
                                             <Input type="date" value={editForm.dateOfBirth} onChange={(e) => setEditForm((prev) => ({ ...prev, dateOfBirth: e.target.value }))} className="mt-1" />
                                         ) : (selectedMember.dateOfBirth ? formatDate(new Date(selectedMember.dateOfBirth)) : "-")}
                                     </p>
                                     <p>
-                                        <span className="font-medium text-slate-800">Gender:</span>{" "}
+                                        <span className="font-medium text-brand-neutral-800">Gender:</span>{" "}
                                         {isEditing ? (
                                             <select
                                                 value={editForm.gender}
                                                 onChange={(e) => setEditForm((prev) => ({ ...prev, gender: e.target.value as EditMemberForm["gender"] }))}
-                                                className="mt-1 h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm"
+                                                className="mt-1 h-10 w-full rounded-md border border-brand-neutral-200 bg-white px-3 text-sm"
                                             >
                                                 <option value="">Select gender</option>
                                                 <option value="Male">Male</option>
@@ -531,38 +531,38 @@ export function MembersClient() {
                                         ) : (selectedMember.gender || "-")}
                                     </p>
                                     <p>
-                                        <span className="font-medium text-slate-800">Occupation:</span>{" "}
+                                        <span className="font-medium text-brand-neutral-800">Occupation:</span>{" "}
                                         {isEditing ? (
                                             <Input value={editForm.occupation} onChange={(e) => setEditForm((prev) => ({ ...prev, occupation: e.target.value }))} className="mt-1" />
                                         ) : (selectedMember.occupation || "-")}
                                     </p>
                                     <p>
-                                        <span className="font-medium text-slate-800">Aadhar:</span>{" "}
+                                        <span className="font-medium text-brand-neutral-800">Aadhar:</span>{" "}
                                         {isEditing ? (
                                             <Input value={editForm.aadharNumber} onChange={(e) => setEditForm((prev) => ({ ...prev, aadharNumber: e.target.value }))} className="mt-1" />
                                         ) : (selectedMember.aadharNumber || "-")}
                                     </p>
                                     <p>
-                                        <span className="font-medium text-slate-800">Pincode:</span>{" "}
+                                        <span className="font-medium text-brand-neutral-800">Pincode:</span>{" "}
                                         {isEditing ? (
                                             <Input value={editForm.pincode} onChange={(e) => setEditForm((prev) => ({ ...prev, pincode: e.target.value }))} className="mt-1" />
                                         ) : (selectedMember.pincode || "-")}
                                     </p>
                                     <p>
-                                        <span className="font-medium text-slate-800">City:</span>{" "}
+                                        <span className="font-medium text-brand-neutral-800">City:</span>{" "}
                                         {isEditing ? (
                                             <Input value={editForm.city} onChange={(e) => setEditForm((prev) => ({ ...prev, city: e.target.value }))} className="mt-1" />
                                         ) : (selectedMember.city || "-")}
                                     </p>
                                     <p>
-                                        <span className="font-medium text-slate-800">State:</span>{" "}
+                                        <span className="font-medium text-brand-neutral-800">State:</span>{" "}
                                         {isEditing ? (
                                             <Input value={editForm.state} onChange={(e) => setEditForm((prev) => ({ ...prev, state: e.target.value }))} className="mt-1" />
                                         ) : (selectedMember.state || "-")}
                                     </p>
                                 </div>
-                                <div className="text-slate-600 mt-2">
-                                    <span className="font-medium text-slate-800">Address:</span>{" "}
+                                <div className="text-brand-neutral-600 mt-2">
+                                    <span className="font-medium text-brand-neutral-800">Address:</span>{" "}
                                     {isEditing ? (
                                         <Textarea
                                             value={editForm.address}
@@ -574,11 +574,11 @@ export function MembersClient() {
                             </div>
 
                             <div>
-                                <h4 className="font-semibold text-slate-900 mb-2">Activity Summary</h4>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-slate-600">
-                                    <p><span className="font-medium text-slate-800">Donations:</span> {selectedMember.donations.length}</p>
-                                    <p><span className="font-medium text-slate-800">Certificates:</span> {selectedMember.certificates.length}</p>
-                                    <p><span className="font-medium text-slate-800">ID Cards:</span> {selectedMember.idCards.length}</p>
+                                <h4 className="font-semibold text-brand-neutral-900 mb-2">Activity Summary</h4>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-brand-neutral-600">
+                                    <p><span className="font-medium text-brand-neutral-800">Donations:</span> {selectedMember.donations.length}</p>
+                                    <p><span className="font-medium text-brand-neutral-800">Certificates:</span> {selectedMember.certificates.length}</p>
+                                    <p><span className="font-medium text-brand-neutral-800">ID Cards:</span> {selectedMember.idCards.length}</p>
                                 </div>
                             </div>
                         </div>

@@ -87,8 +87,8 @@ export default function MemberProfilePage() {
     return (
         <div className="space-y-6 max-w-2xl mx-auto">
             <div>
-                <h1 className="font-serif text-2xl font-bold text-slate-900">My Profile</h1>
-                <p className="text-slate-500 text-sm mt-1">Manage your account settings</p>
+                <h1 className="font-serif text-2xl font-bold text-brand-neutral-900">My Profile</h1>
+                <p className="text-brand-neutral-500 text-sm mt-1">Manage your account settings</p>
             </div>
 
             {/* Profile Info */}
@@ -99,16 +99,16 @@ export default function MemberProfilePage() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="flex items-center gap-4 rounded-xl border border-slate-100 bg-slate-50 p-4">
-                        <div className="relative w-16 h-16 rounded-full overflow-hidden border border-slate-200 bg-white shrink-0">
+                    <div className="flex items-center gap-4 rounded-xl border border-brand-neutral-100 bg-brand-neutral-50 p-4">
+                        <div className="relative w-16 h-16 rounded-full overflow-hidden border border-brand-neutral-200 bg-white shrink-0">
                             {profileImage ? (
                                 <Image src={profileImage} alt="Profile" fill className="object-cover" />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs font-semibold">No Photo</div>
+                                <div className="w-full h-full flex items-center justify-center text-brand-neutral-400 text-xs font-semibold">No Photo</div>
                             )}
                         </div>
                         <div className="space-y-2 w-full">
-                            <Label className="text-xs text-slate-500">Profile Photo</Label>
+                            <Label className="text-xs text-brand-neutral-500">Profile Photo</Label>
                             <CloudinaryUploadButton
                                 buttonText={savingPhoto ? "Saving..." : "Upload Profile Photo"}
                                 className="w-full sm:w-auto"
@@ -116,22 +116,22 @@ export default function MemberProfilePage() {
                                 onUploaded={saveProfileImage}
                                 onError={() => toast.error("Failed to upload photo. Please try again.")}
                             />
-                            <p className="text-[11px] text-slate-500">This image is used in your member ID card.</p>
+                            <p className="text-[11px] text-brand-neutral-500">This image is used in your member ID card.</p>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <Label className="text-xs text-slate-400">Name</Label>
-                            <p className="text-sm font-medium text-slate-800">{session?.user?.name || "—"}</p>
+                            <Label className="text-xs text-brand-neutral-400">Name</Label>
+                            <p className="text-sm font-medium text-brand-neutral-800">{session?.user?.name || "—"}</p>
                         </div>
                         <div>
-                            <Label className="text-xs text-slate-400">Email</Label>
-                            <p className="text-sm font-medium text-slate-800">{session?.user?.email || "—"}</p>
+                            <Label className="text-xs text-brand-neutral-400">Email</Label>
+                            <p className="text-sm font-medium text-brand-neutral-800">{session?.user?.email || "—"}</p>
                         </div>
                         <div>
-                            <Label className="text-xs text-slate-400">Role</Label>
-                            <p className="text-sm font-medium text-slate-800 capitalize">{(session?.user as any)?.role?.toLowerCase() || "—"}</p>
+                            <Label className="text-xs text-brand-neutral-400">Role</Label>
+                            <p className="text-sm font-medium text-brand-neutral-800 capitalize">{(session?.user as any)?.role?.toLowerCase() || "—"}</p>
                         </div>
                     </div>
                 </CardContent>

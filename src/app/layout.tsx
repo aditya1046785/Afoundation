@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
+import { homeManrope, homeGaramond } from "@/components/public/home/homeFonts";
 import "./globals.css";
 
 const inter = Inter({
@@ -39,8 +40,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-      <body className="min-h-screen bg-slate-50 font-sans antialiased">
+    <html lang="en" className={`${inter.variable} ${playfair.variable} ${homeManrope.variable} ${homeGaramond.variable}`}>
+      <body className="min-h-screen bg-background font-sans antialiased">
         <AuthProvider>
           {children}
           <ToastProvider />

@@ -24,8 +24,8 @@ import { CloudinaryUploadButton } from "@/components/ui/cloudinary-upload-button
 const RichTextEditor = dynamic(() => import("@/components/dashboard/RichTextEditor"), {
   ssr: false,
   loading: () => (
-    <div className="border border-slate-200 rounded-xl bg-white min-h-[560px] flex items-center justify-center">
-      <div className="flex flex-col items-center gap-3 text-slate-400">
+    <div className="border border-brand-neutral-200 rounded-xl bg-white min-h-[560px] flex items-center justify-center">
+      <div className="flex flex-col items-center gap-3 text-brand-neutral-400">
         <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
         <span className="text-sm">Loading editor…</span>
       </div>
@@ -131,8 +131,8 @@ export default function EditBlogPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-slate-400">
+      <div className="min-h-screen bg-brand-neutral-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-brand-neutral-400">
           <div className="w-10 h-10 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
           <span className="text-sm">Loading post…</span>
         </div>
@@ -141,23 +141,23 @@ export default function EditBlogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-brand-neutral-50">
       {/* ── Top bar ── */}
-      <div className="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
+      <div className="sticky top-0 z-30 bg-white border-b border-brand-neutral-200 shadow-sm">
         <div className="max-w-screen-2xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
             <Button variant="ghost" size="sm" onClick={() => router.push("/admin/blog")}
-              className="text-slate-500 hover:text-slate-800 flex-shrink-0 -ml-1">
+              className="text-brand-neutral-500 hover:text-brand-neutral-800 flex-shrink-0 -ml-1">
               <ArrowLeft className="w-4 h-4 mr-1" /> Back
             </Button>
-            <div className="w-px h-5 bg-slate-200 flex-shrink-0" />
+            <div className="w-px h-5 bg-brand-neutral-200 flex-shrink-0" />
             <div className="flex items-center gap-2 min-w-0">
               <BookOpen className="w-4 h-4 text-blue-600 flex-shrink-0" />
-              <span className="text-sm font-semibold text-slate-800 truncate">{title || "Editing Post"}</span>
+              <span className="text-sm font-semibold text-brand-neutral-800 truncate">{title || "Editing Post"}</span>
             </div>
           </div>
 
-          <div className="hidden md:flex items-center gap-4 text-xs text-slate-400">
+          <div className="hidden md:flex items-center gap-4 text-xs text-brand-neutral-400">
             <span className="flex items-center gap-1"><BarChart3 className="w-3 h-3" />{wordCount} words</span>
             <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{readingTime} min read</span>
             {lastSaved && (
@@ -172,11 +172,11 @@ export default function EditBlogPage() {
               {status === "PUBLISHED" ? <><Globe className="w-3 h-3 mr-1" />Published</> : <><FileText className="w-3 h-3 mr-1" />Draft</>}
             </Badge>
             <Button variant="outline" size="sm" onClick={() => setPreviewMode(p => !p)}
-              className="text-slate-600 border-slate-200 h-8 px-3 text-xs">
+              className="text-brand-neutral-600 border-brand-neutral-200 h-8 px-3 text-xs">
               {previewMode ? <><EyeOff className="w-3.5 h-3.5 mr-1" />Edit</> : <><Eye className="w-3.5 h-3.5 mr-1" />Preview</>}
             </Button>
             <Button size="sm" onClick={handleSubmit(onSubmit)} disabled={saving}
-              className="h-8 px-3 text-xs border-slate-200 bg-white border hover:bg-slate-50 text-slate-700">
+              className="h-8 px-3 text-xs border-brand-neutral-200 bg-white border hover:bg-brand-neutral-50 text-brand-neutral-700">
               {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Save className="w-3.5 h-3.5 mr-1" />Save</>}
             </Button>
             <Button size="sm" onClick={saveAndBack} disabled={saving}
@@ -196,7 +196,7 @@ export default function EditBlogPage() {
               <input
                 {...register("title")}
                 placeholder="Your Blog Post Title…"
-                className="w-full text-3xl font-bold text-slate-900 placeholder:text-slate-300
+                className="w-full text-3xl font-bold text-brand-neutral-900 placeholder:text-brand-neutral-300
                   bg-transparent border-none outline-none resize-none leading-tight font-serif py-2"
                 style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
               />
@@ -207,23 +207,23 @@ export default function EditBlogPage() {
                 {...register("excerpt")}
                 placeholder="Write a short excerpt or summary…"
                 rows={2}
-                className="w-full text-base text-slate-500 placeholder:text-slate-300
+                className="w-full text-base text-brand-neutral-500 placeholder:text-brand-neutral-300
                   bg-transparent border-none outline-none resize-none leading-relaxed
-                  border-b border-dashed border-slate-200 pb-3"
+                  border-b border-dashed border-brand-neutral-200 pb-3"
               />
               {errors.excerpt && <p className="text-red-500 text-xs">{errors.excerpt.message}</p>}
             </div>
 
             {previewMode ? (
-              <div className="border border-slate-200 rounded-xl bg-white px-8 py-6 min-h-[560px]">
-                <div className="mb-6 pb-4 border-b border-slate-100">
-                  <h1 className="text-3xl font-bold text-slate-900 font-serif mb-2">{title || "Untitled Post"}</h1>
-                  {watch("excerpt") && <p className="text-slate-500 text-base italic">{watch("excerpt")}</p>}
+              <div className="border border-brand-neutral-200 rounded-xl bg-white px-8 py-6 min-h-[560px]">
+                <div className="mb-6 pb-4 border-b border-brand-neutral-100">
+                  <h1 className="text-3xl font-bold text-brand-neutral-900 font-serif mb-2">{title || "Untitled Post"}</h1>
+                  {watch("excerpt") && <p className="text-brand-neutral-500 text-base italic">{watch("excerpt")}</p>}
                 </div>
                 {content ? (
                   <div className="editor-prose prose-preview" dangerouslySetInnerHTML={{ __html: content }} />
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-64 text-slate-300">
+                  <div className="flex flex-col items-center justify-center h-64 text-brand-neutral-300">
                     <FileText className="w-12 h-12 mb-3" />
                     <p className="text-sm">Nothing to preview yet</p>
                   </div>
@@ -249,30 +249,30 @@ export default function EditBlogPage() {
 
           {/* Sidebar */}
           <div className="w-full xl:w-80 flex-shrink-0 space-y-4">
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-              <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-                <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+            <div className="bg-white rounded-xl border border-brand-neutral-200 overflow-hidden">
+              <div className="px-4 py-3 border-b border-brand-neutral-100 bg-brand-neutral-50">
+                <h3 className="text-sm font-semibold text-brand-neutral-700 flex items-center gap-2">
                   <Globe className="w-4 h-4 text-blue-600" /> Publish Settings
                 </h3>
               </div>
               <div className="p-4 space-y-4">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</Label>
+                  <Label className="text-xs font-semibold text-brand-neutral-500 uppercase tracking-wide">Status</Label>
                   <Controller name="status" control={control} render={({ field }) => (
                     <Select value={field.value} onValueChange={(v) => field.onChange(v as "DRAFT" | "PUBLISHED" | "ARCHIVED")}>
                       <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="DRAFT"><span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-orange-400" />Draft</span></SelectItem>
                         <SelectItem value="PUBLISHED"><span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-500" />Published</span></SelectItem>
-                        <SelectItem value="ARCHIVED"><span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-slate-400" />Archived</span></SelectItem>
+                        <SelectItem value="ARCHIVED"><span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-brand-neutral-400" />Archived</span></SelectItem>
                       </SelectContent>
                     </Select>
                   )} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">URL Slug</Label>
+                  <Label className="text-xs font-semibold text-brand-neutral-500 uppercase tracking-wide">URL Slug</Label>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs text-slate-400 flex-shrink-0">/blog/</span>
+                    <span className="text-xs text-brand-neutral-400 flex-shrink-0">/blog/</span>
                     <Input {...register("slug")} className="h-8 text-xs flex-1" />
                   </div>
                   {errors.slug && <p className="text-red-500 text-xs">{errors.slug.message}</p>}
@@ -284,22 +284,22 @@ export default function EditBlogPage() {
                     Save Changes
                   </Button>
                   <Button type="button" onClick={saveAndBack} disabled={saving} variant="outline"
-                    className="w-full h-9 text-sm text-slate-600">
+                    className="w-full h-9 text-sm text-brand-neutral-600">
                     Save & Back to List
                   </Button>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-              <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-                <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+            <div className="bg-white rounded-xl border border-brand-neutral-200 overflow-hidden">
+              <div className="px-4 py-3 border-b border-brand-neutral-100 bg-brand-neutral-50">
+                <h3 className="text-sm font-semibold text-brand-neutral-700 flex items-center gap-2">
                   <FolderOpen className="w-4 h-4 text-blue-600" /> Post Details
                 </h3>
               </div>
               <div className="p-4 space-y-4">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Category</Label>
+                  <Label className="text-xs font-semibold text-brand-neutral-500 uppercase tracking-wide">Category</Label>
                   <Controller name="category" control={control} render={({ field }) => (
                     <Select value={field.value || ""} onValueChange={field.onChange}>
                       <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Select category…" /></SelectTrigger>
@@ -309,31 +309,31 @@ export default function EditBlogPage() {
                   <Input {...register("category")} className="h-8 text-sm" placeholder="or custom category" />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide flex items-center gap-1">
+                  <Label className="text-xs font-semibold text-brand-neutral-500 uppercase tracking-wide flex items-center gap-1">
                     <Tag className="w-3 h-3" /> Tags
                   </Label>
                   <Input {...register("tags")} className="h-8 text-sm" placeholder="health, children, rural" />
-                  <p className="text-xs text-slate-400">Separate with commas</p>
+                  <p className="text-xs text-brand-neutral-400">Separate with commas</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-              <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-                <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+            <div className="bg-white rounded-xl border border-brand-neutral-200 overflow-hidden">
+              <div className="px-4 py-3 border-b border-brand-neutral-100 bg-brand-neutral-50">
+                <h3 className="text-sm font-semibold text-brand-neutral-700 flex items-center gap-2">
                   <ImageIcon className="w-4 h-4 text-blue-600" /> Featured Image
                 </h3>
               </div>
               <div className="p-4 space-y-3">
                 {featuredImage ? (
-                  <div className="relative rounded-lg overflow-hidden border border-slate-200">
+                  <div className="relative rounded-lg overflow-hidden border border-brand-neutral-200">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={featuredImage} alt="Featured" className="w-full h-40 object-cover" />
                     <button type="button" onClick={() => setValue("featuredImage", "")}
-                      className="absolute top-2 right-2 bg-white rounded-full w-6 h-6 flex items-center justify-center text-slate-500 hover:text-red-500 shadow border border-slate-200 text-xs">✕</button>
+                      className="absolute top-2 right-2 bg-white rounded-full w-6 h-6 flex items-center justify-center text-brand-neutral-500 hover:text-red-500 shadow border border-brand-neutral-200 text-xs">✕</button>
                   </div>
                 ) : (
-                  <div className="border-2 border-dashed border-slate-200 rounded-lg h-28 flex flex-col items-center justify-center text-slate-400 text-xs gap-1">
+                  <div className="border-2 border-dashed border-brand-neutral-200 rounded-lg h-28 flex flex-col items-center justify-center text-brand-neutral-400 text-xs gap-1">
                     <ImageIcon className="w-6 h-6" /><span>No image set</span>
                   </div>
                 )}

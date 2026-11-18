@@ -129,7 +129,7 @@ export function OnboardingSection() {
             </div>
             <div className="pt-8">
               <Link
-                className="w-full inline-flex items-center justify-center gap-2 py-3 bg-[#ab3600] text-[#ffffff] rounded-[4px] text-sm leading-5 tracking-[0.02em] font-semibold hover:bg-[#ff6e38] transition-all shadow-sm"
+                className="w-full inline-flex items-center justify-center gap-2 py-3 bg-[#ab3600] text-[#ffffff] rounded-[4px] text-sm leading-5 tracking-[0.02em] font-semibold hover:bg-[#983000] transition-all shadow-sm"
                 href="/register"
               >
                 <span>Apply for Seva Volunteer</span>

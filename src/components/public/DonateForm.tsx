@@ -171,7 +171,7 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
             console.log("Donate form submitted", data);
             setIsLoading(true);
             console.log("Loading Razorpay script");
-            
+
             await loadRazorpay();
             console.log("Razorpay script loaded");
 
@@ -185,11 +185,11 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
-            
+
             console.log("Create-order response status", res.status);
             const responseData = await res.json();
             console.log("Create-order response data", responseData);
-            
+
             const { success, data: orderData, error } = responseData;
             if (!success) {
                 throw new Error(error || "Failed to create order");
@@ -211,7 +211,7 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                     email: data.donorEmail,
                     contact: data.donorPhone || "",
                 },
-                theme: { color: "#f59e0b" }, // Amber 500
+                theme: { color: "#ab3600" }, // Terracotta brand accent
                 handler: async (response: RazorpayPaymentResponse) => {
                     console.log("Payment completed, verifying", response);
                     const verifyRes = await fetch("/api/donations/verify", {
@@ -221,7 +221,7 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                     });
                     const verifyData = await verifyRes.json();
                     console.log("Verification result", verifyData);
-                    
+
                     if (verifyData.success) {
                         const receiptNumber = verifyData?.data?.receiptNumber as string | undefined;
                         const paymentId = verifyData?.data?.paymentId as string | undefined;
@@ -269,16 +269,16 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                 initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
                 animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="bg-white/80 backdrop-blur-md rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] p-12 text-center border border-white"
+                className="bg-white/80 backdrop-blur-md rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] p-12 text-center border border-white"
             >
                 <div className="w-24 h-24 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-8 shadow-sm">
                     <CheckCircle className="w-12 h-12 text-emerald-500" />
                 </div>
-                <h2 className="font-serif text-4xl font-bold text-slate-800 mb-4 tracking-tight">Thank You!</h2>
-                <p className="text-slate-500 text-lg mb-10 font-light leading-relaxed max-w-md mx-auto">
+                <h2 className="font-serif text-4xl font-bold text-brand-neutral-800 mb-4 tracking-tight">Thank You!</h2>
+                <p className="text-brand-neutral-500 text-lg mb-10 font-normal leading-relaxed max-w-md mx-auto">
                     Your generous donation has been securely received. An official 80G receipt has been sent directly to your email address.
                 </p>
-                <Button onClick={() => setSuccess(false)} variant="outline" className="rounded-full px-8 py-6 text-base font-medium text-slate-700 border-2 border-slate-200 hover:border-slate-800 hover:bg-transparent transition-all duration-300 shadow-none">
+                <Button onClick={() => setSuccess(false)} variant="outline" className="rounded-full px-8 py-6 text-base font-medium text-brand-neutral-700 border-2 border-brand-neutral-200 hover:border-brand-neutral-800 hover:bg-transparent transition-all duration-300 shadow-none">
                     Make Another Donation
                 </Button>
             </motion.div>
@@ -286,13 +286,13 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
     }
 
     return (
-        <div className="bg-white/80 backdrop-blur-md rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] p-8 md:p-12 border border-white relative overflow-hidden">
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] p-8 md:p-12 border border-white relative overflow-hidden">
             {/* Subtle glow */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-50 rounded-full blur-3xl opacity-50 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-accent-50 rounded-full blur-3xl opacity-50 pointer-events-none" />
 
             <div className="flex items-center justify-between mb-8 relative z-10">
-                <h2 className="font-serif text-3xl md:text-4xl font-bold text-slate-800 tracking-tight">Make a Donation</h2>
-                <span className="text-slate-400 text-sm tracking-widest uppercase font-medium">Secure</span>
+                <h2 className="font-serif text-3xl md:text-4xl font-bold text-brand-neutral-800 tracking-tight">Make a Donation</h2>
+                <span className="text-brand-neutral-400 text-sm tracking-widest uppercase font-medium">Secure</span>
             </div>
 
             <form onSubmit={(event) => {
@@ -307,15 +307,15 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                 )}
 
                 {campaignId && campaignTitle && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
-                        <p className="text-xs font-semibold text-amber-700 uppercase tracking-widest">Crowdfunding Campaign</p>
-                        <p className="text-sm text-amber-900 mt-1">Your donation is linked to: <span className="font-bold">{campaignTitle}</span></p>
+                    <div className="bg-brand-accent-50 border border-brand-accent-200 rounded-2xl p-4">
+                        <p className="text-xs font-semibold text-brand-accent-700 uppercase tracking-widest">Crowdfunding Campaign</p>
+                        <p className="text-sm text-brand-accent-900 mt-1">Your donation is linked to: <span className="font-bold">{campaignTitle}</span></p>
                     </div>
                 )}
 
                 {/* Preset Amounts */}
-                <div className="bg-slate-50/50 p-6 rounded-[1.5rem] border border-slate-100">
-                    <Label className="text-sm font-semibold text-slate-700 mb-4 block tracking-wide">SELECT AMOUNT (₹)</Label>
+                <div className="bg-brand-neutral-50/50 p-6 rounded-[1.5rem] border border-brand-neutral-100">
+                    <Label className="text-sm font-semibold text-brand-neutral-700 mb-4 block tracking-wide">SELECT AMOUNT (₹)</Label>
                     <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-4">
                         {presetAmounts.map((amount) => (
                             <motion.button
@@ -328,8 +328,8 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                                     setValue("amount", amount);
                                 }}
                                 className={`py-4 px-2 rounded-2xl border-2 font-bold text-base transition-all duration-300 shadow-sm ${watchedAmount === amount && selectedAmount === amount
-                                        ? "border-amber-500 bg-amber-50 text-amber-900 shadow-[0_4px_14px_rgba(245,158,11,0.2)]"
-                                        : "border-white bg-white text-slate-600 hover:border-amber-300 hover:text-amber-800"
+                                        ? "border-brand-accent-500 bg-brand-accent-50 text-brand-accent-900 shadow-[0_4px_14px_rgba(171,54,0,0.2)]"
+                                        : "border-white bg-white text-brand-neutral-600 hover:border-brand-accent-300 hover:text-brand-accent-800"
                                     }`}
                             >
                                 ₹{amount.toLocaleString("en-IN")}
@@ -337,12 +337,12 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                         ))}
                     </div>
                     <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">₹</span>
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-neutral-400 font-medium">₹</span>
                         <Input
                             type="number"
                             placeholder="Enter custom amount"
                             min={100}
-                            className="bg-white border-white shadow-sm pl-8 h-14 rounded-2xl text-lg font-medium focus-visible:ring-amber-500"
+                            className="bg-white border-white shadow-sm pl-8 h-14 rounded-2xl text-lg font-medium focus-visible:ring-brand-accent-500"
                             {...register("amount", { valueAsNumber: true })}
                             onChange={(e) => {
                                 setSelectedAmount(null);
@@ -355,13 +355,13 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
 
                 {/* Purpose */}
                 <div className="pl-2">
-                    <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase">Donation Purpose</Label>
+                    <Label className="text-xs font-semibold text-brand-neutral-500 mb-2 block tracking-widest uppercase">Donation Purpose</Label>
                     <Select value={watchedPurpose || undefined} onValueChange={(val) => setValue("purpose", val)}>
-                        <SelectTrigger className="h-14 rounded-xl bg-slate-50/50 border-slate-200 focus:ring-amber-500">
+                        <SelectTrigger className="h-14 rounded-xl bg-brand-neutral-50/50 border-brand-neutral-200 focus:ring-brand-accent-500">
                             <SelectValue placeholder="Select purpose" />
                         </SelectTrigger>
-                        <SelectContent className="rounded-xl border-slate-200 shadow-xl font-medium">
-                            {purposeOptions.map((p) => <SelectItem key={p} value={p} className="focus:bg-amber-50 focus:text-amber-900">{p}</SelectItem>)}
+                        <SelectContent className="rounded-xl border-brand-neutral-200 shadow-xl font-medium">
+                            {purposeOptions.map((p) => <SelectItem key={p} value={p} className="focus:bg-brand-accent-50 focus:text-brand-accent-900">{p}</SelectItem>)}
                         </SelectContent>
                     </Select>
                 </div>
@@ -369,29 +369,29 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                 {/* Donor Info */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6 pl-2 pr-2">
                     <div>
-                        <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase">Full Name *</Label>
-                        <Input {...register("donorName")} placeholder="Your name" className="h-12 rounded-xl bg-slate-50/50 border-slate-200 focus-visible:ring-amber-500" />
+                        <Label className="text-xs font-semibold text-brand-neutral-500 mb-2 block tracking-widest uppercase">Full Name *</Label>
+                        <Input {...register("donorName")} placeholder="Your name" className="h-12 rounded-xl bg-brand-neutral-50/50 border-brand-neutral-200 focus-visible:ring-brand-accent-500" />
                         {errors.donorName && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.donorName.message}</p>}
                     </div>
                     <div>
-                        <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase">Email Address *</Label>
-                        <Input {...register("donorEmail")} type="email" placeholder="your@email.com" className="h-12 rounded-xl bg-slate-50/50 border-slate-200 focus-visible:ring-amber-500" />
+                        <Label className="text-xs font-semibold text-brand-neutral-500 mb-2 block tracking-widest uppercase">Email Address *</Label>
+                        <Input {...register("donorEmail")} type="email" placeholder="your@email.com" className="h-12 rounded-xl bg-brand-neutral-50/50 border-brand-neutral-200 focus-visible:ring-brand-accent-500" />
                         {errors.donorEmail && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.donorEmail.message}</p>}
                     </div>
                     <div>
-                        <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase">Phone Number
-                        <span className="text-slate-400 font-normal ml-1">(Optional)</span>
+                        <Label className="text-xs font-semibold text-brand-neutral-500 mb-2 block tracking-widest uppercase">Phone Number
+                        <span className="text-brand-neutral-400 font-normal ml-1">(Optional)</span>
                         </Label>
-                        <Input {...register("donorPhone")} type="tel" placeholder="10-digit mobile" className="h-12 rounded-xl bg-slate-50/50 border-slate-200 focus-visible:ring-amber-500" />
+                        <Input {...register("donorPhone")} type="tel" placeholder="10-digit mobile" className="h-12 rounded-xl bg-brand-neutral-50/50 border-brand-neutral-200 focus-visible:ring-brand-accent-500" />
                         {errors.donorPhone && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.donorPhone.message}</p>}
                     </div>
                     <div>
-                        <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase">PAN Card (For 80G)</Label>
-                        <Input {...register("donorPAN")} placeholder="ABCDE1234F" className="uppercase h-12 rounded-xl bg-slate-50/50 border-slate-200 focus-visible:ring-amber-500" />
+                        <Label className="text-xs font-semibold text-brand-neutral-500 mb-2 block tracking-widest uppercase">PAN Card (For 80G)</Label>
+                        <Input {...register("donorPAN")} placeholder="ABCDE1234F" className="uppercase h-12 rounded-xl bg-brand-neutral-50/50 border-brand-neutral-200 focus-visible:ring-brand-accent-500" />
                     </div>
                     <div className="sm:col-span-2">
-                        <Label className="text-xs font-semibold text-slate-500 mb-2 block tracking-widest uppercase">Personal Message (Optional)</Label>
-                        <Textarea {...register("message")} placeholder="Add a note to your donation..." rows={3} className="rounded-xl bg-slate-50/50 border-slate-200 focus-visible:ring-amber-500 resize-none" />
+                        <Label className="text-xs font-semibold text-brand-neutral-500 mb-2 block tracking-widest uppercase">Personal Message (Optional)</Label>
+                        <Textarea {...register("message")} placeholder="Add a note to your donation..." rows={3} className="rounded-xl bg-brand-neutral-50/50 border-brand-neutral-200 focus-visible:ring-brand-accent-500 resize-none" />
                     </div>
                 </div>
 
@@ -403,19 +403,19 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                             submitDonation();
                         }}
                         disabled={isLoading}
-                        className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl py-8 text-xl font-bold shadow-xl shadow-slate-900/10 transition-all duration-300 hover:scale-[1.02] group cursor-pointer active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-75 disabled:hover:scale-100"
+                        className="w-full inline-flex items-center justify-center gap-2 bg-brand-neutral-900 hover:bg-brand-neutral-800 text-white rounded-2xl py-8 text-xl font-bold shadow-xl shadow-brand-neutral-900/10 transition-all duration-300 hover:scale-[1.02] group cursor-pointer active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-75 disabled:hover:scale-100"
                     >
                         {isLoading ? (
-                            <><Loader2 className="w-5 h-5 mr-3 animate-spin text-amber-500" /> Securely Processing...</>
+                            <><Loader2 className="w-5 h-5 mr-3 animate-spin text-brand-accent-500" /> Securely Processing...</>
                         ) : (
                             <>
                                 Donate ₹{(watchedAmount || 0).toLocaleString("en-IN")}
-                                <Heart className="w-5 h-5 ml-3 fill-amber-500 text-amber-500 transition-transform group-hover:scale-110" />
+                                <Heart className="w-5 h-5 ml-3 fill-brand-accent-500 text-brand-accent-500 transition-transform group-hover:scale-110" />
                             </>
                         )}
                     </button>
-                    <p className="text-center text-xs font-medium text-slate-400 mt-6 tracking-wide">
-                        100% SECURE PAYMENT POWERED BY RAZORPAY. 
+                    <p className="text-center text-xs font-medium text-brand-neutral-400 mt-6 tracking-wide">
+                        100% SECURE PAYMENT POWERED BY RAZORPAY.
                     </p>
                 </div>
             </form>

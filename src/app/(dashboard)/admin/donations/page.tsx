@@ -33,14 +33,14 @@ export default async function AdminDonationsPage() {
         COMPLETED: "bg-emerald-50 text-emerald-700 border-emerald-200",
         PENDING: "bg-orange-50 text-orange-700 border-orange-200",
         FAILED: "bg-red-50 text-red-700 border-red-200",
-        REFUNDED: "bg-slate-50 text-slate-700 border-slate-200",
+        REFUNDED: "bg-brand-neutral-50 text-brand-neutral-700 border-brand-neutral-200",
     };
 
     return (
         <div className="space-y-6 max-w-7xl mx-auto">
             <div>
-                <h1 className="font-serif text-2xl font-bold text-slate-900">Donations</h1>
-                <p className="text-slate-500 text-sm mt-1">Track and manage all donations</p>
+                <h1 className="font-serif text-2xl font-bold text-brand-neutral-900">Donations</h1>
+                <p className="text-brand-neutral-500 text-sm mt-1">Track and manage all donations</p>
             </div>
 
             {/* Summary */}
@@ -51,8 +51,8 @@ export default async function AdminDonationsPage() {
                             <IndianRupee className="w-6 h-6 text-amber-600" />
                         </div>
                         <div>
-                            <p className="text-2xl font-bold text-slate-900">{formatCurrency(totalAmount)}</p>
-                            <p className="text-xs text-slate-500">Total Collected</p>
+                            <p className="text-2xl font-bold text-brand-neutral-900">{formatCurrency(totalAmount)}</p>
+                            <p className="text-xs text-brand-neutral-500">Total Collected</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -62,8 +62,8 @@ export default async function AdminDonationsPage() {
                             <TrendingUp className="w-6 h-6 text-emerald-700" />
                         </div>
                         <div>
-                            <p className="text-2xl font-bold text-slate-900">{completedCount}</p>
-                            <p className="text-xs text-slate-500">Successful Donations</p>
+                            <p className="text-2xl font-bold text-brand-neutral-900">{completedCount}</p>
+                            <p className="text-xs text-brand-neutral-500">Successful Donations</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -73,8 +73,8 @@ export default async function AdminDonationsPage() {
                             <Heart className="w-6 h-6 text-blue-700" />
                         </div>
                         <div>
-                            <p className="text-2xl font-bold text-slate-900">{donations.length}</p>
-                            <p className="text-xs text-slate-500">Total Records</p>
+                            <p className="text-2xl font-bold text-brand-neutral-900">{donations.length}</p>
+                            <p className="text-xs text-brand-neutral-500">Total Records</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -86,7 +86,7 @@ export default async function AdminDonationsPage() {
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-slate-50">
+                                <TableRow className="bg-brand-neutral-50">
                                     <TableHead className="text-xs font-semibold">Receipt #</TableHead>
                                     <TableHead className="text-xs font-semibold">Donor</TableHead>
                                     <TableHead className="text-xs font-semibold">Amount</TableHead>
@@ -97,20 +97,20 @@ export default async function AdminDonationsPage() {
                             </TableHeader>
                             <TableBody>
                                 {donations.map((d) => (
-                                    <TableRow key={d.id} className="hover:bg-slate-50">
-                                        <TableCell><code className="text-xs bg-slate-100 px-2 py-0.5 rounded">{d.receiptNumber}</code></TableCell>
+                                    <TableRow key={d.id} className="hover:bg-brand-neutral-50">
+                                        <TableCell><code className="text-xs bg-brand-neutral-100 px-2 py-0.5 rounded">{d.receiptNumber}</code></TableCell>
                                         <TableCell>
-                                            <p className="text-sm font-medium text-slate-800">{d.donorName}</p>
-                                            <p className="text-xs text-slate-400">{d.donorEmail}</p>
+                                            <p className="text-sm font-medium text-brand-neutral-800">{d.donorName}</p>
+                                            <p className="text-xs text-brand-neutral-400">{d.donorEmail}</p>
                                         </TableCell>
                                         <TableCell className="font-bold text-sm">{formatCurrency(d.amount)}</TableCell>
-                                        <TableCell className="text-sm text-slate-500">{d.purpose || "General"}</TableCell>
+                                        <TableCell className="text-sm text-brand-neutral-500">{d.purpose || "General"}</TableCell>
                                         <TableCell>
                                             <Badge className={`text-xs border ${statusColors[d.status] || ""}`}>
                                                 {PAYMENT_STATUS_LABELS[d.status as keyof typeof PAYMENT_STATUS_LABELS] || d.status}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="text-xs text-slate-500">{formatDate(d.createdAt)}</TableCell>
+                                        <TableCell className="text-xs text-brand-neutral-500">{formatDate(d.createdAt)}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

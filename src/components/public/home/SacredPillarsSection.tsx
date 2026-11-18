@@ -96,7 +96,7 @@ function DigitalPragyaPillar() {
               </span>
             </div>
             <Link
-              className="px-6 py-3 bg-[#ab3600] text-[#ffffff] rounded-[4px] text-sm leading-5 tracking-[0.02em] font-semibold shadow-sm hover:bg-[#ff6e38] transition-all"
+              className="px-6 py-3 bg-[#ab3600] text-[#ffffff] rounded-[4px] text-sm leading-5 tracking-[0.02em] font-semibold shadow-sm hover:bg-[#983000] transition-all"
               href="/donate?purpose=Kanya%20Tech%20Kit&amount=1500"
             >
               Sponsor a Daughter&apos;s Kit
@@ -347,7 +347,7 @@ function AnnakshetraPillar() {
           </div>
           <div className="pt-4 flex flex-wrap items-center gap-4">
             <Link
-              className="px-6 py-3.5 bg-[#ab3600] text-[#ffffff] rounded-[4px] text-sm leading-5 tracking-[0.02em] font-semibold shadow-sm hover:bg-[#ff6e38] transition-all flex items-center gap-2"
+              className="px-6 py-3.5 bg-[#ab3600] text-[#ffffff] rounded-[4px] text-sm leading-5 tracking-[0.02em] font-semibold shadow-sm hover:bg-[#983000] transition-all flex items-center gap-2"
               href="/donate?purpose=Magh%20Mela%20Bhandara&amount=2500"
             >
               <Soup aria-hidden="true" className="shrink-0 size-[18px]" />

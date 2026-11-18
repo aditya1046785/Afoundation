@@ -321,7 +321,7 @@ export function QuickDonationSection() {
 
               <div className="pt-4">
                 <button
-                  className="w-full py-4 bg-[#ab3600] text-[#ffffff] rounded-[8px] text-sm leading-5 tracking-[0.02em] font-semibold shadow-lg hover:bg-[#ff6e38] transition-all flex items-center justify-center gap-3 transform active:scale-[0.98]"
+                  className="w-full py-4 bg-[#ab3600] text-[#ffffff] rounded-[8px] text-sm leading-5 tracking-[0.02em] font-semibold shadow-lg hover:bg-[#983000] transition-all flex items-center justify-center gap-3 transform active:scale-[0.98]"
                   type="submit"
                 >
                   <LockKeyhole

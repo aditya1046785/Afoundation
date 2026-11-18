@@ -10,8 +10,8 @@ export default async function CMSHomePage() {
     return (
         <div className="space-y-6 max-w-4xl mx-auto">
             <div>
-                <h1 className="font-serif text-2xl font-bold text-slate-900">Home Page Content</h1>
-                <p className="text-slate-500 text-sm mt-1">Edit all homepage sections. Changes are live immediately.</p>
+                <h1 className="font-serif text-2xl font-bold text-brand-neutral-900">Home Page Content</h1>
+                <p className="text-brand-neutral-500 text-sm mt-1">Edit all homepage sections. Changes are live immediately.</p>
             </div>
             <CMSHomeEditor settings={settings} />
         </div>

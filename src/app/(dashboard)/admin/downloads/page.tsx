@@ -65,8 +65,8 @@ export default function AdminDownloadsPage() {
         <div className="space-y-6 max-w-7xl mx-auto">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="font-serif text-2xl font-bold text-slate-900">Downloads</h1>
-                    <p className="text-slate-500 text-sm mt-1">Manage downloadable documents</p>
+                    <h1 className="font-serif text-2xl font-bold text-brand-neutral-900">Downloads</h1>
+                    <p className="text-brand-neutral-500 text-sm mt-1">Manage downloadable documents</p>
                 </div>
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                     <DialogTrigger asChild>
@@ -102,7 +102,7 @@ export default function AdminDownloadsPage() {
                 <CardContent className="p-0">
                     <Table>
                         <TableHeader>
-                            <TableRow className="bg-slate-50">
+                            <TableRow className="bg-brand-neutral-50">
                                 <TableHead className="text-xs font-semibold">Title</TableHead>
                                 <TableHead className="text-xs font-semibold">Category</TableHead>
                                 <TableHead className="text-xs font-semibold">Downloads</TableHead>
@@ -111,17 +111,17 @@ export default function AdminDownloadsPage() {
                         </TableHeader>
                         <TableBody>
                             {loading ? (
-                                [...Array(3)].map((_, i) => <TableRow key={i}>{[...Array(4)].map((_, j) => <TableCell key={j}><div className="h-4 bg-slate-100 rounded animate-pulse" /></TableCell>)}</TableRow>)
+                                [...Array(3)].map((_, i) => <TableRow key={i}>{[...Array(4)].map((_, j) => <TableCell key={j}><div className="h-4 bg-brand-neutral-100 rounded animate-pulse" /></TableCell>)}</TableRow>)
                             ) : docs.length === 0 ? (
-                                <TableRow><TableCell colSpan={4} className="text-center text-slate-400 py-10">No documents</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={4} className="text-center text-brand-neutral-400 py-10">No documents</TableCell></TableRow>
                             ) : docs.map((d) => (
                                 <TableRow key={d.id}>
                                     <TableCell>
-                                        <p className="text-sm font-medium text-slate-800">{d.title}</p>
-                                        {d.fileSize && <p className="text-xs text-slate-400">{d.fileSize}</p>}
+                                        <p className="text-sm font-medium text-brand-neutral-800">{d.title}</p>
+                                        {d.fileSize && <p className="text-xs text-brand-neutral-400">{d.fileSize}</p>}
                                     </TableCell>
                                     <TableCell><Badge variant="outline" className="text-xs">{d.category}</Badge></TableCell>
-                                    <TableCell className="text-sm text-slate-500">{d.downloadCount}</TableCell>
+                                    <TableCell className="text-sm text-brand-neutral-500">{d.downloadCount}</TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="sm" onClick={() => handleDelete(d.id)} className="text-red-500"><Trash2 className="w-4 h-4" /></Button>
                                     </TableCell>

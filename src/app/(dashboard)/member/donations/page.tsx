@@ -33,12 +33,12 @@ export default async function MemberDonationsPage() {
         <div className="space-y-6 max-w-5xl mx-auto">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="font-serif text-2xl font-bold text-slate-900">My Donations</h1>
-                    <p className="text-slate-500 text-sm mt-1">Your complete donation history</p>
+                    <h1 className="font-serif text-2xl font-bold text-brand-neutral-900">My Donations</h1>
+                    <p className="text-brand-neutral-500 text-sm mt-1">Your complete donation history</p>
                 </div>
                 <div className="text-right">
                     <p className="text-2xl font-bold text-emerald-700">{formatCurrency(totalDonated._sum.amount || 0)}</p>
-                    <p className="text-xs text-slate-500">Total Donated</p>
+                    <p className="text-xs text-brand-neutral-500">Total Donated</p>
                 </div>
             </div>
 
@@ -47,7 +47,7 @@ export default async function MemberDonationsPage() {
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-slate-50">
+                                <TableRow className="bg-brand-neutral-50">
                                     <TableHead className="text-xs font-semibold">Receipt #</TableHead>
                                     <TableHead className="text-xs font-semibold">Amount</TableHead>
                                     <TableHead className="text-xs font-semibold">Purpose</TableHead>
@@ -58,20 +58,20 @@ export default async function MemberDonationsPage() {
                             <TableBody>
                                 {donations.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="text-center text-slate-400 py-10">No donations yet. Make your first donation today!</TableCell>
+                                        <TableCell colSpan={5} className="text-center text-brand-neutral-400 py-10">No donations yet. Make your first donation today!</TableCell>
                                     </TableRow>
                                 ) : (
                                     donations.map((d) => (
-                                        <TableRow key={d.id} className="hover:bg-slate-50">
-                                            <TableCell><code className="text-xs bg-slate-100 px-2 py-0.5 rounded">{d.receiptNumber}</code></TableCell>
+                                        <TableRow key={d.id} className="hover:bg-brand-neutral-50">
+                                            <TableCell><code className="text-xs bg-brand-neutral-100 px-2 py-0.5 rounded">{d.receiptNumber}</code></TableCell>
                                             <TableCell className="font-bold text-sm">{formatCurrency(d.amount)}</TableCell>
-                                            <TableCell className="text-sm text-slate-500">{d.purpose || "General Fund"}</TableCell>
+                                            <TableCell className="text-sm text-brand-neutral-500">{d.purpose || "General Fund"}</TableCell>
                                             <TableCell>
                                                 <Badge className={`text-xs border ${d.status === "COMPLETED" ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-orange-50 text-orange-700 border-orange-200"}`}>
                                                     {PAYMENT_STATUS_LABELS[d.status as keyof typeof PAYMENT_STATUS_LABELS] || d.status}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell className="text-xs text-slate-500">{formatDate(d.createdAt)}</TableCell>
+                                            <TableCell className="text-xs text-brand-neutral-500">{formatDate(d.createdAt)}</TableCell>
                                         </TableRow>
                                     ))
                                 )}

@@ -13,10 +13,10 @@ export default function AdminLiveChatPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="font-serif text-2xl font-bold text-slate-900 flex items-center gap-3">
+                    <h1 className="font-serif text-2xl font-bold text-brand-neutral-900 flex items-center gap-3">
                         <MessageSquareDot className="w-6 h-6 text-amber-600" /> Live Chat Console
                     </h1>
-                    <p className="text-slate-500 text-sm mt-1">
+                    <p className="text-brand-neutral-500 text-sm mt-1">
                         Start a session to open live communication with all members. Your chat controls are in the chat window below.
                     </p>
                 </div>

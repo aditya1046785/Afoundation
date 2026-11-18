@@ -57,17 +57,17 @@ export function AboutBrief({ settings, galleryImages }: AboutBriefProps) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.25 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="py-16 md:py-20 bg-[#fffdfa] relative overflow-hidden"
+            className="py-16 md:py-20 bg-[#fcf9f4] relative overflow-hidden"
         >
             {/* Delicate Watercolor Splash in BG */}
-            <div className="absolute -top-[10%] left-[20%] w-125 h-125 bg-amber-100/30 rounded-full mix-blend-multiply filter blur-[90px] pointer-events-none" />
-            
+            <div className="absolute -top-[10%] left-[20%] w-125 h-125 bg-brand-accent-100/30 rounded-full mix-blend-multiply filter blur-[90px] pointer-events-none" />
+
             <div className="container mx-auto px-6 max-w-7xl relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 items-center">
                     {/* Featured Moment Gallery */}
                     <div className="relative w-full">
                         <div className="relative mx-auto w-full max-w-md lg:mx-0 lg:max-w-[560px]">
-                            <div className="absolute -inset-3 rounded-2xl border border-amber-100 bg-white/75 shadow-[0_22px_60px_-30px_rgba(15,23,42,0.45)] sm:-inset-4 sm:rounded-[1.5rem]" />
+                            <div className="absolute -inset-3 rounded-2xl border border-brand-accent-100 bg-white/75 shadow-[0_22px_60px_-30px_rgba(15,23,42,0.45)] sm:-inset-4 sm:rounded-[1.5rem]" />
                             <div
                                 className="absolute -inset-3 rounded-2xl opacity-25 pointer-events-none mix-blend-multiply sm:-inset-4 sm:rounded-[1.5rem]"
                                 style={{
@@ -76,7 +76,7 @@ export function AboutBrief({ settings, galleryImages }: AboutBriefProps) {
                             />
 
                             <div className="relative grid gap-3 lg:grid-cols-[1fr_5.75rem]">
-                                <div className="relative aspect-[4/3] overflow-hidden rounded-[1.25rem] bg-slate-200 shadow-[0_18px_45px_-26px_rgba(15,23,42,0.55)] sm:rounded-[1.5rem] lg:aspect-[5/6]">
+                                <div className="relative aspect-[4/3] overflow-hidden rounded-[1.25rem] bg-brand-neutral-200 shadow-[0_18px_45px_-26px_rgba(15,23,42,0.55)] sm:rounded-[1.5rem] lg:aspect-[5/6]">
                                     <Image
                                         key={mainPhoto}
                                         src={mainPhoto}
@@ -85,7 +85,7 @@ export function AboutBrief({ settings, galleryImages }: AboutBriefProps) {
                                         className="object-cover transition-opacity duration-500"
                                         sizes="(max-width: 640px) 90vw, (max-width: 1024px) 448px, 460px"
                                     />
-                                    <div className="absolute inset-0 bg-linear-to-t from-slate-950/30 via-transparent to-white/5" />
+                                    <div className="absolute inset-0 bg-linear-to-t from-brand-neutral-950/30 via-transparent to-white/5" />
                                     <div className="absolute left-4 top-4 flex gap-1.5">
                                         {showcasedPhotos.map((photo, index) => (
                                             <span
@@ -105,13 +105,13 @@ export function AboutBrief({ settings, galleryImages }: AboutBriefProps) {
                                             type="button"
                                             aria-label={`Show story image ${index + 1}`}
                                             onClick={() => setActivePhotoIndex(index)}
-                                            className={`relative aspect-square overflow-hidden rounded-xl border bg-white p-1 shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 ${
+                                            className={`relative aspect-square overflow-hidden rounded-xl border bg-white p-1 shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent-500 focus-visible:ring-offset-2 ${
                                                 index === visiblePhotoIndex
-                                                    ? "border-amber-400 shadow-[0_12px_30px_-18px_rgba(180,83,9,0.9)]"
-                                                    : "border-slate-200 opacity-75 hover:opacity-100"
+                                                    ? "border-brand-accent-400 shadow-[0_12px_30px_-18px_rgba(180,83,9,0.9)]"
+                                                    : "border-brand-neutral-200 opacity-75 hover:opacity-100"
                                             }`}
                                         >
-                                            <span className="relative block h-full w-full overflow-hidden rounded-lg bg-slate-100">
+                                            <span className="relative block h-full w-full overflow-hidden rounded-lg bg-brand-neutral-100">
                                                 <Image
                                                     src={photo}
                                                     alt=""
@@ -126,21 +126,21 @@ export function AboutBrief({ settings, galleryImages }: AboutBriefProps) {
                             </div>
                         </div>
                     </div>
-                    
+
                     {/* Content Editorial Layout */}
                     <div className="pl-0 lg:pl-6">
                         <div>
-                            <p className="font-serif italic text-amber-600 text-lg md:text-xl tracking-wide mb-3">
+                            <p className="font-serif italic text-brand-accent-600 text-lg md:text-xl tracking-wide mb-3">
                                 {eyebrow}
                             </p>
-                            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 mb-6 leading-[1.08] tracking-tight relative inline-block">
+                            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-brand-neutral-800 mb-6 leading-[1.08] tracking-tight relative inline-block">
                                 {heading}
-                                <svg className="absolute -bottom-1 -left-1 w-[110%] h-3 text-amber-300 stroke-current opacity-80" viewBox="0 0 100 10" preserveAspectRatio="none">
+                                <svg className="absolute -bottom-1 -left-1 w-[110%] h-3 text-brand-accent-300 stroke-current opacity-80" viewBox="0 0 100 10" preserveAspectRatio="none">
                                     <path d="M0,5 Q50,-2 100,5" fill="none" strokeWidth="4" strokeLinecap="round" />
                                 </svg>
                             </h2>
-                            
-                            <p className="text-slate-600 leading-relaxed mb-8 text-base md:text-lg font-light max-w-lg">
+
+                            <p className="text-brand-neutral-600 leading-relaxed mb-8 text-base md:text-lg font-normal max-w-lg">
                                 {text}
                             </p>
                         </div>
@@ -149,19 +149,19 @@ export function AboutBrief({ settings, galleryImages }: AboutBriefProps) {
                         <ul className="space-y-4 mb-10">
                             {highlights.map((item) => (
                                 <li key={item} className="flex items-center gap-4">
-                                    <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center shrink-0 border border-amber-100">
-                                        <CheckCircle2 className="w-4 h-4 text-amber-500" />
+                                    <div className="w-8 h-8 rounded-full bg-brand-accent-50 flex items-center justify-center shrink-0 border border-brand-accent-100">
+                                        <CheckCircle2 className="w-4 h-4 text-brand-accent-500" />
                                     </div>
-                                    <span className="text-slate-600 font-medium tracking-wide text-sm">{item}</span>
+                                    <span className="text-brand-neutral-600 font-medium tracking-wide text-sm">{item}</span>
                                 </li>
                             ))}
                         </ul>
 
                         <div>
                             <Link href={ctaLink}>
-                                <Button variant="ghost" className="rounded-full px-6 py-4 text-base font-medium text-slate-700 border-2 border-slate-200 hover:border-slate-800 hover:bg-transparent transition-all duration-300 group shadow-sm">
+                                <Button variant="ghost" className="rounded-[8px] px-6 py-4 text-base font-medium text-brand-neutral-700 border-2 border-brand-neutral-200 hover:border-brand-neutral-800 hover:bg-transparent transition-all duration-300 group shadow-sm">
                                     {ctaText}
-                                    <ArrowRight className="ml-2 h-4 w-4 text-amber-600 transition-transform group-hover:translate-x-1" />
+                                    <ArrowRight className="ml-2 h-4 w-4 text-brand-accent-600 transition-transform group-hover:translate-x-1" />
                                 </Button>
                             </Link>
                         </div>

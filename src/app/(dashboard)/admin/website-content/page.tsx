@@ -18,8 +18,8 @@ export default function WebsiteContentIndexPage() {
     return (
         <div className="space-y-6 max-w-4xl mx-auto">
             <div>
-                <h1 className="font-serif text-2xl font-bold text-slate-900">Website Content</h1>
-                <p className="text-slate-500 text-sm mt-1">Edit all website pages without touching any code</p>
+                <h1 className="font-serif text-2xl font-bold text-brand-neutral-900">Website Content</h1>
+                <p className="text-brand-neutral-500 text-sm mt-1">Edit all website pages without touching any code</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -34,8 +34,8 @@ export default function WebsiteContentIndexPage() {
                                         <Icon className={`w-6 h-6 ${textColor}`} />
                                     </div>
                                     <div>
-                                        <p className="font-semibold text-slate-800">{page.title}</p>
-                                        <p className="text-xs text-slate-400 mt-0.5">{page.description}</p>
+                                        <p className="font-semibold text-brand-neutral-800">{page.title}</p>
+                                        <p className="text-xs text-brand-neutral-400 mt-0.5">{page.description}</p>
                                     </div>
                                 </CardContent>
                             </Card>

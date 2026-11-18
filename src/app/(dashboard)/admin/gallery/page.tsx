@@ -42,8 +42,8 @@ export default function AdminGalleryPage() {
         <div className="space-y-6 max-w-7xl mx-auto">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="font-serif text-2xl font-bold text-slate-900">Gallery Albums</h1>
-                    <p className="text-slate-500 text-sm mt-1">Manage photo albums</p>
+                    <h1 className="font-serif text-2xl font-bold text-brand-neutral-900">Gallery Albums</h1>
+                    <p className="text-brand-neutral-500 text-sm mt-1">Manage photo albums</p>
                 </div>
                 <Button asChild className="bg-blue-800 hover:bg-blue-900 text-white">
                     <Link href="/admin/gallery/new">
@@ -56,7 +56,7 @@ export default function AdminGalleryPage() {
                 <CardContent className="p-0">
                     <Table>
                         <TableHeader>
-                            <TableRow className="bg-slate-50">
+                            <TableRow className="bg-brand-neutral-50">
                                 <TableHead className="text-xs font-semibold">Cover</TableHead>
                                 <TableHead className="text-xs font-semibold">Album</TableHead>
                                 <TableHead className="text-xs font-semibold">Photos</TableHead>
@@ -65,23 +65,23 @@ export default function AdminGalleryPage() {
                         </TableHeader>
                         <TableBody>
                             {loading ? (
-                                [...Array(3)].map((_, i) => <TableRow key={i}>{[...Array(4)].map((_, j) => <TableCell key={j}><div className="h-4 bg-slate-100 rounded animate-pulse" /></TableCell>)}</TableRow>)
+                                [...Array(3)].map((_, i) => <TableRow key={i}>{[...Array(4)].map((_, j) => <TableCell key={j}><div className="h-4 bg-brand-neutral-100 rounded animate-pulse" /></TableCell>)}</TableRow>)
                             ) : albums.length === 0 ? (
-                                <TableRow><TableCell colSpan={4} className="text-center text-slate-400 py-10">No albums yet</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={4} className="text-center text-brand-neutral-400 py-10">No albums yet</TableCell></TableRow>
                             ) : albums.map((a) => (
                                 <TableRow key={a.id}>
                                     <TableCell>
                                         {a.coverImage ? (
                                             <Image src={a.coverImage} alt={a.title} width={60} height={40} className="w-16 h-10 rounded-lg object-cover" />
                                         ) : (
-                                            <div className="w-16 h-10 rounded-lg bg-slate-100 flex items-center justify-center"><Images className="w-4 h-4 text-slate-300" /></div>
+                                            <div className="w-16 h-10 rounded-lg bg-brand-neutral-100 flex items-center justify-center"><Images className="w-4 h-4 text-brand-neutral-300" /></div>
                                         )}
                                     </TableCell>
                                     <TableCell>
-                                        <p className="text-sm font-medium text-slate-800">{a.title}</p>
-                                        <p className="text-xs text-slate-400">/{a.slug}</p>
+                                        <p className="text-sm font-medium text-brand-neutral-800">{a.title}</p>
+                                        <p className="text-xs text-brand-neutral-400">/{a.slug}</p>
                                     </TableCell>
-                                    <TableCell className="text-sm text-slate-500">{a._count.photos} photos</TableCell>
+                                    <TableCell className="text-sm text-brand-neutral-500">{a._count.photos} photos</TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="sm" onClick={() => handleDelete(a.id)} className="text-red-500"><Trash2 className="w-4 h-4" /></Button>
                                     </TableCell>

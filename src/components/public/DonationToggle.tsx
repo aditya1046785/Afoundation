@@ -10,7 +10,7 @@ interface DonationToggleProps {
 export function DonationToggle({ isDonationType, setIsDonationType }: DonationToggleProps) {
     return (
         <div className="flex justify-center mb-12">
-            <div className="relative bg-gradient-to-r from-amber-50 to-transparent rounded-full p-1.5 shadow-md border border-amber-200/50 backdrop-blur-sm inline-block">
+            <div className="relative bg-gradient-to-r from-brand-accent-50 to-transparent rounded-full p-1.5 shadow-md border border-brand-accent-200/50 backdrop-blur-sm inline-block">
                 {/* Animated background */}
                 <motion.div
                     layout
@@ -26,8 +26,8 @@ export function DonationToggle({ isDonationType, setIsDonationType }: DonationTo
                         onClick={() => setIsDonationType("one-time")}
                         className={`relative px-8 py-3 rounded-full font-medium transition-colors duration-200 whitespace-nowrap ${
                             isDonationType === "one-time"
-                                ? "text-amber-900"
-                                : "text-slate-600 hover:text-slate-800"
+                                ? "text-brand-accent-900"
+                                : "text-brand-neutral-600 hover:text-brand-neutral-800"
                         }`}
                     >
                         <motion.span
@@ -55,8 +55,8 @@ export function DonationToggle({ isDonationType, setIsDonationType }: DonationTo
                         onClick={() => setIsDonationType("autopay")}
                         className={`relative px-8 py-3 rounded-full font-medium transition-colors duration-200 whitespace-nowrap ${
                             isDonationType === "autopay"
-                                ? "text-amber-900"
-                                : "text-slate-600 hover:text-slate-800"
+                                ? "text-brand-accent-900"
+                                : "text-brand-neutral-600 hover:text-brand-neutral-800"
                         }`}
                     >
                         <motion.span

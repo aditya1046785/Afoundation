@@ -94,7 +94,7 @@ export default function NewEventPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#fdfcfa] relative overflow-hidden">
+    <div className="min-h-screen bg-[#fcf9f4] relative overflow-hidden">
       {/* Editorial Canvas Texture */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }} />
       <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-[800px] h-[800px] bg-amber-400/10 rounded-full blur-3xl pointer-events-none z-0" />
@@ -112,7 +112,7 @@ export default function NewEventPage() {
             <div className="w-px h-6 bg-amber-900/10 flex-shrink-0" />
             <div className="flex items-center gap-2.5 min-w-0">
               <Calendar className="w-4 h-4 text-amber-600 flex-shrink-0" strokeWidth={2} />
-              <span className="text-[15px] font-bold text-slate-800 tracking-tight truncate font-serif">
+              <span className="text-[15px] font-bold text-brand-neutral-800 tracking-tight truncate font-serif">
                 {title || "Crafting New Event"}
               </span>
             </div>
@@ -126,7 +126,7 @@ export default function NewEventPage() {
             </Badge>
 
             <Button variant="outline" size="sm" onClick={saveDraft} disabled={saving}
-              className="h-9 px-4 text-xs border-amber-900/20 text-slate-600 hover:text-amber-900 hover:bg-amber-50 rounded-xl transition-all font-semibold">
+              className="h-9 px-4 text-xs border-amber-900/20 text-brand-neutral-600 hover:text-amber-900 hover:bg-amber-50 rounded-xl transition-all font-semibold">
               {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Save className="w-3.5 h-3.5 mr-1.5" />Save Draft</>}
             </Button>
 
@@ -151,7 +151,7 @@ export default function NewEventPage() {
               <input
                 {...register("title")}
                 placeholder="Give this event a compelling title..."
-                className="w-full text-4xl md:text-5xl font-bold text-slate-900 placeholder:text-slate-300
+                className="w-full text-4xl md:text-5xl font-bold text-brand-neutral-900 placeholder:text-brand-neutral-300
                   bg-transparent border-none outline-none resize-none leading-tight tracking-tight
                   font-serif py-2 transition-all focus:placeholder:opacity-50"
               />
@@ -183,46 +183,46 @@ export default function NewEventPage() {
           <div className="w-full xl:w-[380px] flex-shrink-0 space-y-6">
 
             {/* Event Logistics */}
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white shadow-xl shadow-slate-200/40 p-6 relative overflow-hidden group hover:shadow-2xl hover:shadow-amber-900/10 transition-shadow duration-500">
+            <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white shadow-xl shadow-brand-neutral-200/40 p-6 relative overflow-hidden group hover:shadow-2xl hover:shadow-amber-900/10 transition-shadow duration-500">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-300 to-amber-500 opacity-80" />
-              <h3 className="font-serif text-lg font-bold text-slate-800 flex items-center gap-2 mb-6">
+              <h3 className="font-serif text-lg font-bold text-brand-neutral-800 flex items-center gap-2 mb-6">
                 <Calendar className="w-5 h-5 text-amber-600" /> Event Logistics
               </h3>
-              
+
               <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><Calendar className="w-3 h-3" /> Date *</Label>
-                    <Input {...register("date")} type="date" className="h-10 text-sm bg-slate-50 border-slate-200 rounded-xl focus:ring-amber-200 focus:border-amber-400" />
+                    <Label className="text-[10px] font-bold text-brand-neutral-400 uppercase tracking-widest flex items-center gap-1.5"><Calendar className="w-3 h-3" /> Date *</Label>
+                    <Input {...register("date")} type="date" className="h-10 text-sm bg-brand-neutral-50 border-brand-neutral-200 rounded-xl focus:ring-amber-200 focus:border-amber-400" />
                     {errors.date && <p className="text-red-500 text-[10px] uppercase font-bold tracking-wider">{errors.date.message}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><Clock className="w-3 h-3" /> Time *</Label>
-                    <Input {...register("time")} placeholder="10:00 AM" className="h-10 text-sm bg-slate-50 border-slate-200 rounded-xl focus:ring-amber-200 focus:border-amber-400" />
+                    <Label className="text-[10px] font-bold text-brand-neutral-400 uppercase tracking-widest flex items-center gap-1.5"><Clock className="w-3 h-3" /> Time *</Label>
+                    <Input {...register("time")} placeholder="10:00 AM" className="h-10 text-sm bg-brand-neutral-50 border-brand-neutral-200 rounded-xl focus:ring-amber-200 focus:border-amber-400" />
                     {errors.time && <p className="text-red-500 text-[10px] uppercase font-bold tracking-wider">{errors.time.message}</p>}
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><MapPin className="w-3 h-3" /> Venue *</Label>
-                  <Input {...register("venue")} placeholder="Exact location or platform" className="h-10 text-sm bg-slate-50 border-slate-200 rounded-xl focus:ring-amber-200 focus:border-amber-400" />
+                  <Label className="text-[10px] font-bold text-brand-neutral-400 uppercase tracking-widest flex items-center gap-1.5"><MapPin className="w-3 h-3" /> Venue *</Label>
+                  <Input {...register("venue")} placeholder="Exact location or platform" className="h-10 text-sm bg-brand-neutral-50 border-brand-neutral-200 rounded-xl focus:ring-amber-200 focus:border-amber-400" />
                   {errors.venue && <p className="text-red-500 text-[10px] uppercase font-bold tracking-wider">{errors.venue.message}</p>}
                 </div>
               </div>
             </div>
 
             {/* Media & URL */}
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white shadow-xl shadow-slate-200/40 p-6 relative overflow-hidden group hover:shadow-2xl hover:shadow-amber-900/10 transition-shadow duration-500">
-              <h3 className="font-serif text-lg font-bold text-slate-800 flex items-center gap-2 mb-6">
+            <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white shadow-xl shadow-brand-neutral-200/40 p-6 relative overflow-hidden group hover:shadow-2xl hover:shadow-amber-900/10 transition-shadow duration-500">
+              <h3 className="font-serif text-lg font-bold text-brand-neutral-800 flex items-center gap-2 mb-6">
                 <ImageIconLine className="w-5 h-5 text-amber-600" /> Identity & Media
               </h3>
-              
+
               <div className="space-y-6">
                 {/* Image */}
                 <div className="space-y-3">
-                  <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cover Image</Label>
+                  <Label className="text-[10px] font-bold text-brand-neutral-400 uppercase tracking-widest">Cover Image</Label>
                   {image ? (
-                    <div className="relative rounded-xl overflow-hidden border-4 border-white shadow-lg bg-slate-100 group/image">
+                    <div className="relative rounded-xl overflow-hidden border-4 border-white shadow-lg bg-brand-neutral-100 group/image">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={image} alt="Featured" className="w-full h-40 object-cover group-hover/image:scale-105 transition-transform duration-700" />
                       <button
@@ -239,7 +239,7 @@ export default function NewEventPage() {
                       <span className="text-[10px] uppercase tracking-widest font-bold">No Cover Set</span>
                     </div>
                   )}
-                  <Input {...register("image")} className="h-10 text-sm bg-slate-50 border-slate-200 rounded-xl focus:ring-amber-200 focus:border-amber-400" placeholder="Paste image URL here..." />
+                  <Input {...register("image")} className="h-10 text-sm bg-brand-neutral-50 border-brand-neutral-200 rounded-xl focus:ring-amber-200 focus:border-amber-400" placeholder="Paste image URL here..." />
                   <CloudinaryUploadButton
                     buttonText="Upload Cover Image"
                     className="w-full"
@@ -255,11 +255,11 @@ export default function NewEventPage() {
                 </div>
 
                 {/* Slug */}
-                <div className="space-y-2 pt-2 border-t border-slate-100">
-                  <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><Search className="w-3 h-3" /> Custom URL</Label>
-                  <div className="flex bg-slate-50 border border-slate-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-amber-200 focus-within:border-amber-400 transition-all">
-                    <span className="flex items-center px-3 text-[11px] text-slate-400 bg-slate-100 border-r border-slate-200 font-mono">/events/</span>
-                    <input {...register("slug")} className="h-10 text-sm flex-1 bg-transparent px-3 outline-none text-slate-700 placeholder:text-slate-300 font-medium" placeholder="custom-url-slug" />
+                <div className="space-y-2 pt-2 border-t border-brand-neutral-100">
+                  <Label className="text-[10px] font-bold text-brand-neutral-400 uppercase tracking-widest flex items-center gap-1.5"><Search className="w-3 h-3" /> Custom URL</Label>
+                  <div className="flex bg-brand-neutral-50 border border-brand-neutral-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-amber-200 focus-within:border-amber-400 transition-all">
+                    <span className="flex items-center px-3 text-[11px] text-brand-neutral-400 bg-brand-neutral-100 border-r border-brand-neutral-200 font-mono">/events/</span>
+                    <input {...register("slug")} className="h-10 text-sm flex-1 bg-transparent px-3 outline-none text-brand-neutral-700 placeholder:text-brand-neutral-300 font-medium" placeholder="custom-url-slug" />
                   </div>
                   {errors.slug && <p className="text-red-500 text-[10px] uppercase font-bold tracking-wider pt-1">{errors.slug.message}</p>}
                 </div>

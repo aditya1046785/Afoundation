@@ -73,16 +73,16 @@ export function AdminSidebar({ role }: Props) {
     const filteredLinks = links.filter((l) => !l.roles || l.roles.includes(role));
 
     const sidebarContent = (
-        <div className="flex flex-col h-full bg-[#0b1121]">
+        <div className="flex flex-col h-full bg-[#023727]">
             {/* Logo */}
-            <div className={cn("p-6 border-b border-slate-800/60 flex items-center gap-4", collapsed && "justify-center px-4")}>
-                <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
-                    <HeartIcon className="w-5 h-5 text-amber-500 fill-amber-500/20" strokeWidth={1.5} />
+            <div className={cn("p-6 border-b border-brand-neutral-800/60 flex items-center gap-4", collapsed && "justify-center px-4")}>
+                <div className="w-10 h-10 rounded-full bg-brand-neutral-800 border border-brand-neutral-700 flex items-center justify-center shrink-0">
+                    <HeartIcon className="w-5 h-5 text-brand-accent-200 fill-brand-accent-500/20" strokeWidth={1.5} />
                 </div>
                 {!collapsed && (
                     <div className="min-w-0">
                         <p className="text-white font-serif font-bold text-lg leading-tight tracking-wide truncate">Nirashray</p>
-                        <p className="text-amber-500/80 text-[10px] uppercase tracking-widest font-semibold mt-0.5">Workspace</p>
+                        <p className="text-brand-accent-200/80 text-[10px] uppercase tracking-widest font-semibold mt-0.5">Workspace</p>
                     </div>
                 )}
             </div>
@@ -101,7 +101,7 @@ export function AdminSidebar({ role }: Props) {
                                     onClick={() => toggleExpand(link.label)}
                                     className={cn(
                                         "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
-                                        isActive ? "bg-amber-500/10 text-amber-400" : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-100"
+                                        isActive ? "bg-brand-neutral-800 text-brand-accent-400" : "text-brand-neutral-300 hover:bg-brand-neutral-800/50 hover:text-brand-neutral-100"
                                     )}
                                 >
                                     <Icon className="w-4 h-4 shrink-0" strokeWidth={2} />
@@ -118,7 +118,7 @@ export function AdminSidebar({ role }: Props) {
                                             initial={{ height: 0, opacity: 0 }}
                                             animate={{ height: "auto", opacity: 1 }}
                                             exit={{ height: 0, opacity: 0 }}
-                                            className="ml-5 mt-1 pl-4 border-l border-slate-800/60 space-y-1 overflow-hidden"
+                                            className="ml-5 mt-1 pl-4 border-l border-brand-neutral-800/60 space-y-1 overflow-hidden"
                                         >
                                             {link.children.map((child) => (
                                                 <Link
@@ -128,8 +128,8 @@ export function AdminSidebar({ role }: Props) {
                                                     className={cn(
                                                         "block px-3 py-2 rounded-lg text-[13px] transition-all duration-200",
                                                         pathname === child.href
-                                                            ? "bg-amber-500/10 text-amber-400 font-semibold"
-                                                            : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
+                                                            ? "bg-brand-neutral-800 text-brand-accent-400 font-semibold"
+                                                            : "text-brand-neutral-300 hover:text-brand-neutral-200 hover:bg-brand-neutral-800/40"
                                                     )}
                                                 >
                                                     {child.label}
@@ -151,12 +151,12 @@ export function AdminSidebar({ role }: Props) {
                                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 mb-1",
                                 collapsed && "justify-center",
                                 isActive
-                                    ? "bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.05)]"
-                                    : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-100 border border-transparent"
+                                    ? "bg-brand-neutral-800 text-brand-accent-400 border border-brand-neutral-700 shadow-[0_0_15px_rgba(171,54,0,0.05)]"
+                                    : "text-brand-neutral-300 hover:bg-brand-neutral-800/50 hover:text-brand-neutral-100 border border-transparent"
                             )}
                             title={collapsed ? link.label : undefined}
                         >
-                            <Icon className={cn("w-4 h-4 shrink-0", isActive && "text-amber-500")} strokeWidth={2} />
+                            <Icon className={cn("w-4 h-4 shrink-0", isActive && "text-brand-accent-200")} strokeWidth={2} />
                             {!collapsed && <span>{link.label}</span>}
                         </Link>
                     );
@@ -164,10 +164,10 @@ export function AdminSidebar({ role }: Props) {
             </nav>
 
             {/* Collapse toggle (desktop) */}
-            <div className="p-4 border-t border-slate-800/60 bg-[#0b1121]">
+            <div className="p-4 border-t border-brand-neutral-800/60 bg-[#023727]">
                 <button
                     onClick={() => setCollapsed(!collapsed)}
-                    className="w-full flex items-center justify-center gap-3 text-slate-400 hover:text-white text-xs py-2.5 px-3 rounded-xl hover:bg-slate-800/60 transition-all border border-transparent hover:border-slate-700/50"
+                    className="w-full flex items-center justify-center gap-3 text-brand-neutral-300 hover:text-white text-xs py-2.5 px-3 rounded-xl hover:bg-brand-neutral-800/60 transition-all border border-transparent hover:border-brand-neutral-700/50"
                 >
                     <Menu className="w-4 h-4" />
                     {!collapsed && <span className="font-medium tracking-wide uppercase text-[10px]">Collapse</span>}
@@ -182,11 +182,11 @@ export function AdminSidebar({ role }: Props) {
             <div className="md:hidden">
                 <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                     <SheetTrigger asChild>
-                        <button className="absolute top-[18px] left-4 z-50 p-2 bg-amber-500/10 text-amber-600 rounded-xl hover:bg-amber-500/20 transition-colors border border-amber-500/20">
+                        <button className="absolute top-[18px] left-4 z-50 p-2 bg-brand-neutral-800 text-brand-accent-600 rounded-xl hover:bg-brand-neutral-700 transition-colors border border-brand-neutral-700">
                             <Menu className="w-5 h-5" />
                         </button>
                     </SheetTrigger>
-                    <SheetContent side="left" className="p-0 border-r border-slate-800/60 bg-[#0b1121] w-[280px]">
+                    <SheetContent side="left" className="p-0 border-r border-brand-neutral-800/60 bg-[#023727] w-[280px]">
                         {sidebarContent}
                     </SheetContent>
                 </Sheet>
@@ -196,7 +196,7 @@ export function AdminSidebar({ role }: Props) {
             <motion.aside
                 animate={{ width: collapsed ? 80 : 260 }}
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="hidden md:flex flex-col bg-[#0b1121] h-full shrink-0 overflow-hidden border-r border-slate-800/60 relative z-30"
+                className="hidden md:flex flex-col bg-[#023727] h-full shrink-0 overflow-hidden border-r border-brand-neutral-800/60 relative z-30"
             >
                 {sidebarContent}
             </motion.aside>

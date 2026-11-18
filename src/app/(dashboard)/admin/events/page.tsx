@@ -75,8 +75,8 @@ export default function AdminEventsPage() {
         <div className="space-y-6 max-w-7xl mx-auto">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="font-serif text-2xl font-bold text-slate-900">Events</h1>
-                    <p className="text-slate-500 text-sm mt-1">Manage upcoming and past events</p>
+                    <h1 className="font-serif text-2xl font-bold text-brand-neutral-900">Events</h1>
+                    <p className="text-brand-neutral-500 text-sm mt-1">Manage upcoming and past events</p>
                 </div>
                 <Button asChild className="bg-blue-800 hover:bg-blue-900 text-white">
                     <Link href="/admin/events/new">
@@ -90,7 +90,7 @@ export default function AdminEventsPage() {
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-slate-50">
+                                <TableRow className="bg-brand-neutral-50">
                                     <TableHead className="text-xs font-semibold">Event</TableHead>
                                     <TableHead className="text-xs font-semibold">Date & Venue</TableHead>
                                     <TableHead className="text-xs font-semibold">Status</TableHead>
@@ -100,23 +100,23 @@ export default function AdminEventsPage() {
                             <TableBody>
                                 {loading ? (
                                     [...Array(3)].map((_, i) => (
-                                        <TableRow key={i}>{[...Array(4)].map((_, j) => (<TableCell key={j}><div className="h-4 bg-slate-100 rounded animate-pulse" /></TableCell>))}</TableRow>
+                                        <TableRow key={i}>{[...Array(4)].map((_, j) => (<TableCell key={j}><div className="h-4 bg-brand-neutral-100 rounded animate-pulse" /></TableCell>))}</TableRow>
                                     ))
                                 ) : events.length === 0 ? (
-                                    <TableRow><TableCell colSpan={4} className="text-center text-slate-400 py-10">No events yet</TableCell></TableRow>
+                                    <TableRow><TableCell colSpan={4} className="text-center text-brand-neutral-400 py-10">No events yet</TableCell></TableRow>
                                 ) : (
                                     events.map((event) => (
-                                        <TableRow key={event.id} className="hover:bg-slate-50">
+                                        <TableRow key={event.id} className="hover:bg-brand-neutral-50">
                                             <TableCell>
-                                                <p className="text-sm font-medium text-slate-800">{event.title}</p>
-                                                <div className="text-xs text-slate-400 line-clamp-1 prose-sm prose-slate prose-p:my-0 prose-headings:my-0" dangerouslySetInnerHTML={{ __html: event.description }} />
+                                                <p className="text-sm font-medium text-brand-neutral-800">{event.title}</p>
+                                                <div className="text-xs text-brand-neutral-400 line-clamp-1 prose-sm prose-slate prose-p:my-0 prose-headings:my-0" dangerouslySetInnerHTML={{ __html: event.description }} />
                                             </TableCell>
                                             <TableCell>
-                                                <p className="text-sm text-slate-600">{formatDate(new Date(event.date))}</p>
-                                                <p className="text-xs text-slate-400">{event.time} · {event.venue}</p>
+                                                <p className="text-sm text-brand-neutral-600">{formatDate(new Date(event.date))}</p>
+                                                <p className="text-xs text-brand-neutral-400">{event.time} · {event.venue}</p>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge className={`text-xs border ${new Date(event.date) > new Date() ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-slate-50 text-slate-500 border-slate-200"}`}>
+                                                <Badge className={`text-xs border ${new Date(event.date) > new Date() ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-brand-neutral-50 text-brand-neutral-500 border-brand-neutral-200"}`}>
                                                     {new Date(event.date) > new Date() ? "Upcoming" : "Past"}
                                                 </Badge>
                                             </TableCell>

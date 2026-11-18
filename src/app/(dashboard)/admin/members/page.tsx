@@ -8,8 +8,8 @@ export default function MembersPage() {
     return (
         <div className="space-y-6 max-w-7xl mx-auto">
             <div>
-                <h1 className="font-serif text-2xl font-bold text-slate-900">Members</h1>
-                <p className="text-slate-500 text-sm mt-1">Manage member registrations and approvals</p>
+                <h1 className="font-serif text-2xl font-bold text-brand-neutral-900">Members</h1>
+                <p className="text-brand-neutral-500 text-sm mt-1">Manage member registrations and approvals</p>
             </div>
             <MembersClient />
         </div>

@@ -24,8 +24,8 @@ export default async function AdminMessagesPage() {
     return (
         <div className="space-y-6 max-w-7xl mx-auto">
             <div>
-                <h1 className="font-serif text-2xl font-bold text-slate-900">Contact Messages</h1>
-                <p className="text-slate-500 text-sm mt-1">Messages from the website contact form</p>
+                <h1 className="font-serif text-2xl font-bold text-brand-neutral-900">Contact Messages</h1>
+                <p className="text-brand-neutral-500 text-sm mt-1">Messages from the website contact form</p>
             </div>
 
             <Card className="border-0 shadow-sm">
@@ -33,7 +33,7 @@ export default async function AdminMessagesPage() {
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-slate-50">
+                                <TableRow className="bg-brand-neutral-50">
                                     <TableHead className="text-xs font-semibold">Sender</TableHead>
                                     <TableHead className="text-xs font-semibold">Subject</TableHead>
                                     <TableHead className="text-xs font-semibold">Message</TableHead>
@@ -44,24 +44,24 @@ export default async function AdminMessagesPage() {
                             <TableBody>
                                 {messages.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="text-center text-slate-400 py-10">No messages yet</TableCell>
+                                        <TableCell colSpan={5} className="text-center text-brand-neutral-400 py-10">No messages yet</TableCell>
                                     </TableRow>
                                 ) : (
                                     messages.map((msg) => (
-                                        <TableRow key={msg.id} className={`hover:bg-slate-50 ${!msg.isRead ? "bg-blue-50/50" : ""}`}>
+                                        <TableRow key={msg.id} className={`hover:bg-brand-neutral-50 ${!msg.isRead ? "bg-blue-50/50" : ""}`}>
                                             <TableCell>
-                                                <p className="text-sm font-medium text-slate-800">{msg.name}</p>
-                                                <p className="text-xs text-slate-400">{msg.email}</p>
-                                                {msg.phone && <p className="text-xs text-slate-400">{msg.phone}</p>}
+                                                <p className="text-sm font-medium text-brand-neutral-800">{msg.name}</p>
+                                                <p className="text-xs text-brand-neutral-400">{msg.email}</p>
+                                                {msg.phone && <p className="text-xs text-brand-neutral-400">{msg.phone}</p>}
                                             </TableCell>
-                                            <TableCell className="text-sm font-medium text-slate-700">{msg.subject}</TableCell>
-                                            <TableCell className="text-sm text-slate-500 max-w-xs truncate">{msg.message}</TableCell>
+                                            <TableCell className="text-sm font-medium text-brand-neutral-700">{msg.subject}</TableCell>
+                                            <TableCell className="text-sm text-brand-neutral-500 max-w-xs truncate">{msg.message}</TableCell>
                                             <TableCell>
-                                                <Badge className={`text-xs border ${msg.isRead ? "bg-slate-50 text-slate-500 border-slate-200" : "bg-blue-50 text-blue-700 border-blue-200"}`}>
+                                                <Badge className={`text-xs border ${msg.isRead ? "bg-brand-neutral-50 text-brand-neutral-500 border-brand-neutral-200" : "bg-blue-50 text-blue-700 border-blue-200"}`}>
                                                     {msg.isRead ? "Read" : "New"}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell className="text-xs text-slate-500">{formatDate(msg.createdAt)}</TableCell>
+                                            <TableCell className="text-xs text-brand-neutral-500">{formatDate(msg.createdAt)}</TableCell>
                                         </TableRow>
                                     ))
                                 )}

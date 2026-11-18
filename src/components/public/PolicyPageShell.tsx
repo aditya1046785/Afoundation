@@ -23,33 +23,33 @@ interface PolicyPageShellProps {
 function getAccentClasses(accent: PolicyPageShellProps["accent"]) {
     if (accent === "blue") {
         return {
-            splash: "bg-blue-100/40",
-            icon: "text-blue-600",
-            iconBg: "bg-blue-50 border-blue-100",
-            border: "border-blue-200/40",
-            titleLine: "text-blue-300",
-            tag: "text-blue-700 bg-blue-50 border-blue-100",
+            splash: "bg-brand-neutral-100/40",
+            icon: "text-brand-neutral-600",
+            iconBg: "bg-brand-neutral-50 border-brand-neutral-100",
+            border: "border-brand-neutral-200/40",
+            titleLine: "text-brand-neutral-300",
+            tag: "text-brand-neutral-700 bg-brand-neutral-50 border-brand-neutral-100",
         };
     }
 
     if (accent === "slate") {
         return {
-            splash: "bg-slate-200/40",
-            icon: "text-slate-700",
-            iconBg: "bg-slate-100 border-slate-200",
-            border: "border-slate-200/50",
-            titleLine: "text-slate-300",
-            tag: "text-slate-700 bg-slate-100 border-slate-200",
+            splash: "bg-brand-neutral-200/40",
+            icon: "text-brand-neutral-700",
+            iconBg: "bg-brand-neutral-100 border-brand-neutral-200",
+            border: "border-brand-neutral-200/50",
+            titleLine: "text-brand-neutral-300",
+            tag: "text-brand-neutral-700 bg-brand-neutral-100 border-brand-neutral-200",
         };
     }
 
     return {
-        splash: "bg-amber-100/40",
-        icon: "text-amber-600",
-        iconBg: "bg-amber-50 border-amber-100",
-        border: "border-amber-200/40",
-        titleLine: "text-amber-300",
-        tag: "text-amber-700 bg-amber-50 border-amber-100",
+        splash: "bg-brand-accent-100/40",
+        icon: "text-brand-accent-600",
+        iconBg: "bg-brand-accent-50 border-brand-accent-100",
+        border: "border-brand-accent-200/40",
+        titleLine: "text-brand-accent-300",
+        tag: "text-brand-accent-700 bg-brand-accent-50 border-brand-accent-100",
     };
 }
 
@@ -68,7 +68,7 @@ export function PolicyPageShell({
     const accentClasses = getAccentClasses(accent);
 
     return (
-        <div className="min-h-screen bg-[#fdfcf9] relative overflow-hidden font-light pt-24">
+        <div className="min-h-screen bg-[#fcf9f4] relative overflow-hidden font-normal pt-24">
             <div
                 className="absolute inset-0 opacity-[0.25] pointer-events-none mix-blend-multiply fixed"
                 style={{
@@ -83,8 +83,8 @@ export function PolicyPageShell({
                 />
 
                 <div className="container mx-auto px-6 max-w-4xl relative z-10">
-                    <p className="font-serif italic text-xl tracking-wide mb-4 text-slate-600">{eyebrow}</p>
-                    <h1 className="font-serif text-5xl md:text-6xl font-bold mb-6 text-slate-800 tracking-tight relative inline-block leading-[1.1]">
+                    <p className="font-serif italic text-xl tracking-wide mb-4 text-brand-neutral-600">{eyebrow}</p>
+                    <h1 className="font-serif text-5xl md:text-6xl font-bold mb-6 text-brand-neutral-800 tracking-tight relative inline-block leading-[1.1]">
                         {title}
                         <svg
                             className={`absolute -bottom-1 -left-1 w-[110%] h-3 stroke-current opacity-70 ${accentClasses.titleLine}`}
@@ -94,7 +94,7 @@ export function PolicyPageShell({
                             <path d="M0,5 Q50,-2 100,5" fill="none" strokeWidth="4" strokeLinecap="round" />
                         </svg>
                     </h1>
-                    <p className="text-slate-500 text-xl font-light max-w-2xl mx-auto leading-relaxed mt-4">{subtitle}</p>
+                    <p className="text-brand-neutral-500 text-xl font-normal max-w-2xl mx-auto leading-relaxed mt-4">{subtitle}</p>
                 </div>
             </header>
 
@@ -104,7 +104,7 @@ export function PolicyPageShell({
                         {sections.map((section, index) => (
                             <div
                                 key={section.title}
-                                className="rounded-[2rem] bg-white/70 backdrop-blur-md border border-white p-7 md:p-9 shadow-[0_8px_30px_rgb(0,0,0,0.03)]"
+                                className="rounded-2xl bg-white/70 backdrop-blur-md border border-white p-7 md:p-9 shadow-[0_8px_30px_rgb(0,0,0,0.03)]"
                             >
                                 <div className="flex items-start gap-4 mb-5">
                                     <div
@@ -113,17 +113,17 @@ export function PolicyPageShell({
                                         <Scale className={`w-5 h-5 ${accentClasses.icon}`} />
                                     </div>
                                     <div>
-                                        <p className="text-xs uppercase tracking-[0.2em] text-slate-400 mb-1">Section {index + 1}</p>
-                                        <h2 className="font-serif text-3xl font-bold text-slate-800">{section.title}</h2>
+                                        <p className="text-xs uppercase tracking-[0.2em] text-brand-neutral-400 mb-1">Section {index + 1}</p>
+                                        <h2 className="font-serif text-3xl font-bold text-brand-neutral-800">{section.title}</h2>
                                     </div>
                                 </div>
 
-                                <p className="text-slate-600 text-lg leading-relaxed">{section.body}</p>
+                                <p className="text-brand-neutral-600 text-lg leading-relaxed">{section.body}</p>
 
                                 {section.points && section.points.length > 0 && (
                                     <ul className="mt-5 space-y-3">
                                         {section.points.map((point) => (
-                                            <li key={point} className="flex items-start gap-3 text-slate-600">
+                                            <li key={point} className="flex items-start gap-3 text-brand-neutral-600">
                                                 <ShieldCheck className={`w-5 h-5 mt-0.5 shrink-0 ${accentClasses.icon}`} />
                                                 <span className="text-base leading-relaxed">{point}</span>
                                             </li>
@@ -135,26 +135,26 @@ export function PolicyPageShell({
                     </article>
 
                     <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-28">
-                        <div className="rounded-[2rem] p-7 bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
+                        <div className="rounded-2xl p-7 bg-white border border-brand-neutral-100 shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
                             <div className="flex items-center gap-3 mb-5">
                                 <div className={`w-10 h-10 rounded-xl border flex items-center justify-center ${accentClasses.iconBg}`}>
                                     <Clock3 className={`w-5 h-5 ${accentClasses.icon}`} />
                                 </div>
-                                <h3 className="font-serif text-2xl font-bold text-slate-800">Page Snapshot</h3>
+                                <h3 className="font-serif text-2xl font-bold text-brand-neutral-800">Page Snapshot</h3>
                             </div>
-                            <div className="space-y-4 text-slate-600">
-                                <p className="text-sm uppercase tracking-widest text-slate-400">Last Updated</p>
+                            <div className="space-y-4 text-brand-neutral-600">
+                                <p className="text-sm uppercase tracking-widest text-brand-neutral-400">Last Updated</p>
                                 <p className={`inline-flex px-3 py-1.5 rounded-full border text-sm font-medium ${accentClasses.tag}`}>
                                     {lastUpdated}
                                 </p>
-                                <div className="pt-2 border-t border-slate-100">
-                                    <h4 className="font-serif text-xl text-slate-800 mb-2">{rightPanelTitle}</h4>
+                                <div className="pt-2 border-t border-brand-neutral-100">
+                                    <h4 className="font-serif text-xl text-brand-neutral-800 mb-2">{rightPanelTitle}</h4>
                                     <p className="text-base leading-relaxed">{rightPanelBody}</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="rounded-[2rem] p-7 bg-[#0b1121] border border-slate-800 text-slate-300 shadow-[0_8px_30px_rgb(0,0,0,0.15)] relative overflow-hidden">
+                        <div className="rounded-2xl p-7 bg-[#023727] border border-brand-neutral-800 text-brand-neutral-300 shadow-[0_8px_30px_rgb(0,0,0,0.15)] relative overflow-hidden">
                             <div
                                 className="absolute inset-0 opacity-[0.3] pointer-events-none mix-blend-overlay"
                                 style={{
@@ -164,16 +164,16 @@ export function PolicyPageShell({
                             />
                             <div className="relative z-10">
                                 <div className="flex items-center gap-3 mb-4">
-                                    <WalletCards className="w-5 h-5 text-amber-400" />
+                                    <WalletCards className="w-5 h-5 text-brand-accent-400" />
                                     <h3 className="font-serif text-2xl text-white">Questions?</h3>
                                 </div>
-                                <p className="text-sm leading-relaxed text-slate-400">
+                                <p className="text-sm leading-relaxed text-brand-neutral-400">
                                     If you need clarification regarding this policy, our support team will help you with the latest official version.
                                 </p>
                                 {contactEmail && (
                                     <a
                                         href={`mailto:${contactEmail}`}
-                                        className="inline-block mt-4 text-amber-400 hover:text-amber-300 transition-colors text-sm"
+                                        className="inline-block mt-4 text-brand-accent-400 hover:text-brand-accent-300 transition-colors text-sm"
                                     >
                                         {contactEmail}
                                     </a>
@@ -186,7 +186,7 @@ export function PolicyPageShell({
 
             {footerNote && (
                 <section className="container mx-auto px-6 max-w-4xl pb-20">
-                    <div className="rounded-[2rem] border border-slate-200/70 bg-white/70 backdrop-blur-md p-7 text-slate-600 text-base leading-relaxed">
+                    <div className="rounded-2xl border border-brand-neutral-200/70 bg-white/70 backdrop-blur-md p-7 text-brand-neutral-600 text-base leading-relaxed">
                         {footerNote}
                     </div>
                 </section>

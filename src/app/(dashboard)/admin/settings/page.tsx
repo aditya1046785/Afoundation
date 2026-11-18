@@ -57,7 +57,7 @@ export default function AdminSettingsPage() {
         return (
             <div className="max-w-4xl mx-auto space-y-4">
                 {[...Array(3)].map((_, i) => (
-                    <div key={i} className="h-32 bg-slate-100 rounded-2xl animate-pulse" />
+                    <div key={i} className="h-32 bg-brand-neutral-100 rounded-2xl animate-pulse" />
                 ))}
             </div>
         );
@@ -78,8 +78,8 @@ export default function AdminSettingsPage() {
         <div className="space-y-6 max-w-4xl mx-auto">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="font-serif text-2xl font-bold text-slate-900">Site Settings</h1>
-                    <p className="text-slate-500 text-sm mt-1">Configure global website settings</p>
+                    <h1 className="font-serif text-2xl font-bold text-brand-neutral-900">Site Settings</h1>
+                    <p className="text-brand-neutral-500 text-sm mt-1">Configure global website settings</p>
                 </div>
                 <Button onClick={handleSave} disabled={saving} className="bg-blue-800 hover:bg-blue-900 text-white">
                     {saving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</> : <><Save className="w-4 h-4 mr-2" /> Save All</>}

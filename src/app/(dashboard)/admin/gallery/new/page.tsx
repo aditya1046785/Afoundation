@@ -39,7 +39,7 @@ export default function GalleryUploadPage() {
 
     const { register, handleSubmit, setValue, watch, control, formState: { errors } } = useForm<UploadFormData>({
         resolver: zodResolver(uploadSchema),
-        defaultValues: { 
+        defaultValues: {
             mode: "select",
             albumId: "",
             newAlbumTitle: "",
@@ -161,7 +161,7 @@ export default function GalleryUploadPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#fdfcfa] relative overflow-hidden">
+        <div className="min-h-screen bg-[#fcf9f4] relative overflow-hidden">
             {/* Texture */}
             <div className="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }} />
             <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-200 h-200 bg-blue-300/10 rounded-full blur-3xl pointer-events-none z-0" />
@@ -178,7 +178,7 @@ export default function GalleryUploadPage() {
                         <div className="w-px h-6 bg-blue-900/10 shrink-0" />
                         <div className="flex items-center gap-2.5 min-w-0">
                             <UploadCloud className="w-4 h-4 text-blue-600 shrink-0" strokeWidth={2} />
-                            <span className="text-[15px] font-bold text-slate-800 tracking-tight truncate font-serif">
+                            <span className="text-[15px] font-bold text-brand-neutral-800 tracking-tight truncate font-serif">
                                 Upload Photo to Gallery
                             </span>
                         </div>
@@ -196,28 +196,28 @@ export default function GalleryUploadPage() {
             {/* Main form layout */}
             <div className="max-w-7xl mx-auto px-6 py-10 relative z-10 flex flex-col md:flex-row gap-10">
                 <div className="w-full md:w-120 shrink-0 space-y-6">
-                    <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-white shadow-xl shadow-slate-200/50 p-6 md:p-8">
-                        <h2 className="font-serif text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-white shadow-xl shadow-brand-neutral-200/50 p-6 md:p-8">
+                        <h2 className="font-serif text-2xl font-bold text-brand-neutral-800 mb-6 flex items-center gap-2">
                             <Images className="w-6 h-6 text-blue-600" /> Photo Details
                         </h2>
 
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                             {/* Category Selection */}
-                            <div className="space-y-4 bg-slate-50/50 rounded-2xl p-5 border border-slate-100">
-                                <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                            <div className="space-y-4 bg-brand-neutral-50/50 rounded-2xl p-5 border border-brand-neutral-100">
+                                <Label className="text-[10px] font-bold text-brand-neutral-400 uppercase tracking-widest flex items-center gap-1.5">
                                     <FolderPlus className="w-3.5 h-3.5" /> Choose Category (Album)
                                 </Label>
-                                
+
                                 <Controller
                                     name="mode"
                                     control={control}
                                     render={({ field }) => (
                                         <RadioGroup value={field.value} onValueChange={field.onChange} className="flex gap-4 mb-4">
-                                            <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-xl border border-slate-200 flex-1 cursor-pointer">
+                                            <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-xl border border-brand-neutral-200 flex-1 cursor-pointer">
                                                 <RadioGroupItem value="select" id="r-select" />
                                                 <Label htmlFor="r-select" className="text-sm cursor-pointer font-medium">Existing</Label>
                                             </div>
-                                            <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-xl border border-slate-200 flex-1 cursor-pointer">
+                                            <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-xl border border-brand-neutral-200 flex-1 cursor-pointer">
                                                 <RadioGroupItem value="create" id="r-create" />
                                                 <Label htmlFor="r-create" className="text-sm cursor-pointer font-medium">Create New</Label>
                                             </div>
@@ -232,7 +232,7 @@ export default function GalleryUploadPage() {
                                             control={control}
                                             render={({ field }) => (
                                                 <Select value={field.value} onValueChange={field.onChange} disabled={loadingAlbums}>
-                                                    <SelectTrigger className="h-11 bg-white border-slate-200 shadow-sm rounded-xl">
+                                                    <SelectTrigger className="h-11 bg-white border-brand-neutral-200 shadow-sm rounded-xl">
                                                         <SelectValue placeholder={loadingAlbums ? "Loading categories..." : "Select a category"} />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -247,7 +247,7 @@ export default function GalleryUploadPage() {
                                     </div>
                                 ) : (
                                     <div className="space-y-2 animate-in fade-in slide-in-from-top-1">
-                                        <Input {...register("newAlbumTitle")} placeholder="e.g. Education Drive 2024" className="h-11 bg-white border-slate-200 shadow-sm rounded-xl font-medium" />
+                                        <Input {...register("newAlbumTitle")} placeholder="e.g. Education Drive 2024" className="h-11 bg-white border-brand-neutral-200 shadow-sm rounded-xl font-medium" />
                                         {errors.newAlbumTitle && <p className="text-red-500 text-xs font-semibold">{errors.newAlbumTitle.message}</p>}
                                     </div>
                                 )}
@@ -255,24 +255,24 @@ export default function GalleryUploadPage() {
 
                             {/* Image Upload */}
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><ImageIcon className="w-3 h-3" /> Select One or More Images *</Label>
+                                <Label className="text-[10px] font-bold text-brand-neutral-400 uppercase tracking-widest flex items-center gap-1.5"><ImageIcon className="w-3 h-3" /> Select One or More Images *</Label>
                                 <Input
                                     type="file"
                                     accept="image/*"
                                     multiple
                                     disabled={saving}
-                                    className="h-11 bg-slate-50 border-slate-200 shadow-sm rounded-xl file:mr-4 file:rounded-lg file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-white file:font-semibold hover:file:bg-blue-700"
+                                    className="h-11 bg-brand-neutral-50 border-brand-neutral-200 shadow-sm rounded-xl file:mr-4 file:rounded-lg file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-white file:font-semibold hover:file:bg-blue-700"
                                     onChange={(e) => setSelectedFiles(Array.from(e.target.files || []))}
                                 />
-                                <p className="text-xs text-slate-500">
+                                <p className="text-xs text-brand-neutral-500">
                                     {selectedFiles.length > 0 ? `${selectedFiles.length} image${selectedFiles.length > 1 ? "s" : ""} selected` : "Choose multiple images at once for faster upload."}
                                 </p>
                             </div>
 
                             {/* Caption */}
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><FileText className="w-3 h-3" /> Heading / Caption</Label>
-                                <Textarea {...register("caption")} placeholder="Add a descriptive heading for this photo..." className="bg-slate-50 border-slate-200 shadow-sm rounded-xl min-h-25 resize-none" />
+                                <Label className="text-[10px] font-bold text-brand-neutral-400 uppercase tracking-widest flex items-center gap-1.5"><FileText className="w-3 h-3" /> Heading / Caption</Label>
+                                <Textarea {...register("caption")} placeholder="Add a descriptive heading for this photo..." className="bg-brand-neutral-50 border-brand-neutral-200 shadow-sm rounded-xl min-h-25 resize-none" />
                             </div>
                         </form>
                     </div>
@@ -281,7 +281,7 @@ export default function GalleryUploadPage() {
                 {/* Preview Window */}
                 <div className="flex-1">
                     <div className="bg-white/40 backdrop-blur-sm rounded-[2rem] border border-white p-6 shadow-inner h-full min-h-100 flex flex-col items-center justify-center text-center relative overflow-hidden group">
-                        
+
                         {previewUrl ? (
                             <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -295,17 +295,17 @@ export default function GalleryUploadPage() {
                                 </div>
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center gap-4 text-slate-400">
-                                <div className="w-24 h-24 rounded-full bg-slate-100/80 border-2 border-dashed border-slate-200 flex items-center justify-center mb-2 shadow-inner">
-                                    <ImageIcon className="w-10 h-10 text-slate-300" />
+                            <div className="flex flex-col items-center gap-4 text-brand-neutral-400">
+                                <div className="w-24 h-24 rounded-full bg-brand-neutral-100/80 border-2 border-dashed border-brand-neutral-200 flex items-center justify-center mb-2 shadow-inner">
+                                    <ImageIcon className="w-10 h-10 text-brand-neutral-300" />
                                 </div>
                                 <div>
-                                    <h3 className="font-serif text-2xl font-bold text-slate-700">Image Preview</h3>
+                                    <h3 className="font-serif text-2xl font-bold text-brand-neutral-700">Image Preview</h3>
                                     <p className="text-sm font-medium opacity-70 mt-1 max-w-xs mx-auto">Choose one or more images on the left to preview the first file here.</p>
                                 </div>
                             </div>
                         )}
-                        
+
                     </div>
                 </div>
             </div>

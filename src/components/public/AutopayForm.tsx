@@ -144,7 +144,7 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                     email: data.donorEmail,
                     contact: data.donorPhone || "",
                 },
-                theme: { color: "#f59e0b" },
+                theme: { color: "#ab3600" },
                 handler: async (response: any) => {
                     console.log("Autopay subscription completed, verifying", response);
                     const verifyRes = await fetch("/api/autopay/verify-subscription", {
@@ -200,19 +200,19 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                 initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
                 animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="bg-white/80 backdrop-blur-md rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] p-12 text-center border border-white"
+                className="bg-white/80 backdrop-blur-md rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] p-12 text-center border border-white"
             >
                 <div className="w-24 h-24 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-8 shadow-sm">
                     <CheckCircle className="w-12 h-12 text-emerald-500" />
                 </div>
-                <h2 className="font-serif text-4xl font-bold text-slate-800 mb-4 tracking-tight">
+                <h2 className="font-serif text-4xl font-bold text-brand-neutral-800 mb-4 tracking-tight">
                     Subscription Activated!
                 </h2>
-                <p className="text-slate-600 text-lg mb-8 leading-relaxed">
+                <p className="text-brand-neutral-600 text-lg mb-8 leading-relaxed">
                     Your autopay subscription is now active. You will be charged ₹{watchedAmount} every{" "}
                     {watchedFrequency === "WEEKLY" ? "week" : watchedFrequency === "MONTHLY" ? "month" : "year"}.
                 </p>
-                <p className="text-slate-500 text-base mb-4">
+                <p className="text-brand-neutral-500 text-base mb-4">
                     A confirmation email has been sent to your registered email address.
                 </p>
                 <Button
@@ -233,22 +233,22 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, y: -20, filter: "blur(10px)" }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-white/80 backdrop-blur-md rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] p-12 border border-white/50 relative overflow-hidden"
+            className="bg-white/80 backdrop-blur-md rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] p-12 border border-white/50 relative overflow-hidden"
         >
             {/* Decorative elements */}
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-amber-100/20 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-amber-50/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-brand-accent-100/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-brand-accent-50/20 rounded-full blur-3xl pointer-events-none" />
 
             <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-8">
-                    <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
-                        <RotateCw className="w-6 h-6 text-amber-600" />
+                    <div className="w-12 h-12 rounded-full bg-brand-accent-100 flex items-center justify-center">
+                        <RotateCw className="w-6 h-6 text-brand-accent-600" />
                     </div>
                     <div>
-                        <h2 className="font-serif text-3xl font-bold text-slate-800">
+                        <h2 className="font-serif text-3xl font-bold text-brand-neutral-800">
                             Recurring Donation
                         </h2>
-                        <p className="text-slate-500 text-sm mt-1">Support our cause with every payment cycle</p>
+                        <p className="text-brand-neutral-500 text-sm mt-1">Support our cause with every payment cycle</p>
                     </div>
                 </div>
 
@@ -258,12 +258,12 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                         <div>
                             <Label
                                 htmlFor="amount-autopay"
-                                className="block text-slate-700 font-semibold mb-3"
+                                className="block text-brand-neutral-700 font-semibold mb-3"
                             >
                                 Monthly/Weekly/Yearly Amount *
                             </Label>
                             <div className="relative">
-                                <span className="absolute left-4 top-3.5 text-slate-500 text-lg font-semibold">₹</span>
+                                <span className="absolute left-4 top-3.5 text-brand-neutral-500 text-lg font-semibold">₹</span>
                                 <Input
                                     id="amount-autopay"
                                     type="number"
@@ -271,7 +271,7 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                                     min="1"
                                     step="1"
                                     {...register("amount", { valueAsNumber: true })}
-                                    className="pl-8 h-12 rounded-xl border-slate-200 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                    className="pl-8 h-12 rounded-xl border-brand-neutral-200 focus:ring-2 focus:ring-brand-accent-500 focus:border-transparent"
                                 />
                             </div>
                             {errors.amount && (
@@ -280,14 +280,14 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                         </div>
 
                         <div>
-                            <Label htmlFor="frequency" className="block text-slate-700 font-semibold mb-3">
+                            <Label htmlFor="frequency" className="block text-brand-neutral-700 font-semibold mb-3">
                                 Frequency *
                             </Label>
                             <Select
                                 defaultValue="MONTHLY"
                                 onValueChange={(value) => setValue("frequency", value as "WEEKLY" | "MONTHLY"|"YEARLY")}
                             >
-                                <SelectTrigger id="frequency" className="h-12 rounded-xl border-slate-200">
+                                <SelectTrigger id="frequency" className="h-12 rounded-xl border-brand-neutral-200">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -300,18 +300,18 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                     </div>
 
                     {/* Donor Information */}
-                    <div className="pt-4 border-t border-slate-100">
-                        <h3 className="font-semibold text-slate-700 mb-4">Donor Information</h3>
+                    <div className="pt-4 border-t border-brand-neutral-100">
+                        <h3 className="font-semibold text-brand-neutral-700 mb-4">Donor Information</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <Label htmlFor="donorName" className="block text-slate-700 font-medium mb-2">
+                                <Label htmlFor="donorName" className="block text-brand-neutral-700 font-medium mb-2">
                                     Full Name *
                                 </Label>
                                 <Input
                                     id="donorName"
                                     placeholder="John Doe"
                                     {...register("donorName")}
-                                    className="h-10 rounded-lg border-slate-200"
+                                    className="h-10 rounded-lg border-brand-neutral-200"
                                 />
                                 {errors.donorName && (
                                     <p className="text-red-500 text-sm mt-1">{errors.donorName.message}</p>
@@ -319,7 +319,7 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                             </div>
 
                             <div>
-                                <Label htmlFor="donorEmail" className="block text-slate-700 font-medium mb-2">
+                                <Label htmlFor="donorEmail" className="block text-brand-neutral-700 font-medium mb-2">
                                     Email *
                                 </Label>
                                 <Input
@@ -327,7 +327,7 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                                     type="email"
                                     placeholder="john@example.com"
                                     {...register("donorEmail")}
-                                    className="h-10 rounded-lg border-slate-200"
+                                    className="h-10 rounded-lg border-brand-neutral-200"
                                 />
                                 {errors.donorEmail && (
                                     <p className="text-red-500 text-sm mt-1">{errors.donorEmail.message}</p>
@@ -335,14 +335,14 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                             </div>
 
                             <div>
-                                <Label htmlFor="donorPhone" className="block text-slate-700 font-medium mb-2">
+                                <Label htmlFor="donorPhone" className="block text-brand-neutral-700 font-medium mb-2">
                                     Phone (Optional)
                                 </Label>
                                 <Input
                                     id="donorPhone"
                                     placeholder="9876543210"
                                     {...register("donorPhone")}
-                                    className="h-10 rounded-lg border-slate-200"
+                                    className="h-10 rounded-lg border-brand-neutral-200"
                                 />
                                 {errors.donorPhone && (
                                     <p className="text-red-500 text-sm mt-1">{errors.donorPhone.message}</p>
@@ -350,14 +350,14 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                             </div>
 
                             <div>
-                                <Label htmlFor="donorPAN" className="block text-slate-700 font-medium mb-2">
+                                <Label htmlFor="donorPAN" className="block text-brand-neutral-700 font-medium mb-2">
                                     PAN (Optional)
                                 </Label>
                                 <Input
                                     id="donorPAN"
                                     placeholder="ABCDE1234F"
                                     {...register("donorPAN")}
-                                    className="h-10 rounded-lg border-slate-200"
+                                    className="h-10 rounded-lg border-brand-neutral-200"
                                 />
                                 {errors.donorPAN && (
                                     <p className="text-red-500 text-sm mt-1">{errors.donorPAN.message}</p>
@@ -367,15 +367,15 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                     </div>
 
                     {/* Purpose & Message */}
-                    <div className="pt-4 border-t border-slate-100">
-                        <h3 className="font-semibold text-slate-700 mb-4">Donation Details</h3>
+                    <div className="pt-4 border-t border-brand-neutral-100">
+                        <h3 className="font-semibold text-brand-neutral-700 mb-4">Donation Details</h3>
                         <div className="grid grid-cols-1 gap-6">
                             <div>
-                                <Label htmlFor="purpose" className="block text-slate-700 font-medium mb-2">
+                                <Label htmlFor="purpose" className="block text-brand-neutral-700 font-medium mb-2">
                                     Purpose (Optional)
                                 </Label>
                                 <Select defaultValue="" onValueChange={(value) => setValue("purpose", value)}>
-                                    <SelectTrigger id="purpose" className="rounded-lg border-slate-200">
+                                    <SelectTrigger id="purpose" className="rounded-lg border-brand-neutral-200">
                                         <SelectValue placeholder="Select a purpose" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -389,7 +389,7 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                             </div>
 
                             <div>
-                                <Label htmlFor="message" className="block text-slate-700 font-medium mb-2">
+                                <Label htmlFor="message" className="block text-brand-neutral-700 font-medium mb-2">
                                     Message (Optional)
                                 </Label>
                                 <Textarea
@@ -397,7 +397,7 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                                     placeholder="Share your message or why you support us..."
                                     rows={3}
                                     {...register("message")}
-                                    className="rounded-lg border-slate-200 resize-none"
+                                    className="rounded-lg border-brand-neutral-200 resize-none"
                                 />
                                 {errors.message && (
                                     <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>
@@ -409,13 +409,13 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                     {/* Summary */}
                     <motion.div
                         layout
-                        className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200/50"
+                        className="p-4 bg-gradient-to-r from-brand-accent-50 to-orange-50 rounded-xl border border-brand-accent-200/50"
                     >
-                        <p className="text-sm text-slate-600">
-                            <span className="font-semibold text-amber-900">Subscription Summary:</span> You will be
+                        <p className="text-sm text-brand-neutral-600">
+                            <span className="font-semibold text-brand-accent-900">Subscription Summary:</span> You will be
                             charged{" "}
-                            <span className="font-semibold text-amber-900">₹{watchedAmount || 500}</span> every{" "}
-                            <span className="font-semibold text-amber-900">
+                            <span className="font-semibold text-brand-accent-900">₹{watchedAmount || 500}</span> every{" "}
+                            <span className="font-semibold text-brand-accent-900">
                                 {watchedFrequency === "WEEKLY" ? "week" : watchedFrequency === "MONTHLY" ? "month" : "yearly"}
                             </span>{" "}
                             until you cancel.
@@ -426,7 +426,7 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                     <Button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full h-12 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
+                        className="w-full h-12 rounded-xl bg-gradient-to-r from-brand-accent-500 to-orange-500 hover:from-brand-accent-600 hover:to-orange-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
                     >
                         {isLoading ? (
                             <>

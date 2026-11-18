@@ -204,16 +204,16 @@ export function LiveChatBox({ isAdmin = false, currentUserName }: LiveChatBoxPro
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#0b1121] rounded-2xl overflow-hidden border border-slate-800/60 shadow-2xl">
+        <div className="flex flex-col h-full bg-[#023727] rounded-2xl overflow-hidden border border-brand-neutral-800/60 shadow-2xl">
             {/* Header */}
-            <div className="px-5 py-4 border-b border-slate-800/60 flex items-center justify-between shrink-0 bg-[#0d1526]">
+            <div className="px-5 py-4 border-b border-brand-neutral-800/60 flex items-center justify-between shrink-0 bg-[#0d1526]">
                 <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full transition-colors ${session?.isLive ? "bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.7)] animate-pulse" : "bg-slate-600"}`} />
+                    <div className={`w-3 h-3 rounded-full transition-colors ${session?.isLive ? "bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.7)] animate-pulse" : "bg-brand-neutral-600"}`} />
                     <div>
                         <p className="text-white font-serif font-bold text-base tracking-wide">
                             {session?.title || "Live Chat"}
                         </p>
-                        <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold mt-0.5">
+                        <p className="text-[10px] text-brand-neutral-400 uppercase tracking-widest font-semibold mt-0.5">
                             {session?.isLive ? "Session Active" : "No Active Session"}
                         </p>
                     </div>
@@ -227,7 +227,7 @@ export function LiveChatBox({ isAdmin = false, currentUserName }: LiveChatBoxPro
                                     value={sessionTitle}
                                     onChange={e => setSessionTitle(e.target.value)}
                                     placeholder="Session title..."
-                                    className="text-xs bg-slate-800/60 border border-slate-700/50 rounded-lg px-3 py-1.5 text-slate-300 placeholder:text-slate-500 outline-none focus:border-amber-500/50 w-36"
+                                    className="text-xs bg-brand-neutral-800/60 border border-brand-neutral-700/50 rounded-lg px-3 py-1.5 text-brand-neutral-300 placeholder:text-brand-neutral-500 outline-none focus:border-amber-500/50 w-36"
                                 />
                                 <Button size="sm" onClick={startSession}
                                     className="h-8 px-3 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg gap-1.5 font-bold">
@@ -252,19 +252,19 @@ export function LiveChatBox({ isAdmin = false, currentUserName }: LiveChatBoxPro
                     </div>
                 ) : !session?.isLive && messages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full gap-4 text-center px-6">
-                        <div className="w-16 h-16 rounded-full bg-slate-800/60 flex items-center justify-center">
-                            <Users className="w-7 h-7 text-slate-500" strokeWidth={1.5} />
+                        <div className="w-16 h-16 rounded-full bg-brand-neutral-800/60 flex items-center justify-center">
+                            <Users className="w-7 h-7 text-brand-neutral-500" strokeWidth={1.5} />
                         </div>
                         <div>
-                            <p className="text-slate-300 font-serif font-bold text-lg">No Live Session</p>
-                            <p className="text-slate-500 text-sm mt-1">
+                            <p className="text-brand-neutral-300 font-serif font-bold text-lg">No Live Session</p>
+                            <p className="text-brand-neutral-500 text-sm mt-1">
                                 {isAdmin ? "Start a session to begin chatting with members." : "An admin hasn't started a chat session yet. Check back soon!"}
                             </p>
                         </div>
                     </div>
                 ) : messages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full">
-                        <p className="text-slate-500 text-sm font-medium">No messages yet. Say hello! 👋</p>
+                        <p className="text-brand-neutral-500 text-sm font-medium">No messages yet. Say hello! 👋</p>
                     </div>
                 ) : (
                     <AnimatePresence initial={false}>
@@ -287,10 +287,10 @@ export function LiveChatBox({ isAdmin = false, currentUserName }: LiveChatBoxPro
                                             <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${isAdminMsg ? "bg-amber-500/20 text-amber-400" : "bg-blue-500/20 text-blue-400"}`}>
                                                 {msg.senderName.charAt(0).toUpperCase()}
                                             </div>
-                                            <span className={`text-[11px] font-bold ${ROLE_COLORS[msg.senderRole] || "text-slate-400"}`}>
+                                            <span className={`text-[11px] font-bold ${ROLE_COLORS[msg.senderRole] || "text-brand-neutral-400"}`}>
                                                 {msg.senderName}
                                             </span>
-                                            <span className="text-[9px] text-slate-600 uppercase tracking-wider font-semibold">
+                                            <span className="text-[9px] text-brand-neutral-600 uppercase tracking-wider font-semibold">
                                                 {ROLE_LABELS[msg.senderRole] || msg.senderRole}
                                             </span>
                                         </div>
@@ -300,12 +300,12 @@ export function LiveChatBox({ isAdmin = false, currentUserName }: LiveChatBoxPro
                                             isSelf
                                                 ? "bg-amber-600 text-white rounded-br-md"
                                                 : isAdminMsg
-                                                    ? "bg-slate-700/80 text-white border border-amber-500/20 rounded-bl-md"
-                                                    : "bg-slate-800 text-slate-200 rounded-bl-md"
+                                                    ? "bg-brand-neutral-700/80 text-white border border-amber-500/20 rounded-bl-md"
+                                                    : "bg-brand-neutral-800 text-brand-neutral-200 rounded-bl-md"
                                         }`}>
                                             {msg.content}
                                         </div>
-                                        <span className="text-[9px] text-slate-600 shrink-0 mb-1">
+                                        <span className="text-[9px] text-brand-neutral-600 shrink-0 mb-1">
                                             {formatTime(msg.createdAt)}
                                         </span>
                                     </div>
@@ -318,7 +318,7 @@ export function LiveChatBox({ isAdmin = false, currentUserName }: LiveChatBoxPro
             </div>
 
             {/* Input */}
-            <div className="p-4 border-t border-slate-800/60 bg-[#0d1526] shrink-0">
+            <div className="p-4 border-t border-brand-neutral-800/60 bg-[#0d1526] shrink-0">
                 {session?.isLive ? (
                     <form onSubmit={sendMessage} className="flex gap-2 items-center">
                         <input
@@ -327,7 +327,7 @@ export function LiveChatBox({ isAdmin = false, currentUserName }: LiveChatBoxPro
                             onChange={e => setInput(e.target.value)}
                             onKeyDown={handleKeyDown}
                             placeholder="Type a message..."
-                            className="flex-1 bg-slate-800/70 border border-slate-700/50 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-amber-500/60 focus:bg-slate-800 transition-colors"
+                            className="flex-1 bg-brand-neutral-800/70 border border-brand-neutral-700/50 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-brand-neutral-500 outline-none focus:border-amber-500/60 focus:bg-brand-neutral-800 transition-colors"
                             maxLength={500}
                             autoComplete="off"
                         />
@@ -338,8 +338,8 @@ export function LiveChatBox({ isAdmin = false, currentUserName }: LiveChatBoxPro
                     </form>
                 ) : (
                     <div className="flex items-center justify-center gap-2 py-1">
-                        <Clock className="w-4 h-4 text-slate-600" />
-                        <p className="text-slate-500 text-xs font-medium">Chat is offline</p>
+                        <Clock className="w-4 h-4 text-brand-neutral-600" />
+                        <p className="text-brand-neutral-500 text-xs font-medium">Chat is offline</p>
                     </div>
                 )}
             </div>

@@ -43,8 +43,8 @@ export default async function MemberDashboardPage() {
     if (!member) {
         return (
             <div className="max-w-lg mx-auto text-center py-20">
-                <h1 className="font-serif text-2xl font-bold text-slate-900 mb-3">No Membership Found</h1>
-                <p className="text-slate-500 mb-6">Your account doesn&apos;t have a member profile yet.</p>
+                <h1 className="font-serif text-2xl font-bold text-brand-neutral-900 mb-3">No Membership Found</h1>
+                <p className="text-brand-neutral-500 mb-6">Your account doesn&apos;t have a member profile yet.</p>
                 <Link href="/"><Button>Go to Homepage</Button></Link>
             </div>
         );
@@ -68,15 +68,15 @@ export default async function MemberDashboardPage() {
             <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/4 w-150 h-150 bg-blue-300/10 rounded-full blur-3xl pointer-events-none -z-10" />
 
             {/* Welcome banner */}
-            <div className="relative overflow-hidden bg-slate-900 rounded-[2rem] p-8 sm:p-10 text-white shadow-xl shadow-slate-900/10 border border-slate-800">
+            <div className="relative overflow-hidden bg-brand-neutral-900 rounded-[2rem] p-8 sm:p-10 text-white shadow-xl shadow-brand-neutral-900/10 border border-brand-neutral-800">
                 <div className="absolute top-0 right-0 -translate-y-1/3 translate-x-1/3 w-125 h-125 bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
-                
+
                 <div className="relative z-10">
                     <p className="text-amber-400 font-bold uppercase tracking-widest text-xs mb-2">Welcome back,</p>
                     <h1 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight mb-4">{member.user.name}</h1>
                     <div className="flex flex-wrap items-center gap-3">
-                        <code className="bg-slate-800/80 px-3 py-1.5 rounded-lg text-slate-300 font-medium text-sm border border-slate-700">{member.memberId}</code>
-                        <span className="text-slate-600 hidden sm:inline">•</span>
+                        <code className="bg-brand-neutral-800/80 px-3 py-1.5 rounded-lg text-brand-neutral-300 font-medium text-sm border border-brand-neutral-700">{member.memberId}</code>
+                        <span className="text-brand-neutral-600 hidden sm:inline">•</span>
                         <Badge className={`${member.isApproved ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : "bg-orange-500/20 text-orange-400 border-orange-500/30"} px-3 py-1.5 rounded-lg uppercase tracking-wider text-[10px] font-bold border`}>
                             {member.isApproved ? (
                                 <><CheckCircle className="w-3.5 h-3.5 mr-1.5" /> Approved</>
@@ -86,7 +86,7 @@ export default async function MemberDashboardPage() {
                         </Badge>
                     </div>
                     {!member.isApproved && (
-                        <p className="text-slate-400 text-sm mt-4 font-medium max-w-md">
+                        <p className="text-brand-neutral-400 text-sm mt-4 font-medium max-w-md">
                             Your membership application is currently under review. We will notify you via email once it has been processed.
                         </p>
                     )}
@@ -104,15 +104,15 @@ export default async function MemberDashboardPage() {
                     const Icon = stat.icon;
                     const [iconColor, bgColor, borderColor] = stat.color.split(" ");
                     return (
-                        <Card key={stat.label} className="bg-white/70 backdrop-blur-md rounded-3xl border border-white shadow-lg shadow-slate-200/20 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                        <Card key={stat.label} className="bg-white/70 backdrop-blur-md rounded-3xl border border-white shadow-lg shadow-brand-neutral-200/20 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                             <CardContent className="p-6">
                                 <div className="flex items-center gap-5">
                                     <div className={`w-14 h-14 rounded-2xl ${bgColor} border ${borderColor} flex items-center justify-center shadow-inner`}>
                                         <Icon className={`w-6 h-6 ${iconColor}`} strokeWidth={1.5} />
                                     </div>
                                     <div>
-                                        <p className="text-2xl font-bold text-slate-800 tracking-tight">{stat.value}</p>
-                                        <p className="text-[11px] uppercase tracking-widest font-bold text-slate-400 mt-1">{stat.label}</p>
+                                        <p className="text-2xl font-bold text-brand-neutral-800 tracking-tight">{stat.value}</p>
+                                        <p className="text-[11px] uppercase tracking-widest font-bold text-brand-neutral-400 mt-1">{stat.label}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -122,9 +122,9 @@ export default async function MemberDashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="bg-white/70 backdrop-blur-md rounded-3xl border border-white shadow-lg shadow-slate-200/20 overflow-hidden">
-                    <CardHeader className="pb-4 border-b border-slate-100/50 bg-white/40">
-                        <CardTitle className="text-[15px] font-bold text-slate-800 uppercase tracking-widest flex items-center gap-3">
+                <Card className="bg-white/70 backdrop-blur-md rounded-3xl border border-white shadow-lg shadow-brand-neutral-200/20 overflow-hidden">
+                    <CardHeader className="pb-4 border-b border-brand-neutral-100/50 bg-white/40">
+                        <CardTitle className="text-[15px] font-bold text-brand-neutral-800 uppercase tracking-widest flex items-center gap-3">
                             <Users className="w-5 h-5 text-amber-600" strokeWidth={1.5} />
                             My Referrer
                         </CardTitle>
@@ -132,33 +132,33 @@ export default async function MemberDashboardPage() {
                     <CardContent className="p-5 space-y-2">
                         {member.referredByMember ? (
                             <>
-                                <p className="text-base font-bold text-slate-800">{member.referredByMember.user.name || "Unknown"}</p>
-                                <p className="text-sm text-slate-500">{member.referredByMember.user.email || "-"}</p>
-                                <code className="inline-block text-xs bg-slate-100 px-2 py-0.5 rounded mt-2">{member.referredByMember.memberId}</code>
+                                <p className="text-base font-bold text-brand-neutral-800">{member.referredByMember.user.name || "Unknown"}</p>
+                                <p className="text-sm text-brand-neutral-500">{member.referredByMember.user.email || "-"}</p>
+                                <code className="inline-block text-xs bg-brand-neutral-100 px-2 py-0.5 rounded mt-2">{member.referredByMember.memberId}</code>
                             </>
                         ) : (
-                            <p className="text-sm text-slate-500">No member referral was used for your registration.</p>
+                            <p className="text-sm text-brand-neutral-500">No member referral was used for your registration.</p>
                         )}
                     </CardContent>
                 </Card>
 
-                <Card className="bg-white/70 backdrop-blur-md rounded-3xl border border-white shadow-lg shadow-slate-200/20 overflow-hidden">
-                    <CardHeader className="pb-4 border-b border-slate-100/50 bg-white/40">
-                        <CardTitle className="text-[15px] font-bold text-slate-800 uppercase tracking-widest flex items-center gap-3">
+                <Card className="bg-white/70 backdrop-blur-md rounded-3xl border border-white shadow-lg shadow-brand-neutral-200/20 overflow-hidden">
+                    <CardHeader className="pb-4 border-b border-brand-neutral-100/50 bg-white/40">
+                        <CardTitle className="text-[15px] font-bold text-brand-neutral-800 uppercase tracking-widest flex items-center gap-3">
                             <Users className="w-5 h-5 text-emerald-600" strokeWidth={1.5} />
                             Members You Referred
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
-                        <div className="divide-y divide-slate-100/60">
+                        <div className="divide-y divide-brand-neutral-100/60">
                             {member.referredMembers.length === 0 ? (
-                                <p className="text-sm font-medium text-slate-400 text-center py-8">No member registrations yet via your referral.</p>
+                                <p className="text-sm font-medium text-brand-neutral-400 text-center py-8">No member registrations yet via your referral.</p>
                             ) : (
                                 member.referredMembers.map((referred) => (
                                     <div key={referred.id} className="flex items-center justify-between p-5 hover:bg-white/40 transition-colors">
                                         <div>
-                                            <p className="text-[15px] font-bold text-slate-800">{referred.user.name}</p>
-                                            <p className="text-xs font-medium text-slate-400 mt-0.5 tracking-wide">{referred.memberId} <span className="text-amber-500/50 mx-1">•</span> {referred.user.email}</p>
+                                            <p className="text-[15px] font-bold text-brand-neutral-800">{referred.user.name}</p>
+                                            <p className="text-xs font-medium text-brand-neutral-400 mt-0.5 tracking-wide">{referred.memberId} <span className="text-amber-500/50 mx-1">•</span> {referred.user.email}</p>
                                         </div>
                                         <div className="text-right flex flex-col items-end gap-1.5">
                                             <Badge
@@ -170,7 +170,7 @@ export default async function MemberDashboardPage() {
                                             >
                                                 {referred.isApproved ? "Approved" : "Pending"}
                                             </Badge>
-                                            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">{formatDate(referred.createdAt)}</p>
+                                            <p className="text-[10px] font-bold text-brand-neutral-300 uppercase tracking-widest">{formatDate(referred.createdAt)}</p>
                                         </div>
                                     </div>
                                 ))
@@ -203,9 +203,9 @@ export default async function MemberDashboardPage() {
                 <div className="lg:col-span-2 space-y-6">
                     {/* Donation History */}
                     {member.donations.length > 0 && (
-                        <Card className="bg-white/70 backdrop-blur-md rounded-3xl border border-white shadow-lg shadow-slate-200/20 overflow-hidden">
-                            <CardHeader className="pb-4 border-b border-slate-100/50 bg-white/40 flex-row items-center justify-between">
-                                <CardTitle className="text-[15px] font-bold text-slate-800 uppercase tracking-widest flex items-center gap-3">
+                        <Card className="bg-white/70 backdrop-blur-md rounded-3xl border border-white shadow-lg shadow-brand-neutral-200/20 overflow-hidden">
+                            <CardHeader className="pb-4 border-b border-brand-neutral-100/50 bg-white/40 flex-row items-center justify-between">
+                                <CardTitle className="text-[15px] font-bold text-brand-neutral-800 uppercase tracking-widest flex items-center gap-3">
                                     <Heart className="w-5 h-5 text-amber-600" strokeWidth={1.5} />
                                     Recent Donations
                                 </CardTitle>
@@ -214,12 +214,12 @@ export default async function MemberDashboardPage() {
                                 </Link>
                             </CardHeader>
                             <CardContent className="p-0">
-                                <div className="divide-y divide-slate-100/60">
+                                <div className="divide-y divide-brand-neutral-100/60">
                                     {member.donations.map((donation) => (
                                         <div key={donation.id} className="flex justify-between items-center p-5 hover:bg-white/40 transition-colors">
                                             <div>
-                                                <p className="text-[15px] font-bold text-slate-800">{donation.purpose || "General Fund"}</p>
-                                                <p className="text-xs font-medium text-slate-400 mt-0.5 tracking-wide">{donation.receiptNumber} <span className="text-amber-500/50 mx-1">•</span> {donation.paidAt ? formatDate(donation.paidAt) : ""}</p>
+                                                <p className="text-[15px] font-bold text-brand-neutral-800">{donation.purpose || "General Fund"}</p>
+                                                <p className="text-xs font-medium text-brand-neutral-400 mt-0.5 tracking-wide">{donation.receiptNumber} <span className="text-amber-500/50 mx-1">•</span> {donation.paidAt ? formatDate(donation.paidAt) : ""}</p>
                                             </div>
                                             <p className="text-lg font-bold text-emerald-600 tracking-tight">{formatCurrency(donation.amount)}</p>
                                         </div>
@@ -231,9 +231,9 @@ export default async function MemberDashboardPage() {
 
                     {/* Certificates */}
                     {member.certificates.length > 0 && (
-                        <Card className="bg-white/70 backdrop-blur-md rounded-3xl border border-white shadow-lg shadow-slate-200/20 overflow-hidden">
-                            <CardHeader className="pb-4 border-b border-slate-100/50 bg-white/40 flex-row items-center justify-between">
-                                <CardTitle className="text-[15px] font-bold text-slate-800 uppercase tracking-widest flex items-center gap-3">
+                        <Card className="bg-white/70 backdrop-blur-md rounded-3xl border border-white shadow-lg shadow-brand-neutral-200/20 overflow-hidden">
+                            <CardHeader className="pb-4 border-b border-brand-neutral-100/50 bg-white/40 flex-row items-center justify-between">
+                                <CardTitle className="text-[15px] font-bold text-brand-neutral-800 uppercase tracking-widest flex items-center gap-3">
                                     <Award className="w-5 h-5 text-amber-600" strokeWidth={1.5} />
                                     My Certificates
                                 </CardTitle>
@@ -242,12 +242,12 @@ export default async function MemberDashboardPage() {
                                 </Link>
                             </CardHeader>
                             <CardContent className="p-0">
-                                <div className="divide-y divide-slate-100/60">
+                                <div className="divide-y divide-brand-neutral-100/60">
                                     {member.certificates.map((cert) => (
                                         <div key={cert.id} className="flex justify-between items-center p-5 hover:bg-white/40 transition-colors">
                                             <div>
-                                                <p className="text-[15px] font-bold text-slate-800">{cert.title}</p>
-                                                <p className="text-xs font-medium text-slate-400 mt-0.5 tracking-wide">{cert.certificateNo} <span className="text-amber-500/50 mx-1">•</span> {formatDate(cert.issueDate)}</p>
+                                                <p className="text-[15px] font-bold text-brand-neutral-800">{cert.title}</p>
+                                                <p className="text-xs font-medium text-brand-neutral-400 mt-0.5 tracking-wide">{cert.certificateNo} <span className="text-amber-500/50 mx-1">•</span> {formatDate(cert.issueDate)}</p>
                                             </div>
                                             <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700 rounded-lg px-2.5 py-0.5 font-bold uppercase text-[9px] tracking-wider">{cert.type}</Badge>
                                         </div>
@@ -269,11 +269,11 @@ export default async function MemberDashboardPage() {
                         </div>
                     </Link>
                     <Link href="/member/id-card" className="block">
-                        <div className="bg-linear-to-br from-slate-800 to-slate-900 rounded-[2rem] p-8 text-white cursor-pointer shadow-lg shadow-slate-900/20 hover:shadow-xl hover:shadow-slate-900/30 transition-all hover:-translate-y-1 relative overflow-hidden group border border-slate-700">
+                        <div className="bg-linear-to-br from-brand-neutral-800 to-brand-neutral-900 rounded-[2rem] p-8 text-white cursor-pointer shadow-lg shadow-brand-neutral-900/20 hover:shadow-xl hover:shadow-brand-neutral-900/30 transition-all hover:-translate-y-1 relative overflow-hidden group border border-brand-neutral-700">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/20 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-700" />
                             <CreditCard className="w-10 h-10 text-amber-500 mb-4 relative z-10" strokeWidth={1.5} />
                             <p className="font-serif text-2xl font-bold mb-1 relative z-10">My ID Card</p>
-                            <p className="text-sm text-slate-400 font-medium relative z-10">Download or view</p>
+                            <p className="text-sm text-brand-neutral-400 font-medium relative z-10">Download or view</p>
                         </div>
                     </Link>
                 </div>
