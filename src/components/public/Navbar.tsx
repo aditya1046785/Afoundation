@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { homeManrope } from "@/components/public/home/homeFonts";
 import { cn } from "@/lib/utils";
 import { safeJsonParse } from "@/lib/utils";
 
@@ -115,17 +116,17 @@ export function Navbar({ settings }: NavbarProps) {
                                 Login
                             </Button>
                         </Link>
-                        <Link href="/donate">
-                            <Button className="bg-amber-500 hover:bg-amber-600 text-white rounded-full px-6 py-5 font-bold shadow-[0_4px_14px_rgba(245,158,11,0.3)] transition-all hover:scale-105 group border-none">
+                        <Button asChild className={cn(homeManrope.className, "bg-[#ab3600] hover:bg-[#ff6e38] text-white rounded-[8px] px-6 py-5 text-sm font-bold shadow-sm hover:shadow-md transition-all group border-none focus-visible:ring-[#ab3600]/40")}>
+                            <Link href="/donate">
                                 <Heart className="w-4 h-4 mr-2 fill-white transition-transform group-hover:scale-110" />
                                 Donate
-                            </Button>
-                        </Link>
-                        <Link href={ctaLink} className="hidden lg:block">
-                            <Button variant="outline" className="rounded-full px-6 py-5 font-bold text-slate-800 border-2 border-slate-200 hover:border-slate-800 hover:bg-transparent transition-all hover:scale-105 shadow-none">
+                            </Link>
+                        </Button>
+                        <Button asChild variant="outline" className={cn(homeManrope.className, "rounded-[8px] px-6 py-5 text-sm font-bold bg-[#023727] text-white border-[#023727] hover:bg-[#1f4e3d] hover:text-white hover:border-[#1f4e3d] transition-all shadow-sm hover:shadow-md focus-visible:ring-[#023727]/40 hidden lg:inline-flex")}>
+                            <Link href={ctaLink}>
                                 {ctaText}
-                            </Button>
-                        </Link>
+                            </Link>
+                        </Button>
                     </div>
 
                     {/* Mobile Menu Toggle */}
@@ -168,17 +169,17 @@ export function Navbar({ settings }: NavbarProps) {
                                 <Link href="/login">
                                     <Button variant="outline" className="w-full rounded-full py-6 text-base border-2">Login</Button>
                                 </Link>
-                                <Link href="/donate">
-                                    <Button className="w-full rounded-full py-6 text-base bg-amber-500 hover:bg-amber-600 text-white font-bold shadow-lg">
+                                <Button asChild className={cn(homeManrope.className, "w-full rounded-[8px] py-6 text-base bg-[#ab3600] hover:bg-[#ff6e38] text-white font-bold shadow-sm focus-visible:ring-[#ab3600]/40")}>
+                                    <Link href="/donate">
                                         <Heart className="w-4 h-4 mr-2 fill-white" />
                                         Donate Now
-                                    </Button>
-                                </Link>
-                                <Link href={ctaLink}>
-                                    <Button className="w-full rounded-full py-6 text-base bg-slate-900 text-white font-bold">
+                                    </Link>
+                                </Button>
+                                <Button asChild className={cn(homeManrope.className, "w-full rounded-[8px] py-6 text-base bg-[#023727] hover:bg-[#1f4e3d] text-white font-bold shadow-sm focus-visible:ring-[#023727]/40")}>
+                                    <Link href={ctaLink}>
                                         {ctaText}
-                                    </Button>
-                                </Link>
+                                    </Link>
+                                </Button>
                             </div>
                         </nav>
                     </motion.div>

@@ -41,7 +41,7 @@ function HeroAccreditations() {
           aria-hidden="true"
           className="shrink-0 size-[17px] text-[#023727]"
         />
-        <span>NITI Aayog Darpan: UP/2023/034821</span>
+        <span>NITI Aayog Darpan:REG/2025/0559454</span>
       </div>
       <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[12px] bg-[#ffffff] border border-[#c0c8c3]/60 text-[#1c1c19] shadow-sm text-[11px] leading-[14px] tracking-[0.06em] font-semibold">
         <ShieldCheck

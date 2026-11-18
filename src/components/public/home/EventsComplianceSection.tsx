@@ -34,7 +34,7 @@ export function EventsComplianceSection() {
                     14
                   </span>
                   <span className="text-[11px] leading-[14px] tracking-[0.06em] font-bold uppercase tracking-wide">
-                    Jan 2025
+                    Jan 2026
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
@@ -63,7 +63,7 @@ export function EventsComplianceSection() {
                     28
                   </span>
                   <span className="text-[11px] leading-[14px] tracking-[0.06em] font-bold uppercase tracking-wide">
-                    Jan 2025
+                    Jan 2026
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
@@ -92,7 +92,7 @@ export function EventsComplianceSection() {
                     12
                   </span>
                   <span className="text-[11px] leading-[14px] tracking-[0.06em] font-bold uppercase tracking-wide">
-                    Feb 2025
+                    Feb 2026
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
@@ -122,7 +122,7 @@ export function EventsComplianceSection() {
                   24/7 Cattle Emergency &amp; Bhandara Helpline
                 </span>
                 <p className="font-[family-name:var(--font-home-heading)] text-[22px] leading-[30px] font-semibold">
-                  Found an injured cow or need Mela assistance?
+                  Want to get involved or  need Mela assistance?
                 </p>
               </div>
               <Link
