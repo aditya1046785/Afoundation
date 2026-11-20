@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
@@ -22,13 +23,39 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const after = searchParams.get("after"); // ISO timestamp for polling
+    const afterId = searchParams.get("afterId"); // Message ID tie-breaker
+
+    let messagesWhere: Prisma.ChatMessageWhereInput | undefined = undefined;
+    if (after) {
+        const afterDate = new Date(after);
+        if (!isNaN(afterDate.getTime())) {
+            if (afterId) {
+                messagesWhere = {
+                    OR: [
+                        { createdAt: { gt: afterDate } },
+                        {
+                            createdAt: afterDate,
+                            id: { gt: afterId },
+                        },
+                    ],
+                };
+            } else {
+                messagesWhere = {
+                    createdAt: { gt: afterDate },
+                };
+            }
+        }
+    }
 
     const liveSession = await prisma.chatSession.findFirst({
         where: { isLive: true },
         include: {
             messages: {
-                where: after ? { createdAt: { gt: new Date(after) } } : undefined,
-                orderBy: { createdAt: "asc" },
+                where: messagesWhere,
+                orderBy: [
+                    { createdAt: "asc" },
+                    { id: "asc" },
+                ],
                 take: 100,
             },
         },
@@ -44,9 +71,11 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
-    if (session.user.role === "MEMBER") {
+    const currentUser = session.user;
+
+    if (currentUser.role === "MEMBER") {
         const member = await prisma.member.findUnique({
-            where: { userId: session.user.id },
+            where: { userId: currentUser.id },
             select: { isApproved: true },
         });
 
@@ -55,7 +84,8 @@ export async function POST(request: NextRequest) {
         }
     }
 
-    const { content, sessionId } = await request.json();
+    const body = await request.json();
+    const { content, sessionId, clientId } = body;
     if (!content?.trim() || !sessionId) {
         return NextResponse.json({ success: false, error: "Missing content or sessionId" }, { status: 400 });
     }
@@ -66,14 +96,45 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Chat session is not live." }, { status: 400 });
     }
 
-    const message = await prisma.chatMessage.create({
-        data: {
-            sessionId,
-            senderName: session.user.name || "Unknown",
-            senderRole: session.user.role || "MEMBER",
-            content: content.trim(),
-        },
-    });
+    // Idempotent check: if clientId already exists for this session, return the existing message
+    if (clientId && typeof clientId === "string") {
+        const existing = await prisma.chatMessage.findFirst({
+            where: {
+                sessionId,
+                clientId,
+            },
+        });
+        if (existing) {
+            return NextResponse.json({ success: true, data: existing });
+        }
+    }
 
-    return NextResponse.json({ success: true, data: message });
+    try {
+        const message = await prisma.chatMessage.create({
+            data: {
+                sessionId,
+                senderName: currentUser.name || "Unknown",
+                senderRole: currentUser.role || "MEMBER",
+                content: content.trim(),
+                clientId: typeof clientId === "string" ? clientId : null,
+            },
+        });
+
+        return NextResponse.json({ success: true, data: message });
+    } catch (error: unknown) {
+        const prismaError = error as { code?: string } | null;
+        if (prismaError?.code === "P2002" && clientId) {
+            const existing = await prisma.chatMessage.findFirst({
+                where: {
+                    sessionId,
+                    clientId: typeof clientId === "string" ? clientId : undefined,
+                },
+            });
+            if (existing) {
+                return NextResponse.json({ success: true, data: existing });
+            }
+        }
+        console.error("Error creating chat message:", error);
+        return NextResponse.json({ success: false, error: "Failed to send message" }, { status: 500 });
+    }
 }

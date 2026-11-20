@@ -506,12 +506,15 @@ model ChatMessage {
   senderName  String
   senderRole  String
   content     String   @db.Text
+  clientId    String?
   createdAt   DateTime @default(now())
 
   session ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
+  @@unique([sessionId, clientId])
   @@index([sessionId])
   @@index([createdAt])
+  @@index([createdAt, id])
 }
 
 model RegistrationAttempt {
@@ -524,4 +527,11 @@ model RegistrationAttempt {
   @@index([ipAddress, createdAt])
   @@index([email, createdAt])
   @@index([outcome, createdAt])
+}
+
+model WebhookEvent {
+  id         String   @id @default(cuid())
+  eventId    String   @unique   // Razorpay header `x-razorpay-event-id`
+  type       String
+  receivedAt DateTime @default(now())
 }

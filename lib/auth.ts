@@ -4,6 +4,8 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
 
+export const STATUS_REFRESH_MS = 60_000;
+
 export const authConfig: NextAuthConfig = {
     adapter: PrismaAdapter(prisma) as NextAuthConfig["adapter"],
     secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
@@ -69,23 +71,73 @@ export const authConfig: NextAuthConfig = {
     },
     callbacks: {
         async jwt({ token, user }) {
+            // Initial login: user is present
             if (user) {
                 token.id = user.id;
                 token.role = (user as { role: string }).role;
                 token.isApproved = (user as { isApproved?: boolean }).isApproved ?? true;
+                token.statusCheckedAt = Date.now();
+                return token;
             }
 
-            // For MEMBER role, always fetch latest approval status from DB
-            if (token.role === "MEMBER" && token.id) {
+            if (!token.id) {
+                return token;
+            }
+
+            const now = Date.now();
+            const lastChecked = typeof token.statusCheckedAt === "number" ? token.statusCheckedAt : 0;
+
+            // Only re-verify against DB if more than STATUS_REFRESH_MS has passed
+            if (now - lastChecked > STATUS_REFRESH_MS) {
                 try {
                     const member = await prisma.member.findUnique({
                         where: { userId: token.id as string },
-                        select: { isApproved: true },
+                        select: {
+                            id: true,
+                            isApproved: true,
+                            user: {
+                                select: {
+                                    role: true,
+                                    isActive: true,
+                                },
+                            },
+                        },
                     });
-                    token.isApproved = member?.isApproved ?? false;
+
+                    // If member record not found in DB (e.g. member deleted), invalidate token
+                    if (!member) {
+                        if (!token.role || token.role === "MEMBER") {
+                            return null;
+                        }
+
+                        // For non-member roles (e.g. SUPER_ADMIN/ADMIN), check if user still exists
+                        const userRecord = await prisma.user.findUnique({
+                            where: { id: token.id as string },
+                            select: { id: true, role: true, isActive: true },
+                        });
+
+                        if (!userRecord || !userRecord.isActive) {
+                            return null;
+                        }
+
+                        token.role = userRecord.role;
+                        token.statusCheckedAt = now;
+                        return token;
+                    }
+
+                    // If user account is deactivated, invalidate token
+                    if (member.user && !member.user.isActive) {
+                        return null;
+                    }
+
+                    // Refresh token fields
+                    token.isApproved = member.isApproved;
+                    token.role = member.user?.role ?? (member as { role?: string }).role ?? token.role;
+                    token.statusCheckedAt = now;
                 } catch (error) {
-                    // If there's an error fetching, keep existing value
-                    console.error("Error fetching member approval status:", error);
+                    // Fail-open for availability: log error and return old token without updating statusCheckedAt so next request retries
+                    console.error("Error refreshing member token status:", error);
+                    return token;
                 }
             }
 

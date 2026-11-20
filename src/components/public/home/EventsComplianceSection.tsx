@@ -210,7 +210,7 @@ export function EventsComplianceSection() {
                       DARPAN NITI Aayog Certificate
                     </span>
                     <span className="text-[11px] leading-[14px] tracking-[0.06em] font-bold text-[#717974]">
-                      Unique Reg ID: UP/2023/034821 Active Certification
+                      Unique Reg ID: UP/2025/0559454 Active Certification
                     </span>
                   </div>
                 </div>
@@ -251,7 +251,7 @@ export function EventsComplianceSection() {
               />
               <p className="text-sm leading-5 text-[#414944]">
                 Registered under Indian Trusts Act, 1882. Sub-Registrar Office,
-                Prayagraj. Registration Certificate #419/2018.
+                Prayagraj. 
               </p>
             </div>
           </div>

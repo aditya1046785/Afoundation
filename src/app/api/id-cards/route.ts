@@ -13,10 +13,15 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const memberId = searchParams.get("memberId") || "";
 
-    let where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = {};
     if (session.user.role === "MEMBER") {
-        const member = await prisma.member.findUnique({ where: { userId: session.user.id } });
-        if (!member) return NextResponse.json({ success: true, data: { idCards: [] } });
+        const member = await prisma.member.findUnique({
+            where: { userId: session.user.id },
+            select: { id: true, isApproved: true },
+        });
+        if (!member || !member.isApproved) {
+            return NextResponse.json({ success: false, error: "Forbidden: Account is not approved" }, { status: 403 });
+        }
         where.memberId = member.id;
     } else if (!["SUPER_ADMIN", "ADMIN", "MANAGER"].includes(session.user.role)) {
         return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
@@ -63,10 +68,13 @@ export async function POST(request: NextRequest) {
                 return NextResponse.json({ success: false, error: "Member ID required" }, { status: 400 });
             }
         } else {
-            // MEMBER: resolve their own member record from session
+            // MEMBER: resolve their own member record from session with fresh DB approval check
             const ownMember = await prisma.member.findUnique({ where: { userId: session.user.id } });
             if (!ownMember) {
                 return NextResponse.json({ success: false, error: "Member profile not found" }, { status: 404 });
+            }
+            if (!ownMember.isApproved) {
+                return NextResponse.json({ success: false, error: "Forbidden: Account is not approved" }, { status: 403 });
             }
             memberId = ownMember.id;
         }

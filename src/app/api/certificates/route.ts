@@ -17,10 +17,15 @@ export async function GET(request: NextRequest) {
     const pageSize = parseInt(searchParams.get("pageSize") || "10");
     const memberId = searchParams.get("memberId") || "";
 
-    let where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = {};
     if (session.user.role === "MEMBER") {
-        const member = await prisma.member.findUnique({ where: { userId: session.user.id } });
-        if (!member) return NextResponse.json({ success: true, data: { certificates: [], total: 0 } });
+        const member = await prisma.member.findUnique({
+            where: { userId: session.user.id },
+            select: { id: true, isApproved: true },
+        });
+        if (!member || !member.isApproved) {
+            return NextResponse.json({ success: false, error: "Forbidden: Account is not approved" }, { status: 403 });
+        }
         where.memberId = member.id;
     } else if (!["SUPER_ADMIN", "ADMIN", "MANAGER"].includes(session.user.role)) {
         return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });

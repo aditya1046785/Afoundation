@@ -14,39 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { motion } from "framer-motion";
 import { Heart, Loader2, CheckCircle } from "lucide-react";
 import type { z } from "zod";
-
-interface RazorpayPaymentResponse {
-    razorpay_payment_id: string;
-    razorpay_order_id: string;
-    razorpay_signature: string;
-}
-
-interface RazorpayOptions {
-    key: string | undefined;
-    amount: number;
-    currency: string;
-    name: string;
-    description: string;
-    order_id: string;
-    prefill: {
-        name: string;
-        email: string;
-        contact: string;
-    };
-    theme: { color: string };
-    handler: (response: RazorpayPaymentResponse) => Promise<void>;
-    modal: { ondismiss: () => void };
-}
-
-interface RazorpayInstance {
-    open: () => void;
-}
-
-declare global {
-    interface Window {
-        Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
-    }
-}
+import { usePaymentFlow } from "@/hooks/usePaymentFlow";
 
 interface DonateFormProps {
     presetAmounts: number[];
@@ -55,11 +23,17 @@ interface DonateFormProps {
 
 type DonationFormData = z.input<typeof donationSchema>;
 
+interface CreateOrderResponseData {
+    orderId: string;
+    amount: number;
+    currency: string;
+    donationId: string;
+    receiptNumber: string;
+}
+
 export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
     const searchParams = useSearchParams();
     const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [success, setSuccess] = useState(false);
 
     const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<DonationFormData>({
         resolver: zodResolver(donationSchema),
@@ -67,7 +41,6 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
     });
 
     const watchedAmount = watch("amount");
-    const watchedPurpose = watch("purpose");
     const referralCode = searchParams.get("ref")?.trim() || "";
     const campaignId = searchParams.get("campaign")?.trim() || "";
     const campaignTitle = searchParams.get("campaignTitle")?.trim() || "";
@@ -111,6 +84,7 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
         }
     }, [prefillAmount, setValue]);
 
+    // Requirement 8: sessionStorage read/write try/catch me wrap karo
     useEffect(() => {
         try {
             const stored = sessionStorage.getItem("nirashray-quick-donation");
@@ -122,8 +96,8 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                 const value = (donor as Record<string, unknown>)[field];
                 if (typeof value === "string") setValue(field, value);
             }
-        } catch {
-            // Leave the regular checkout form available if browser storage is unavailable.
+        } catch (storageErr) {
+            console.warn("Could not read quick-donation from sessionStorage:", storageErr);
         }
     }, [setValue]);
 
@@ -157,103 +131,75 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
         return payload;
     };
 
-    const loadRazorpay = () => {
-        return new Promise((resolve) => {
-            const script = document.createElement("script");
-            script.src = "https://checkout.razorpay.com/v1/checkout.js";
-            script.onload = resolve;
-            document.body.appendChild(script);
-        });
-    };
-
-    const onSubmit = async (data: DonationFormData) => {
-        try {
-            console.log("Donate form submitted", data);
-            setIsLoading(true);
-            console.log("Loading Razorpay script");
-
-            await loadRazorpay();
-            console.log("Razorpay script loaded");
-
-            // Create order
-            console.log("Creating order");
+    // Requirement 1 & 2: Discriminated-union payment state machine hook
+    const { state, isSubmitting, startPayment, reset } = usePaymentFlow<
+        DonationFormData,
+        CreateOrderResponseData
+    >({
+        createOrder: async (data: DonationFormData) => {
             const payload = normalizeDonationPayload(data);
-            console.log("Create-order payload", payload);
-
             const res = await fetch("/api/donations/create-order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
 
-            console.log("Create-order response status", res.status);
             const responseData = await res.json();
-            console.log("Create-order response data", responseData);
-
-            const { success, data: orderData, error } = responseData;
-            if (!success) {
+            const { success: ok, data: orderData, error } = responseData;
+            if (!ok || !orderData) {
                 throw new Error(error || "Failed to create order");
             }
 
-            console.log("Order created", orderData);
-
-            // Open Razorpay checkout
-            console.log("Opening Razorpay checkout");
-            const rzp = new window.Razorpay({
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-                amount: orderData.amount,
-                currency: "INR",
-                name: "Nirashray Foundation",
-                description: data.purpose || "Donation",
-                order_id: orderData.orderId,
-                prefill: {
-                    name: data.donorName,
-                    email: data.donorEmail,
-                    contact: data.donorPhone || "",
+            return {
+                orderId: orderData.orderId,
+                razorpayOptions: {
+                    key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                    amount: orderData.amount,
+                    currency: "INR",
+                    name: "Nirashray Foundation",
+                    description: data.purpose || "Donation",
+                    order_id: orderData.orderId,
+                    prefill: {
+                        name: data.donorName,
+                        email: data.donorEmail,
+                        contact: data.donorPhone || "",
+                    },
+                    theme: { color: "#ab3600" },
                 },
-                theme: { color: "#ab3600" }, // Terracotta brand accent
-                handler: async (response: RazorpayPaymentResponse) => {
-                    console.log("Payment completed, verifying", response);
-                    const verifyRes = await fetch("/api/donations/verify", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(response),
-                    });
-                    const verifyData = await verifyRes.json();
-                    console.log("Verification result", verifyData);
-
-                    if (verifyData.success) {
-                        const receiptNumber = verifyData?.data?.receiptNumber as string | undefined;
-                        const paymentId = verifyData?.data?.paymentId as string | undefined;
-
-                        toast.success("Thank you for your donation! Preparing your receipt download...");
-
-                        if (receiptNumber && paymentId) {
-                            const receiptUrl = `/api/receipts/${encodeURIComponent(receiptNumber)}/pdf?paymentId=${encodeURIComponent(paymentId)}`;
-                            setTimeout(() => {
-                                window.location.assign(receiptUrl);
-                            }, 900);
-                        } else {
-                            setSuccess(true);
-                        }
-                    } else {
-                        toast.error("Payment verification failed. Please contact support.");
-                    }
-                },
-                modal: { ondismiss: () => {
-                    console.log("Razorpay modal dismissed by user");
-                    setIsLoading(false);
-                } },
+                context: orderData,
+            };
+        },
+        verifyPayment: async (response) => {
+            const verifyRes = await fetch("/api/donations/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(response),
             });
-            rzp.open();
-        } catch (err) {
-            console.error("Donate flow error", err);
-            const errorMessage = err instanceof Error ? err.message : "Something went wrong.";
-            console.error("Error message", errorMessage);
-            toast.error(errorMessage);
-        } finally {
-            setIsLoading(false);
-        }
+            const verifyData = await verifyRes.json();
+
+            if (!verifyData.success) {
+                throw new Error(verifyData.error || "Payment verification failed. Please contact support.");
+            }
+
+            return {
+                paymentId: (response.razorpay_payment_id || verifyData?.data?.paymentId) as string,
+                receiptNumber: verifyData?.data?.receiptNumber as string | undefined,
+                data: verifyData,
+            };
+        },
+        onSuccess: (result) => {
+            toast.success("Thank you for your donation! Preparing your receipt download...");
+            if (result.receiptNumber && result.paymentId) {
+                const receiptUrl = `/api/receipts/${encodeURIComponent(result.receiptNumber)}/pdf?paymentId=${encodeURIComponent(result.paymentId)}`;
+                setTimeout(() => {
+                    window.location.assign(receiptUrl);
+                }, 900);
+            }
+        },
+    });
+
+    const onSubmit = async (data: DonationFormData) => {
+        await startPayment(data);
     };
 
     const onInvalid = (formErrors: FieldErrors<DonationFormData>) => {
@@ -263,7 +209,8 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
 
     const submitDonation = handleSubmit(onSubmit, onInvalid);
 
-    if (success) {
+    // Requirement 9: UI me sirf status dekh ke render karo
+    if (state.status === "success") {
         return (
             <motion.div
                 initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
@@ -278,7 +225,11 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                 <p className="text-brand-neutral-500 text-lg mb-10 font-normal leading-relaxed max-w-md mx-auto">
                     Your generous donation has been securely received. An official 80G receipt has been sent directly to your email address.
                 </p>
-                <Button onClick={() => setSuccess(false)} variant="outline" className="rounded-full px-8 py-6 text-base font-medium text-brand-neutral-700 border-2 border-brand-neutral-200 hover:border-brand-neutral-800 hover:bg-transparent transition-all duration-300 shadow-none">
+                <Button
+                    onClick={() => reset()}
+                    variant="outline"
+                    className="rounded-full px-8 py-6 text-base font-medium text-brand-neutral-700 border-2 border-brand-neutral-200 hover:border-brand-neutral-800 hover:bg-transparent transition-all duration-300 shadow-none"
+                >
                     Make Another Donation
                 </Button>
             </motion.div>
@@ -328,54 +279,59 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                                     setValue("amount", amount);
                                 }}
                                 className={`py-4 px-2 rounded-2xl border-2 font-bold text-base transition-all duration-300 shadow-sm ${watchedAmount === amount && selectedAmount === amount
-                                        ? "border-brand-accent-500 bg-brand-accent-50 text-brand-accent-900 shadow-[0_4px_14px_rgba(171,54,0,0.2)]"
-                                        : "border-white bg-white text-brand-neutral-600 hover:border-brand-accent-300 hover:text-brand-accent-800"
+                                    ? "bg-brand-neutral-800 text-white border-brand-neutral-800 shadow-brand-neutral-800/10"
+                                    : "bg-white text-brand-neutral-700 border-brand-neutral-200 hover:border-brand-neutral-400"
                                     }`}
                             >
                                 ₹{amount.toLocaleString("en-IN")}
                             </motion.button>
                         ))}
                     </div>
+
+                    {/* Custom Amount */}
                     <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-neutral-400 font-medium">₹</span>
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-neutral-400 font-bold text-lg">₹</span>
                         <Input
-                            type="number"
-                            placeholder="Enter custom amount"
-                            min={100}
-                            className="bg-white border-white shadow-sm pl-8 h-14 rounded-2xl text-lg font-medium focus-visible:ring-brand-accent-500"
                             {...register("amount", { valueAsNumber: true })}
+                            type="number"
+                            placeholder="Or enter custom amount"
+                            className="pl-9 h-14 rounded-2xl bg-white border-brand-neutral-200 text-lg font-bold text-brand-neutral-800 focus-visible:ring-brand-accent-500 shadow-sm"
                             onChange={(e) => {
                                 setSelectedAmount(null);
-                                setValue("amount", parseFloat(e.target.value));
+                                setValue("amount", parseFloat(e.target.value) || 0);
                             }}
                         />
                     </div>
-                    {errors.amount && <p className="text-red-500 text-xs mt-2 font-medium ml-2">{errors.amount.message}</p>}
+                    {errors.amount && <p className="text-red-500 text-xs mt-2 font-medium">{errors.amount.message}</p>}
                 </div>
 
                 {/* Purpose */}
-                <div className="pl-2">
-                    <Label className="text-xs font-semibold text-brand-neutral-500 mb-2 block tracking-widest uppercase">Donation Purpose</Label>
-                    <Select value={watchedPurpose || undefined} onValueChange={(val) => setValue("purpose", val)}>
-                        <SelectTrigger className="h-14 rounded-xl bg-brand-neutral-50/50 border-brand-neutral-200 focus:ring-brand-accent-500">
-                            <SelectValue placeholder="Select purpose" />
+                <div>
+                    <Label className="text-xs font-semibold text-brand-neutral-500 mb-2 block tracking-widest uppercase">Cause / Purpose</Label>
+                    <Select onValueChange={(val) => setValue("purpose", val)} value={watch("purpose") || ""}>
+                        <SelectTrigger className="h-12 rounded-xl bg-brand-neutral-50/50 border-brand-neutral-200 text-brand-neutral-700 focus:ring-brand-accent-500">
+                            <SelectValue placeholder="Select a cause (Optional)" />
                         </SelectTrigger>
-                        <SelectContent className="rounded-xl border-brand-neutral-200 shadow-xl font-medium">
-                            {purposeOptions.map((p) => <SelectItem key={p} value={p} className="focus:bg-brand-accent-50 focus:text-brand-accent-900">{p}</SelectItem>)}
+                        <SelectContent>
+                            {purposeOptions.map((p) => (
+                                <SelectItem key={p} value={p}>
+                                    {p}
+                                </SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                 </div>
 
-                {/* Donor Info */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6 pl-2 pr-2">
+                {/* Donor Details */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <Label className="text-xs font-semibold text-brand-neutral-500 mb-2 block tracking-widest uppercase">Full Name *</Label>
-                        <Input {...register("donorName")} placeholder="Your name" className="h-12 rounded-xl bg-brand-neutral-50/50 border-brand-neutral-200 focus-visible:ring-brand-accent-500" />
+                        <Input {...register("donorName")} placeholder="Aarav Sharma" className="h-12 rounded-xl bg-brand-neutral-50/50 border-brand-neutral-200 focus-visible:ring-brand-accent-500" />
                         {errors.donorName && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.donorName.message}</p>}
                     </div>
                     <div>
                         <Label className="text-xs font-semibold text-brand-neutral-500 mb-2 block tracking-widest uppercase">Email Address *</Label>
-                        <Input {...register("donorEmail")} type="email" placeholder="your@email.com" className="h-12 rounded-xl bg-brand-neutral-50/50 border-brand-neutral-200 focus-visible:ring-brand-accent-500" />
+                        <Input {...register("donorEmail")} type="email" placeholder="aarav@example.com" className="h-12 rounded-xl bg-brand-neutral-50/50 border-brand-neutral-200 focus-visible:ring-brand-accent-500" />
                         {errors.donorEmail && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.donorEmail.message}</p>}
                     </div>
                     <div>
@@ -395,18 +351,31 @@ export function DonateForm({ presetAmounts, purposes }: DonateFormProps) {
                     </div>
                 </div>
 
+                {state.status === "error" && (
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
+                        <p className="text-red-600 text-sm font-medium">{state.message}</p>
+                    </div>
+                )}
+
+                {/* Requirement 4: Submit button disabled sirf tab jab status !== 'idle' aur !== 'error' */}
                 <div className="pt-4">
                     <button
                         type="button"
                         onClick={() => {
-                            console.log("Donate button clicked");
                             submitDonation();
                         }}
-                        disabled={isLoading}
+                        disabled={isSubmitting}
                         className="w-full inline-flex items-center justify-center gap-2 bg-brand-neutral-900 hover:bg-brand-neutral-800 text-white rounded-2xl py-8 text-xl font-bold shadow-xl shadow-brand-neutral-900/10 transition-all duration-300 hover:scale-[1.02] group cursor-pointer active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-75 disabled:hover:scale-100"
                     >
-                        {isLoading ? (
-                            <><Loader2 className="w-5 h-5 mr-3 animate-spin text-brand-accent-500" /> Securely Processing...</>
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className="w-5 h-5 mr-3 animate-spin text-brand-accent-500" />
+                                {state.status === "creating"
+                                    ? "Preparing Payment..."
+                                    : state.status === "verifying"
+                                        ? "Verifying Payment..."
+                                        : "Processing Payment..."}
+                            </>
                         ) : (
                             <>
                                 Donate ₹{(watchedAmount || 0).toLocaleString("en-IN")}

@@ -10,6 +10,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
     }
 
+    // Fresh DB check on caller to ensure role hasn't been revoked/demoted
+    const caller = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { id: true, role: true, isActive: true },
+    });
+    if (!caller || !caller.isActive || !["SUPER_ADMIN", "ADMIN"].includes(caller.role)) {
+        return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
+    }
+
     const { id } = await params;
     const body = await request.json();
     const { action, reason } = body; // action: "approve" | "reject"

@@ -65,7 +65,7 @@ function DigitalPragyaPillar() {
           <div className="p-4 rounded-[8px] bg-[#f6f3ee] flex items-start gap-4">
             <Image
               className="w-14 h-14 rounded-[12px] object-cover shrink-0"
-              alt="Close up portrait of a young Indian girl named Priya Kumari from a village near Varanasi, wearing a yellow dupatta, smiling with deep confidence holding her graduation certificate from the Nirashray Computer Academy."
+              alt="student of nirashray foundation vidyapeeth"
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwmG9lXN80_MPNZ0qd9VA95UH6bkQjXcgic_tw7P6P4Ag6z-4-cawnW7JB0FGS8fYzMdD1CEXSX44s_zj0wvlN3s7u2d1gWdQhstZGU5fOtT9OV8o61pvHDYfJ34wUtgfwiEn6wYACF5g6owsr0EczX42l0lpLv-cTWq8zESLPLI8sdiYxO1tKY3oeADXgcj39c_pObtD7eerVm4M1n7dS7POh7AgfL5wNdYUHFHbK"
               width={56}
               height={56}
@@ -78,7 +78,7 @@ function DigitalPragyaPillar() {
                 and fund my younger brother’s school fees.”
               </p>
               <span className="text-[11px] leading-[14px] tracking-[0.06em] text-[#023727] font-semibold mt-1 block">
-                — Priya Kumari (Batch of 2024, Sonbhadra Kendra)
+                — Priya Kumari (Batch of 2024, prayagraj kendra)
               </span>
             </div>
           </div>
@@ -108,14 +108,14 @@ function DigitalPragyaPillar() {
           <div className="relative rounded-[8px] overflow-hidden shadow-sm">
             <Image
               className="w-full h-64 object-cover"
-              alt="An organized classroom where female students in uniform are happily working on refurbished laptops under solar-powered bright lights, teacher demonstrating on a whiteboard in Hindi and English, clean joyful aesthetic."
+              alt="students of nirashray foundation vidyapeeth learning in their classroom "
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4mFomMhL5hMmpJoFzFw4Tr9uEt-Wpl0WLx5ydG3tW2SaWCamVn_zkQ13SznjxHM6l_KN2ErNYImhBPc1BS0fMo-BbEJE69B0IBvI5AZSgKM4Z59UnpKY2KDD12LZ3QY28mA0HGdQgYQRkxcw32HD_0BIFzIHSWif9fhDjjVWxkEsICo9Gdi22P4J3XJ8WvcQdNDAmHr4C7w8-uz2wYGL1g_yxsfx6pTdkZtWQD4dp"
               width={800}
               height={600}
               unoptimized
             />
             <div className="absolute bottom-3 left-3 bg-[#ffffff]/95 backdrop-blur-md px-3.5 py-1.5 rounded-[2px] text-[11px] leading-[14px] tracking-[0.06em] font-bold text-[#023727] shadow-sm">
-              42 Solar Powered Classrooms
+              Solar Powered Classrooms
             </div>
           </div>
 
@@ -123,7 +123,7 @@ function DigitalPragyaPillar() {
             <div className="flex flex-wrap gap-2 items-center justify-between text-xs leading-4 tracking-[0.04em] font-semibold text-[#1c1c19]">
               <span>Laptop Target FY 2024-25</span>
               <span className="text-[#023727] font-bold">
-                1,820 / 2,500 Distributed
+                1,820 / 2,500 
               </span>
             </div>
             <div className="w-full bg-[#c0c8c3]/30 h-2.5 rounded-[12px] overflow-hidden">
@@ -162,7 +162,7 @@ function SurabhiGausevaPillar() {
             />
             <div className="absolute top-3 left-3 bg-[#ab3600] px-3 py-1 rounded-[2px] text-[#ffffff] text-[11px] leading-[14px] tracking-[0.06em] font-bold flex items-center gap-1.5 shadow">
               <span className="w-2 h-2 rounded-[12px] bg-white motion-safe:animate-pulse"></span>
-              <span>Active 24/7 Cattle Ambulance</span>
+              <span>Active Cattle Ambulance</span>
             </div>
           </div>
 
@@ -271,7 +271,7 @@ function SurabhiGausevaPillar() {
               className="shrink-0 text-[#ffdea6] size-[20px]"
             />
             <span>
-              Gaushala waste powers our 20kVA Biogas Generator, powering village
+              Gaushala waste can power 20kVA Biogas Generator and can power village
               streetlights cleanly.
             </span>
           </div>
@@ -415,7 +415,7 @@ export function SacredPillarsSection() {
           </div>
           <div className="flex items-center gap-2 text-[#023727] text-xs leading-4 tracking-[0.04em] font-semibold">
             <span className="w-3 h-3 rounded-[12px] bg-[#ab3600]"></span>
-            <span>Live Field Telemetry UP &amp; Bihar</span>
+            
           </div>
         </div>
 

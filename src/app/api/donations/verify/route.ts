@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { verifyRazorpaySignature } from "@/lib/razorpay";
 import { sendDonationReceiptEmail } from "@/lib/email";
+import {
+    PAYMENT_STATUS_TRANSITIONS,
+    getAllowedFromStates,
+} from "@/lib/state-transitions";
 
 type CrowdfundingMeta = {
     donationType?: "crowdfunding" | "general";
@@ -58,6 +62,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: false, error: "Donation not found" }, { status: 404 });
         }
 
+        // 4: Payment already COMPLETED hai to dubara process mat karo, existing success response return karo (idempotent)
         if (donationRecord.status === "COMPLETED") {
             return NextResponse.json({
                 success: true,
@@ -71,15 +76,22 @@ export async function POST(request: NextRequest) {
             });
         }
 
+        const allowedFromStates = getAllowedFromStates(PAYMENT_STATUS_TRANSITIONS, "COMPLETED");
         const crowdfundingMeta = parseCrowdfundingMeta(donationRecord.notes);
         const now = new Date();
         const campaignPurpose = crowdfundingMeta
             ? `Crowdfunding - ${crowdfundingMeta.crowdfundingCampaignTitle || "Campaign"}`
             : null;
 
-        const donation = await prisma.$transaction(async (tx) => {
-            const updatedDonation = await tx.donation.update({
-                where: { id: donationRecord.id },
+        let shouldSendEmail = false;
+
+        const updatedDonation = await prisma.$transaction(async (tx) => {
+            // Guarded status transition using updateMany
+            const updateResult = await tx.donation.updateMany({
+                where: {
+                    id: donationRecord.id,
+                    status: { in: allowedFromStates },
+                },
                 data: {
                     razorpayPaymentId: razorpay_payment_id,
                     razorpaySignature: razorpay_signature,
@@ -91,25 +103,51 @@ export async function POST(request: NextRequest) {
                 },
             });
 
-            if (crowdfundingMeta?.crowdfundingCampaignId) {
-                await tx.crowdfundingCampaign.update({
-                    where: { id: crowdfundingMeta.crowdfundingCampaignId },
-                    data: {
-                        raised: { increment: updatedDonation.amount },
-                    },
-                });
+            // 5: Koi bhi side-effect sirf tab chalao jab updateMany ne count ≥ 1 diya
+            if (updateResult.count >= 1) {
+                shouldSendEmail = true;
+
+                if (crowdfundingMeta?.crowdfundingCampaignId) {
+                    await tx.crowdfundingCampaign.update({
+                        where: { id: crowdfundingMeta.crowdfundingCampaignId },
+                        data: {
+                            raised: { increment: donationRecord.amount },
+                        },
+                    });
+                }
             }
 
-            return updatedDonation;
+            return tx.donation.findUnique({
+                where: { id: donationRecord.id },
+            });
         });
 
-        // Send receipt email
-        const emailSent = await sendDonationReceiptEmail(donation.donorEmail, {
-            donorName: donation.donorName,
-            amount: donation.amount,
-            receiptNumber: donation.receiptNumber,
-            date: donation.paidAt!.toISOString(),
-            purpose: donation.purpose || "General Donation",
+        if (!updatedDonation) {
+            return NextResponse.json({ success: false, error: "Donation not found" }, { status: 404 });
+        }
+
+        // If count was 0, it was already transitioned or in an invalid state; return idempotent success
+        if (!shouldSendEmail) {
+            console.log(`[Donation Verify] Payment already transitioned or state guard prevented update for ${donationRecord.id}`);
+            return NextResponse.json({
+                success: true,
+                message: "Payment already verified",
+                data: {
+                    receiptNumber: updatedDonation.receiptNumber,
+                    donationId: updatedDonation.id,
+                    paymentId: razorpay_payment_id,
+                },
+                emailSent: false,
+            });
+        }
+
+        // Send receipt email ONLY if updateMany returned count >= 1
+        const emailSent = await sendDonationReceiptEmail(updatedDonation.donorEmail, {
+            donorName: updatedDonation.donorName,
+            amount: updatedDonation.amount,
+            receiptNumber: updatedDonation.receiptNumber,
+            date: (updatedDonation.paidAt || now).toISOString(),
+            purpose: updatedDonation.purpose || "General Donation",
             transactionId: razorpay_payment_id,
         });
 
@@ -117,8 +155,8 @@ export async function POST(request: NextRequest) {
             success: true,
             message: emailSent ? "Payment verified successfully" : "Payment verified successfully, but receipt email could not be sent",
             data: {
-                receiptNumber: donation.receiptNumber,
-                donationId: donation.id,
+                receiptNumber: updatedDonation.receiptNumber,
+                donationId: updatedDonation.id,
                 paymentId: razorpay_payment_id,
             },
             emailSent,

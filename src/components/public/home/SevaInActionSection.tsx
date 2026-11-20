@@ -116,7 +116,7 @@ export function SevaInActionSection() {
               />
               <div className="flex flex-wrap gap-2 items-center justify-between text-[12px] text-[#717974]">
                 <span>Sangam Ghat Station 3</span>
-                <span>Updated 2 hours ago</span>
+                <span>Daily Continuous</span>
               </div>
               <h4 className="font-[family-name:var(--font-home-heading)] text-[22px] leading-[30px] font-semibold text-[#023727]">
                 Pre-Sunrise Khichdi Preparation

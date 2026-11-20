@@ -69,7 +69,7 @@ function HeroTrustPillars() {
             80G Tax Exemption
           </div>
           <div className="text-[12px] text-[#414944] font-medium">
-            100% Tax Deductible
+            50% Tax Deductible
           </div>
         </div>
       </div>
@@ -236,7 +236,7 @@ export function HeroSection() {
               </div>
 
               <h1 className="text-[32px] sm:text-5xl text-[#023727] font-bold tracking-tight leading-tight mb-4">
-                Empowering Lives Through Tech Education, Kanya Shiksha &amp;
+                Nirashray Foundation | NGO in Prayagraj – Kanya Shiksha, Magh Mela Annakshetra &amp;
                 Holy Gauseva
               </h1>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { FieldErrors, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { motion } from "framer-motion";
 import { Heart, Loader2, CheckCircle, RotateCw } from "lucide-react";
 import type { z } from "zod";
+import { usePaymentFlow } from "@/hooks/usePaymentFlow";
 
 interface AutopayFormProps {
     purposes: string[];
@@ -21,11 +22,15 @@ interface AutopayFormProps {
 
 type AutopayFormData = z.input<typeof autopaySchema>;
 
+interface CreateSubscriptionResponseData {
+    subscriptionId: string;
+    razorpaySubscriptionId: string;
+    amount: number;
+    frequency: string;
+}
+
 export function AutopayForm({ purposes }: AutopayFormProps) {
     const searchParams = useSearchParams();
-    const [isLoading, setIsLoading] = useState(false);
-    const [success, setSuccess] = useState(false);
-    const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
 
     const {
         register,
@@ -50,7 +55,6 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
 
     const watchedAmount = watch("amount");
     const watchedFrequency = watch("frequency");
-    const watchedPurpose = watch("purpose");
 
     const submitLabel =
         watchedFrequency === "WEEKLY"
@@ -99,24 +103,13 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
         return payload;
     };
 
-    const loadRazorpay = () => {
-        return new Promise((resolve) => {
-            const script = document.createElement("script");
-            script.src = "https://checkout.razorpay.com/v1/checkout.js";
-            script.onload = resolve;
-            document.body.appendChild(script);
-        });
-    };
-
-    const onSubmit = async (data: AutopayFormData) => {
-        try {
-            console.log("Autopay form submitted", data);
-            setIsLoading(true);
-            await loadRazorpay();
-
+    // Requirement 1 & 2: usePaymentFlow hook
+    const { state, isSubmitting, startPayment, reset } = usePaymentFlow<
+        AutopayFormData,
+        CreateSubscriptionResponseData
+    >({
+        createOrder: async (data: AutopayFormData) => {
             const payload = normalizeAutopayPayload(data);
-            console.log("Create-autopay-subscription payload", payload);
-
             const res = await fetch("/api/autopay/create-subscription", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -124,67 +117,56 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
             });
 
             const responseData = await res.json();
-            console.log("Create-autopay-subscription response", responseData);
-
-            const { success, data: subscriptionData, error } = responseData;
-            if (!success) {
+            const { success: ok, data: subscriptionData, error } = responseData;
+            if (!ok || !subscriptionData) {
                 throw new Error(error || "Failed to create autopay subscription");
             }
 
-            console.log("Subscription created", subscriptionData);
-
-            // Open Razorpay checkout for subscription
-            const rzp = new (window as any).Razorpay({
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-                subscription_id: subscriptionData.razorpaySubscriptionId,
-                name: "Nirashray Foundation",
-                description: `Autopay ${data.frequency.toLowerCase()} donation - ₹${data.amount}`,
-                prefill: {
-                    name: data.donorName,
-                    email: data.donorEmail,
-                    contact: data.donorPhone || "",
+            return {
+                orderId: subscriptionData.razorpaySubscriptionId,
+                razorpayOptions: {
+                    key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                    subscription_id: subscriptionData.razorpaySubscriptionId,
+                    name: "Nirashray Foundation",
+                    description: `Autopay ${data.frequency.toLowerCase()} donation - ₹${data.amount}`,
+                    prefill: {
+                        name: data.donorName,
+                        email: data.donorEmail,
+                        contact: data.donorPhone || "",
+                    },
+                    theme: { color: "#ab3600" },
                 },
-                theme: { color: "#ab3600" },
-                handler: async (response: any) => {
-                    console.log("Autopay subscription completed, verifying", response);
-                    const verifyRes = await fetch("/api/autopay/verify-subscription", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            subscriptionId: subscriptionData.subscriptionId,
-                            razorpayPaymentId: response.razorpay_payment_id,
-                            razorpaySignature: response.razorpay_signature,
-                        }),
-                    });
-                    const verifyData = await verifyRes.json();
-                    console.log("Verification result", verifyData);
-
-                    if (verifyData.success) {
-                        toast.success("Autopay subscription activated! You will be charged on the scheduled date.");
-                        setSuccess(true);
-                    } else {
-                        toast.error(
-                            "Subscription verification failed. Please contact support."
-                        );
-                    }
-                },
-                modal: {
-                    ondismiss: () => {
-                        console.log("Razorpay modal dismissed");
-                        setIsLoading(false);
-                    }
-                },
+                context: subscriptionData,
+            };
+        },
+        verifyPayment: async (response, context) => {
+            const verifyRes = await fetch("/api/autopay/verify-subscription", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    subscriptionId: context?.subscriptionId,
+                    razorpayPaymentId: response.razorpay_payment_id,
+                    razorpaySignature: response.razorpay_signature,
+                }),
             });
+            const verifyData = await verifyRes.json();
+            if (!verifyData.success) {
+                throw new Error(
+                    verifyData.error || "Subscription verification failed. Please contact support."
+                );
+            }
+            return {
+                paymentId: response.razorpay_payment_id,
+                data: verifyData,
+            };
+        },
+        onSuccess: () => {
+            toast.success("Autopay subscription activated! You will be charged on the scheduled date.");
+        },
+    });
 
-            rzp.open();
-        } catch (err) {
-            console.error("Autopay flow error", err);
-            const errorMessage =
-                err instanceof Error ? err.message : "Something went wrong.";
-            toast.error(errorMessage);
-        } finally {
-            setIsLoading(false);
-        }
+    const onSubmit = async (data: AutopayFormData) => {
+        await startPayment(data);
     };
 
     const onInvalid = (formErrors: FieldErrors<AutopayFormData>) => {
@@ -194,7 +176,8 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
 
     const submitAutopay = handleSubmit(onSubmit, onInvalid);
 
-    if (success) {
+    // Requirement 7 & 9: UI me sirf status dekh ke render karo, window.location.reload() hatakar RESET button do
+    if (state.status === "success") {
         return (
             <motion.div
                 initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
@@ -212,15 +195,15 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                     Your autopay subscription is now active. You will be charged ₹{watchedAmount} every{" "}
                     {watchedFrequency === "WEEKLY" ? "week" : watchedFrequency === "MONTHLY" ? "month" : "year"}.
                 </p>
-                <p className="text-brand-neutral-500 text-base mb-4">
+                <p className="text-brand-neutral-500 text-base mb-8">
                     A confirmation email has been sent to your registered email address.
                 </p>
                 <Button
-                    onClick={() => window.location.reload()}
+                    onClick={() => reset()}
                     className="gap-2 bg-emerald-600 hover:bg-emerald-700"
                 >
                     <RotateCw className="w-4 h-4" />
-                    Back to Donations
+                    Set Up Another Subscription
                 </Button>
             </motion.div>
         );
@@ -228,173 +211,165 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
 
     return (
         <motion.div
-            key="autopay-form"
-            initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: -20, filter: "blur(10px)" }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-white/80 backdrop-blur-md rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] p-12 border border-white/50 relative overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="w-full max-w-2xl mx-auto"
         >
-            {/* Decorative elements */}
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-brand-accent-100/20 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-brand-accent-50/20 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-8">
-                    <div className="w-12 h-12 rounded-full bg-brand-accent-100 flex items-center justify-center">
-                        <RotateCw className="w-6 h-6 text-brand-accent-600" />
+            <div className="bg-white rounded-2xl shadow-xl border border-brand-neutral-100 p-8 md:p-10">
+                {referralCode && (
+                    <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+                        <p className="text-sm text-emerald-800 font-medium">
+                            <span className="font-semibold">Referral Applied:</span> {referralCode}
+                        </p>
                     </div>
+                )}
+
+                <form onSubmit={(e) => {
+                    e.preventDefault();
+                    submitAutopay();
+                }} className="space-y-6">
+                    {/* Frequency Selection */}
                     <div>
-                        <h2 className="font-serif text-3xl font-bold text-brand-neutral-800">
-                            Recurring Donation
-                        </h2>
-                        <p className="text-brand-neutral-500 text-sm mt-1">Support our cause with every payment cycle</p>
-                    </div>
-                </div>
-
-                <form onSubmit={submitAutopay} className="space-y-8">
-                    {/* Amount & Frequency Row */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <Label
-                                htmlFor="amount-autopay"
-                                className="block text-brand-neutral-700 font-semibold mb-3"
-                            >
-                                Monthly/Weekly/Yearly Amount *
-                            </Label>
-                            <div className="relative">
-                                <span className="absolute left-4 top-3.5 text-brand-neutral-500 text-lg font-semibold">₹</span>
-                                <Input
-                                    id="amount-autopay"
-                                    type="number"
-                                    placeholder="500"
-                                    min="1"
-                                    step="1"
-                                    {...register("amount", { valueAsNumber: true })}
-                                    className="pl-8 h-12 rounded-xl border-brand-neutral-200 focus:ring-2 focus:ring-brand-accent-500 focus:border-transparent"
-                                />
-                            </div>
-                            {errors.amount && (
-                                <p className="text-red-500 text-sm mt-1">{errors.amount.message}</p>
-                            )}
-                        </div>
-
-                        <div>
-                            <Label htmlFor="frequency" className="block text-brand-neutral-700 font-semibold mb-3">
-                                Frequency *
-                            </Label>
-                            <Select
-                                defaultValue="MONTHLY"
-                                onValueChange={(value) => setValue("frequency", value as "WEEKLY" | "MONTHLY"|"YEARLY")}
-                            >
-                                <SelectTrigger id="frequency" className="h-12 rounded-xl border-brand-neutral-200">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="WEEKLY">Weekly</SelectItem>
-                                    <SelectItem value="MONTHLY">Monthly</SelectItem>
-                                    <SelectItem value="YEARLY">Yearly</SelectItem>
-                                </SelectContent>
-                            </Select>
+                        <Label className="text-brand-neutral-700 font-semibold mb-3 block">
+                            Donation Frequency *
+                        </Label>
+                        <div className="grid grid-cols-3 gap-3">
+                            {(["WEEKLY", "MONTHLY", "YEARLY"] as const).map((freq) => (
+                                <button
+                                    key={freq}
+                                    type="button"
+                                    onClick={() => setValue("frequency", freq)}
+                                    className={`py-3 px-4 rounded-xl border-2 font-medium text-sm transition-all duration-200 ${watchedFrequency === freq
+                                        ? "border-brand-accent-500 bg-brand-accent-50 text-brand-accent-700 font-semibold"
+                                        : "border-brand-neutral-200 bg-white text-brand-neutral-600 hover:border-brand-neutral-300"
+                                        }`}
+                                >
+                                    {freq === "WEEKLY" ? "Weekly" : freq === "MONTHLY" ? "Monthly" : "Yearly"}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Donor Information */}
-                    <div className="pt-4 border-t border-brand-neutral-100">
-                        <h3 className="font-semibold text-brand-neutral-700 mb-4">Donor Information</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Amount Selection */}
+                    <div>
+                        <Label htmlFor="amount" className="text-brand-neutral-700 font-semibold mb-2 block">
+                            Amount (₹) *
+                        </Label>
+                        <div className="relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-neutral-400 font-bold text-lg">
+                                ₹
+                            </span>
+                            <Input
+                                id="amount"
+                                type="number"
+                                placeholder="Enter amount"
+                                className="pl-8 text-lg font-semibold h-12 rounded-xl border-brand-neutral-200 focus:border-brand-accent-500"
+                                {...register("amount", { valueAsNumber: true })}
+                            />
+                        </div>
+                        {errors.amount && (
+                            <p className="text-red-500 text-sm mt-1">{errors.amount.message}</p>
+                        )}
+                    </div>
+
+                    {/* Purpose Selection */}
+                    <div>
+                        <Label htmlFor="purpose" className="text-brand-neutral-700 font-semibold mb-2 block">
+                            Cause / Purpose
+                        </Label>
+                        <Select
+                            value={watch("purpose") || ""}
+                            onValueChange={(value) => setValue("purpose", value)}
+                        >
+                            <SelectTrigger className="h-12 rounded-xl border-brand-neutral-200">
+                                <SelectValue placeholder="Select a cause (Optional)" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {purposes.map((p) => (
+                                    <SelectItem key={p} value={p}>
+                                        {p}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {/* Donor Details */}
+                    <div className="pt-2 border-t border-brand-neutral-100">
+                        <h3 className="text-sm font-semibold text-brand-neutral-800 mb-4 uppercase tracking-wider">
+                            Donor Details
+                        </h3>
+                        <div className="space-y-4">
                             <div>
-                                <Label htmlFor="donorName" className="block text-brand-neutral-700 font-medium mb-2">
+                                <Label htmlFor="donorName" className="text-brand-neutral-700 text-sm mb-1 block">
                                     Full Name *
                                 </Label>
                                 <Input
                                     id="donorName"
-                                    placeholder="John Doe"
+                                    placeholder="Enter your full name"
                                     {...register("donorName")}
-                                    className="h-10 rounded-lg border-brand-neutral-200"
+                                    className="h-11 rounded-lg border-brand-neutral-200"
                                 />
                                 {errors.donorName && (
                                     <p className="text-red-500 text-sm mt-1">{errors.donorName.message}</p>
                                 )}
                             </div>
 
-                            <div>
-                                <Label htmlFor="donorEmail" className="block text-brand-neutral-700 font-medium mb-2">
-                                    Email *
-                                </Label>
-                                <Input
-                                    id="donorEmail"
-                                    type="email"
-                                    placeholder="john@example.com"
-                                    {...register("donorEmail")}
-                                    className="h-10 rounded-lg border-brand-neutral-200"
-                                />
-                                {errors.donorEmail && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.donorEmail.message}</p>
-                                )}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <Label htmlFor="donorEmail" className="text-brand-neutral-700 text-sm mb-1 block">
+                                        Email Address *
+                                    </Label>
+                                    <Input
+                                        id="donorEmail"
+                                        type="email"
+                                        placeholder="your@email.com"
+                                        {...register("donorEmail")}
+                                        className="h-11 rounded-lg border-brand-neutral-200"
+                                    />
+                                    {errors.donorEmail && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.donorEmail.message}</p>
+                                    )}
+                                </div>
+                                <div>
+                                    <Label htmlFor="donorPhone" className="text-brand-neutral-700 text-sm mb-1 block">
+                                        Phone Number (Optional)
+                                    </Label>
+                                    <Input
+                                        id="donorPhone"
+                                        placeholder="10-digit mobile number"
+                                        {...register("donorPhone")}
+                                        className="h-11 rounded-lg border-brand-neutral-200"
+                                    />
+                                    {errors.donorPhone && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.donorPhone.message}</p>
+                                    )}
+                                </div>
                             </div>
 
                             <div>
-                                <Label htmlFor="donorPhone" className="block text-brand-neutral-700 font-medium mb-2">
-                                    Phone (Optional)
-                                </Label>
-                                <Input
-                                    id="donorPhone"
-                                    placeholder="9876543210"
-                                    {...register("donorPhone")}
-                                    className="h-10 rounded-lg border-brand-neutral-200"
-                                />
-                                {errors.donorPhone && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.donorPhone.message}</p>
-                                )}
-                            </div>
-
-                            <div>
-                                <Label htmlFor="donorPAN" className="block text-brand-neutral-700 font-medium mb-2">
-                                    PAN (Optional)
+                                <Label htmlFor="donorPAN" className="text-brand-neutral-700 text-sm mb-1 block">
+                                    PAN Card (Optional, for 80G tax benefit)
                                 </Label>
                                 <Input
                                     id="donorPAN"
                                     placeholder="ABCDE1234F"
                                     {...register("donorPAN")}
-                                    className="h-10 rounded-lg border-brand-neutral-200"
+                                    className="h-11 rounded-lg border-brand-neutral-200 uppercase"
                                 />
                                 {errors.donorPAN && (
                                     <p className="text-red-500 text-sm mt-1">{errors.donorPAN.message}</p>
                                 )}
                             </div>
-                        </div>
-                    </div>
-
-                    {/* Purpose & Message */}
-                    <div className="pt-4 border-t border-brand-neutral-100">
-                        <h3 className="font-semibold text-brand-neutral-700 mb-4">Donation Details</h3>
-                        <div className="grid grid-cols-1 gap-6">
-                            <div>
-                                <Label htmlFor="purpose" className="block text-brand-neutral-700 font-medium mb-2">
-                                    Purpose (Optional)
-                                </Label>
-                                <Select defaultValue="" onValueChange={(value) => setValue("purpose", value)}>
-                                    <SelectTrigger id="purpose" className="rounded-lg border-brand-neutral-200">
-                                        <SelectValue placeholder="Select a purpose" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {purposes.map((p) => (
-                                            <SelectItem key={p} value={p}>
-                                                {p}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
 
                             <div>
-                                <Label htmlFor="message" className="block text-brand-neutral-700 font-medium mb-2">
+                                <Label htmlFor="message" className="text-brand-neutral-700 text-sm mb-1 block">
                                     Message (Optional)
                                 </Label>
                                 <Textarea
                                     id="message"
-                                    placeholder="Share your message or why you support us..."
+                                    placeholder="Leave a message of encouragement..."
                                     rows={3}
                                     {...register("message")}
                                     className="rounded-lg border-brand-neutral-200 resize-none"
@@ -405,6 +380,12 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                             </div>
                         </div>
                     </div>
+
+                    {state.status === "error" && (
+                        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-center">
+                            <p className="text-sm text-red-600 font-medium">{state.message}</p>
+                        </div>
+                    )}
 
                     {/* Summary */}
                     <motion.div
@@ -422,16 +403,20 @@ export function AutopayForm({ purposes }: AutopayFormProps) {
                         </p>
                     </motion.div>
 
-                    {/* Submit Button */}
+                    {/* Requirement 4: Submit Button disabled sirf tab jab status !== 'idle' aur !== 'error' */}
                     <Button
                         type="submit"
-                        disabled={isLoading}
+                        disabled={isSubmitting}
                         className="w-full h-12 rounded-xl bg-gradient-to-r from-brand-accent-500 to-orange-500 hover:from-brand-accent-600 hover:to-orange-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
                     >
-                        {isLoading ? (
+                        {isSubmitting ? (
                             <>
                                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                Processing...
+                                {state.status === "creating"
+                                    ? "Setting Up Subscription..."
+                                    : state.status === "verifying"
+                                        ? "Verifying Subscription..."
+                                        : "Processing..."}
                             </>
                         ) : (
                             <>
