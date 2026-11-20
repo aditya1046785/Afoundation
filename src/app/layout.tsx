@@ -17,26 +17,106 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
+
+
+
+const siteUrl = "https://www.nirashrayfoundation.in";
+
+const siteName = "Nirashray Foundation";
+
+const siteTitle =
+  "Nirashray Foundation | Education, Gau Seva & Annakshetra";
+
+const siteDescription =
+  "Support Nirashray Foundation's mission of empowering girls through education, protecting rescued cattle, and serving free meals at Prayagraj Sangam. Join our seva.";
+
+const ogTitle =
+  "Nirashray Foundation | Empowering Lives, Building Hope";
+
+const ogDescription =
+  "Together, we can create lasting change. Support Kanya Shiksha, Gau Seva, Magh Mela Annakshetra and community welfare initiatives.";
+
+const ogImage = "/favicon.ico";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://nirashrayfoundation.in"),
+  metadataBase: new URL(siteUrl),
+
+  // General SEO
   title: {
-    default: "Nirashray Foundation | Empowering Lives, Building Hope",
+    default: siteTitle,
     template: "%s | Nirashray Foundation",
   },
-  description:
-    "Nirashray Foundation is a registered non-profit organization dedicated to empowering underprivileged communities through education, healthcare, and sustainable development programs.",
-  keywords: ["NGO", "non-profit", "charity", "donation", "education", "healthcare", "India"],
+
+  description: siteDescription,
+
+  applicationName: siteName,
+  creator: siteName,
+  publisher: siteName,
+
+  category: "Non-Profit Organization",
+
+  keywords: [
+    "Nirashray Foundation",
+    "NGO in Prayagraj",
+    "NGO in Uttar Pradesh",
+    "Kanya Shiksha",
+    "Gau Seva",
+    "Magh Mela Annakshetra",
+    "Girls Education NGO",
+    "Digital Education",
+    "Charity in India",
+    "Volunteer NGO",
+    "Community Welfare",
+    "Non-Profit Organization",
+    "Donate to NGO",
+  ],
+
+  // WhatsApp, Facebook, LinkedIn previews
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://nirashrayfoundation.in",
-    siteName: "Nirashray Foundation",
-    title: "Nirashray Foundation | Empowering Lives, Building Hope",
-    description: "Join us in making a difference for those who need it most.",
+    siteName,
+    title: ogTitle,
+    description: ogDescription,
+
+    images: [
+      {
+        url: ogImage,
+        width: 1200,
+        height: 630,
+        alt: "Nirashray Foundation - Education, Gau Seva and Community Welfare",
+        type: "image/jpeg",
+      },
+    ],
   },
-  icons: { icon: "/favicon.ico" },
-  robots: { index: true, follow: true },
+
+  // Twitter / X preview
+  twitter: {
+    card: "summary_large_image",
+    title: ogTitle,
+    description: ogDescription,
+    images: [ogImage],
+  },
+
+  // Search Engine Crawling
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+
+  // Browser Favicon
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
+
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
